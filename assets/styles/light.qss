@@ -1,0 +1,7 @@
+#toolButton {
+    border: none;
+	width: 16px;
+	height: 16px;
+	padding: 8px;
+    image: url(:/images/light/theme);
+}

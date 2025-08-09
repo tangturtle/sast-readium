@@ -1,0 +1,10 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+    <qresource prefix="/images/dark">
+        <file alias="theme">../assets/images/dark/theme.png</file>
+    </qresource>
+
+    <qresource prefix="/images/light">
+        <file alias="theme">../assets/images/light/theme.png</file>
+    </qresource>
+</RCC>
