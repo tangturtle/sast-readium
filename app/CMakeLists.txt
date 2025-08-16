@@ -28,8 +28,13 @@ qt_add_resources(RESs app.qrc)
 target_sources(
     app
     PRIVATE
-    Widget.cpp
+    MainWindow.cpp
     main.cpp
+    components/MenuBar.cpp
+    components/SideBar.cpp
+    components/StatusBar.cpp
+    components/Toolbar.cpp
+    components/ViewWidget.cpp
     ${RESs}
 )
 target_include_directories(
