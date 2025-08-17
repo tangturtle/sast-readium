@@ -5,8 +5,7 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
-    setWindowTitle("SAST Readium");
-    resize(800, 600);
+    resize(1200, 800);
 
     menuBar = new MenuBar(this);
     toolBar = new ToolBar(this);

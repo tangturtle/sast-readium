@@ -1,4 +1,4 @@
-project(app LANGUAGES CXX VERSION 0.1.0.0 DESCRIPTION "My sample app")
+project(app LANGUAGES CXX VERSION 0.1.0.0 DESCRIPTION "SAST Readium")
 
 configure_file(config.h.in ${CMAKE_CURRENT_BINARY_DIR}/config.h)
 
