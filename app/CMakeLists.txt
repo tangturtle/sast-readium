@@ -46,12 +46,14 @@ target_link_libraries(
 )
 
 # fix the "qt.qpa.plugin: Could not find the Qt platform plugin 'windows' in ''" issue
-add_custom_command(
-    TARGET app
-    POST_BUILD
-    COMMAND Qt6::windeployqt
-    ARGS $<TARGET_FILE:app>
-)
+if (WIN32)
+    add_custom_command(
+        TARGET app
+        POST_BUILD
+        COMMAND Qt6::windeployqt
+        ARGS $<TARGET_FILE:app>
+    )
+endif()
 
 add_dependencies(app COPYING_ASSETS)
 add_custom_target(COPYING_ASSETS DEPENDS ${CMAKE_BINARY_DIR}/COPYING_ASSETS_DUMMY)
