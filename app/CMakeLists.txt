@@ -33,7 +33,7 @@ target_sources(
     components/MenuBar.cpp
     components/SideBar.cpp
     components/StatusBar.cpp
-    components/Toolbar.cpp
+    components/ToolBar.cpp
     components/ViewWidget.cpp
     ${RESs}
 )
