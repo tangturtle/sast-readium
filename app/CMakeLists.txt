@@ -1,4 +1,4 @@
-project(app LANGUAGES CXX VERSION 0.1.0.0 DESCRIPTION "My sample app")
+project(app LANGUAGES CXX VERSION 0.1.0.0 DESCRIPTION "SAST Readium")
 
 configure_file(config.h.in ${CMAKE_CURRENT_BINARY_DIR}/config.h)
 
@@ -28,8 +28,13 @@ qt_add_resources(RESs app.qrc)
 target_sources(
     app
     PRIVATE
-    Widget.cpp
+    MainWindow.cpp
     main.cpp
+    components/MenuBar.cpp
+    components/SideBar.cpp
+    components/StatusBar.cpp
+    components/Toolbar.cpp
+    components/ViewWidget.cpp
     ${RESs}
 )
 target_include_directories(

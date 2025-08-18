@@ -41,5 +41,11 @@
 *.dwo
 
 build/
-.vscode/
+out/
+
+.vscode
+.vs
+
+CMakeLists.txt.user
+
 .cache/

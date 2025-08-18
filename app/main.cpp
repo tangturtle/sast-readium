@@ -1,9 +1,8 @@
-#include "Widget.h"
 #include <QApplication>
-#include <controls/Slider.h>
 #include <config.h>
+#include "MainWindow.h"
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
     QApplication app(argc, argv);
     app.setStyle("fusion");
 
@@ -11,7 +10,7 @@ int main(int argc, char **argv) {
     app.setApplicationVersion(PROJECT_VER);
     app.setApplicationDisplayName(APP_NAME);
 
-    Widget w;
+    MainWindow w;
     w.show();
 
     return QApplication::exec();
