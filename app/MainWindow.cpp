@@ -1,12 +1,14 @@
 #include "MainWindow.h"
 #include <QBoxLayout>
-#include <QSplitter>
 #include <QFrame>
 #include <QLabel>
+#include <QApplication>
+#include <QFile>
 
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent)
 {
+    applyTheme("dark");
     initWindow();
     initContent();
 }
@@ -45,4 +47,14 @@ void MainWindow::initContent()
     mainLayout->setContentsMargins(0, 0, 0, 0);
     mainLayout->addWidget(mainSplitter);
     setCentralWidget(centralWidget);
+
+    connect(menuBar, &MenuBar::themeChanged, this, &MainWindow::applyTheme);
+}
+
+void MainWindow::applyTheme(const QString &theme) {
+    auto path = QString("%1/styles/%2.qss").arg(qApp->applicationDirPath(), theme);
+
+    QFile file(path);
+    file.open(QFile::ReadOnly);
+    setStyleSheet(QLatin1String(file.readAll()));
 }

@@ -9,7 +9,11 @@ class MenuBar : public QMenuBar
 public:
     MenuBar(QWidget* parent = nullptr);
 
+signals:
+    void themeChanged(const QString& theme);
+
 private:
     void createFileMenu();
     void createViewMenu();
+    void createThemeMenu();
 };

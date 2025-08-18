@@ -15,6 +15,9 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget* parent = nullptr);
     ~MainWindow();
+    
+private slots:
+    void applyTheme(const QString &theme);
 
 private:
     void initWindow();
