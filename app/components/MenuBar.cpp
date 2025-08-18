@@ -2,26 +2,26 @@
 #include <QMenu>
 #include <QAction>
 
-MenuBar::MenuBar(QWidget *parent)
+MenuBar::MenuBar(QWidget* parent)
     : QMenuBar(parent)
 {
     createFileMenu();
-    createHelpMenu();
+    createViewMenu();
 }
 
 void MenuBar::createFileMenu()
 {
-    QMenu *fileMenu = new QMenu(tr("File"));
+    QMenu* fileMenu = new QMenu(tr("文件"));
     addMenu(fileMenu);
 
-    QAction *openAction = new QAction(tr("Open"), this);
-    openAction->setShortcut(tr("Ctrl+O"));
+    QAction* openAction = new QAction(tr("打开"), this);
+    openAction->setShortcut(QKeySequence("Ctrl+O"));
 
-    QAction *saveAction = new QAction(tr("Save"), this);
-    saveAction->setShortcut(tr("Ctrl+S"));
+    QAction* saveAction = new QAction(tr("保存"), this);
+    saveAction->setShortcut(QKeySequence("Ctrl+S"));
 
-    QAction *exitAction = new QAction(tr("Exit"), this);
-    exitAction->setShortcut(tr("Ctrl+Q"));  
+    QAction* exitAction = new QAction(tr("退出"), this);
+    exitAction->setShortcut(QKeySequence("Ctrl+Q"));  
 
     fileMenu->addAction(openAction);
     fileMenu->addAction(saveAction);
@@ -29,15 +29,22 @@ void MenuBar::createFileMenu()
     fileMenu->addAction(exitAction);
 }
 
-void MenuBar::createHelpMenu()
+void MenuBar::createViewMenu()
 {
-    QMenu *fileMenu = new QMenu(tr("Help"));
-    addMenu(fileMenu);
+    QMenu* viewMenu = new QMenu(tr("视图"));
+    addMenu(viewMenu);
 
-    QAction *AboutAction = new QAction(tr("About"), this);
+    QAction* fullScreenAction = new QAction(tr("全屏"), this);
+    fullScreenAction->setShortcut(QKeySequence("Ctrl+Shift+F"));
 
-    QAction *MoreAction = new QAction(tr("More"), this);
+    QAction* zoomInAction = new QAction(tr("放大"), this);
+    zoomInAction->setShortcut(QKeySequence("Ctrl++"));
 
-    fileMenu->addAction(AboutAction);
-    fileMenu->addAction(MoreAction);
+    QAction* zoomOutAction = new QAction(tr("缩小"), this);
+    zoomOutAction->setShortcut(QKeySequence("Ctrl+-"));
+
+    viewMenu->addAction(fullScreenAction);
+    viewMenu->addSeparator();
+    viewMenu->addAction(zoomInAction);
+    viewMenu->addAction(zoomOutAction);
 }

@@ -1,10 +1,34 @@
 #include "StatusBar.h"
 #include <QLabel>
+#include <QHBoxLayout>
 
-StatusBar::StatusBar(QWidget *parent)
+StatusBar::StatusBar(QWidget* parent)
     : QStatusBar(parent)
 {
-    QLabel *label = new QLabel(tr("Ready"));
-    label->setAlignment(Qt::AlignCenter);
-    addPermanentWidget(label);
+    // init
+    pageLabel = new QLabel("页: 1/1", this);
+    pageLabel->setMinimumWidth(100);
+    pageLabel->setAlignment(Qt::AlignCenter);
+    
+    zoomLabel = new QLabel("比例: 100%", this);
+    zoomLabel->setMinimumWidth(100);
+    zoomLabel->setAlignment(Qt::AlignCenter);
+    
+    addPermanentWidget(pageLabel);
+    addPermanentWidget(zoomLabel);
+}
+
+void StatusBar::setPageInfo(int current, int total)
+{
+    pageLabel->setText(QString("页: %1/%2").arg(current).arg(total));
+}
+
+void StatusBar::setZoomLevel(int percent)
+{
+    zoomLabel->setText(QString("比例: %1%").arg(percent));
+}
+
+void StatusBar::setMessage(const QString& message)
+{
+    showMessage(message, 3000);
 }

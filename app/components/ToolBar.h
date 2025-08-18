@@ -7,5 +7,5 @@ class ToolBar : public QToolBar
     Q_OBJECT
 
 public:
-    ToolBar(QWidget *parent = nullptr);
+    ToolBar(QWidget* parent = nullptr);
 };

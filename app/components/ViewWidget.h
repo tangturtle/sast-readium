@@ -7,5 +7,5 @@ class ViewWidget : public QWidget
     Q_OBJECT
 
 public:
-    ViewWidget(QWidget *parent = nullptr);
+    ViewWidget(QWidget* parent = nullptr);
 };
