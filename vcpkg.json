@@ -1,25 +1,32 @@
 {
-  "name": "qt-simple-template",
-  "version": "1.0.0",
-  "description": "Example based on C++ + Qt6 + Vcpkg + GithubCI   ",
-  "homepage": "https://github.com/AstroAir/qt-simple-template",
-  "license": "MIT",
-  "dependencies": [
-    "qtbase",
-    "qtsvg",
-    {
-      "name": "qttools",
-      "features": [
-        "linguist"
-      ]
-    },
-    {
-      "name": "vcpkg-cmake",
-      "host": true
-    },
-    {
-      "name": "vcpkg-cmake-config",
-      "host": true
+    "name": "qt-simple-template",
+    "version": "1.0.0",
+    "description": "Example based on C++ + Qt6 + Vcpkg + GithubCI   ",
+    "homepage": "https://github.com/AstroAir/qt-simple-template",
+    "license": "MIT",
+    "dependencies": [
+        {
+            "name": "vcpkg-cmake",
+            "host": true
+        },
+        {
+            "name": "vcpkg-cmake-config",
+            "host": true
+        }
+    ],
+    "features": {
+        "qt-from-vcpkg": {
+            "description": "Use Qt from vcpkg",
+            "dependencies": [
+                "qtbase",
+                "qtsvg",
+                {
+                    "name": "qttools",
+                    "features": [
+                        "linguist"
+                    ]
+                }
+            ]
+        }
     }
-  ]
 }
