@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QMenuBar>
+#include "../controller/tool.hpp"
 
 class MenuBar : public QMenuBar
 {
@@ -11,6 +12,7 @@ public:
 
 signals:
     void themeChanged(const QString& theme);
+    void onExecuted(ActionMap id, QWidget* context = nullptr);
 
 private:
     void createFileMenu();

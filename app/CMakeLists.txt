@@ -35,6 +35,9 @@ target_sources(
     components/StatusBar.cpp
     components/ToolBar.cpp
     components/ViewWidget.cpp
+    controller/CoreController.cpp
+    controller/CoreController.h
+    controller/tool.hpp
     ${RESs}
 )
 target_include_directories(
