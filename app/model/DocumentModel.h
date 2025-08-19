@@ -5,15 +5,15 @@
 #include <QFileDialog>
 #include <poppler/qt6/poppler-qt6.h>
 
-class PDFModel : public QObject
+class DocumentModel : public QObject
 {
     Q_OBJECT
 private:
     QString filePath;
     std::unique_ptr<Poppler::Document> document;
 public:
-    PDFModel(){};
-    ~PDFModel(){};
+    DocumentModel(){};
+    ~DocumentModel(){};
     bool isNULL();
     bool openFromFile();
 };

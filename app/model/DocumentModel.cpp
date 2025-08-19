@@ -1,10 +1,10 @@
-#include "PDFModel.h"
+#include "DocumentModel.h"
 
-bool PDFModel::isNULL() { 
+bool DocumentModel::isNULL() { 
     return false; 
 }
 
-bool PDFModel::openFromFile() { 
+bool DocumentModel::openFromFile() { 
     QWidget a;
     QFileDialog file(&a);
     file.setFileMode(QFileDialog::AnyFile);

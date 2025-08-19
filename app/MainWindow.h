@@ -8,7 +8,7 @@
 #include "components/ToolBar.h"
 #include "components/ViewWidget.h"
 #include "controller/CoreController.h"
-#include "model/PDFModel.h"
+#include "model/DocumentModel.h"
 
 class MainWindow : public QMainWindow
 {
@@ -34,5 +34,5 @@ private:
     QSplitter* mainSplitter;
 
     CoreController* controller;
-    PDFModel* doc;
+    DocumentModel* doc;
 };

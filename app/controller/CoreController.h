@@ -2,15 +2,15 @@
 
 #include <QWidget>
 #include "tool.hpp"
-#include "../model/PDFModel.h"
+#include "../model/DocumentModel.h"
 
 class CoreController : public QObject
 {
     Q_OBJECT
 private:
-    PDFModel* pdfDocument;
+    DocumentModel* pdfDocument;
 public:
-    CoreController(PDFModel* pdf);
+    CoreController(DocumentModel* pdf);
     ~CoreController(){};
     void execute(ActionMap actionID, QWidget* context);
 };

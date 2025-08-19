@@ -8,7 +8,7 @@
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent)
 {
-    doc = new PDFModel();
+    doc = new DocumentModel();
     controller = new CoreController(doc);
     applyTheme("dark");
     initWindow();

@@ -1,6 +1,6 @@
 #include "CoreController.h"
 
-CoreController::CoreController(PDFModel* pdf)
+CoreController::CoreController(DocumentModel* pdf)
     :pdfDocument(pdf) {}
 
 void CoreController::execute(ActionMap actionID, QWidget* context) {
