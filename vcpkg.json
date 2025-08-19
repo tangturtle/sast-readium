@@ -12,6 +12,12 @@
         {
             "name": "vcpkg-cmake-config",
             "host": true
+        },
+        {
+            "name": "poppler",
+            "features": [
+                "qt"
+            ]
         }
     ],
     "features": {

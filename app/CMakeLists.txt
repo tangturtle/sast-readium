@@ -51,8 +51,9 @@ target_include_directories(
 target_link_libraries(
     app
     PRIVATE
-    Qt::Core Qt::Gui Qt::Widgets Qt::Svg
+    Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Svg
     controls
+    PkgConfig::POPPLER_QT6
 )
 
 # fix the "qt.qpa.plugin: Could not find the Qt platform plugin 'windows' in ''" issue
