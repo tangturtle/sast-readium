@@ -38,6 +38,8 @@ target_sources(
     controller/CoreController.cpp
     controller/CoreController.h
     controller/tool.hpp
+    model/PDFModel.cpp
+    model/PDFModel.h
     ${RESs}
 )
 target_include_directories(

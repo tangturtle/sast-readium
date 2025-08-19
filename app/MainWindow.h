@@ -7,6 +7,8 @@
 #include "components/StatusBar.h"
 #include "components/ToolBar.h"
 #include "components/ViewWidget.h"
+#include "controller/CoreController.h"
+#include "model/PDFModel.h"
 
 class MainWindow : public QMainWindow
 {
@@ -30,4 +32,7 @@ private:
     ViewWidget* viewWidget;
     
     QSplitter* mainSplitter;
+
+    CoreController* controller;
+    PDFModel* doc;
 };
