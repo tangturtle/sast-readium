@@ -4,6 +4,9 @@ configure_file(config.h.in ${CMAKE_CURRENT_BINARY_DIR}/config.h)
 
 if (WIN32)
     add_executable(app app.rc)
+    set_target_properties(app PROPERTIES
+        WIN32_EXECUTABLE $<IF:$<CONFIG:Release>,ON,OFF>
+    )
 else ()
     add_executable(app)
 endif()
