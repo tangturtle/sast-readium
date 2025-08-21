@@ -51,7 +51,7 @@ target_include_directories(
 target_link_libraries(
     app
     PRIVATE
-    Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Svg
+    Qt::Core Qt::Gui Qt::Widgets Qt::Svg
     controls
     PkgConfig::POPPLER_QT6
 )
