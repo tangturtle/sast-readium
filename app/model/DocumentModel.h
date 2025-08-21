@@ -9,12 +9,12 @@ class DocumentModel : public QObject
 {
     Q_OBJECT
 private:
-    QString filePath;
+    QString currentFilePath;
     std::unique_ptr<Poppler::Document> document;
 public:
     DocumentModel(){};
     ~DocumentModel(){};
     bool isNULL();
-    bool openFromFile();
+    bool openFromFile(const QString& filePath);
 };
 
