@@ -20,8 +20,3 @@ void Controller::goToprevPage()
     }
 }
 
-// void Controller::openFile(const QString& filePath){
-//     if (_model) {
-//         _model->loadDocument(filePath);
-//     }
-// }

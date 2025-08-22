@@ -19,6 +19,8 @@ public:
     void setCurrentPage(int pageNum);
     void nextPage();
     void prevPage();
+
+    ~PageModel() = default;
 signals:
     void pageUpdate(int currentPage);
     // void documentLoaded();

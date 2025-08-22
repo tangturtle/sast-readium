@@ -22,7 +22,7 @@ QPushButton* WidgetFactory::createButton(const QString& actionID, const QString&
 
 Viewers::Viewers(WidgetFactory* factory, PageModel* model, PageNavigationDelegate* delegate, QWidget* parent)
     : QWidget(parent), _factory(factory), _model(model), _delegate(delegate) {
-    initUI();
+    // initUI();
 }
 
 // void Viewers::initUI() {

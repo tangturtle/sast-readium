@@ -37,6 +37,7 @@ private:
 
     WidgetFactory* _factory;
     PageModel* _model;
+    PageNavigationDelegate* _delegate;
     
 };
 #endif // VIEW_VIEWS_H

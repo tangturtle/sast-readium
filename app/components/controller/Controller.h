@@ -9,11 +9,10 @@ class Controller : public QObject {
     Q_OBJECT
 public:
     explicit Controller(PageModel* model,QObject* parent = nullptr);
-    // ~Controller();
+    ~Controller(){};
 public slots:
     void goTonextPage();
     void goToprevPage();
-    // void openFile(const QString& filePath);
     
 private:
     PageModel* _model;
