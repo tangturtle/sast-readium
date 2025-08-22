@@ -5,6 +5,20 @@
     "homepage": "https://github.com/AstroAir/qt-simple-template",
     "license": "MIT",
     "dependencies": [
+        "qtbase",
+        "qtsvg",
+        {
+            "name": "qttools",
+            "features": [
+                "linguist"
+            ]
+        },
+        {
+            "name": "poppler",
+            "features": [
+                "qt"
+            ]
+        },
         {
             "name": "vcpkg-cmake",
             "host": true
@@ -12,27 +26,6 @@
         {
             "name": "vcpkg-cmake-config",
             "host": true
-        },
-        {
-            "name": "poppler",
-            "features": [
-                "qt"
-            ]
         }
-    ],
-    "features": {
-        "qt-from-vcpkg": {
-            "description": "Use Qt from vcpkg",
-            "dependencies": [
-                "qtbase",
-                "qtsvg",
-                {
-                    "name": "qttools",
-                    "features": [
-                        "linguist"
-                    ]
-                }
-            ]
-        }
-    }
+    ]
 }
