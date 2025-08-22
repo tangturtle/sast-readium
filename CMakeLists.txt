@@ -16,6 +16,8 @@ find_package(
     CONFIG
     REQUIRED
 )
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(POPPLER_QT6 REQUIRED IMPORTED_TARGET poppler-qt6)
 qt_standard_project_setup(I18N_TRANSLATED_LANGUAGES zh)
 
 add_subdirectory(controls)

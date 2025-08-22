@@ -29,6 +29,10 @@ void MenuBar::createFileMenu()
     fileMenu->addAction(saveAction);
     fileMenu->addSeparator();
     fileMenu->addAction(exitAction);
+
+    connect(openAction, &QAction::triggered, this, [this](){
+        emit onExecuted(ActionMap::openFile);
+    });
 }
 
 void MenuBar::createViewMenu()

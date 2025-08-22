@@ -38,6 +38,11 @@ target_sources(
     components/StatusBar.cpp
     components/ToolBar.cpp
     components/ViewWidget.cpp
+    controller/CoreController.cpp
+    controller/CoreController.h
+    controller/tool.hpp
+    model/DocumentModel.cpp
+    model/DocumentModel.h
     ${RESs}
 )
 target_include_directories(
@@ -51,6 +56,7 @@ target_link_libraries(
     PRIVATE
     Qt::Core Qt::Gui Qt::Widgets Qt::Svg
     controls
+    PkgConfig::POPPLER_QT6
 )
 
 # fix the "qt.qpa.plugin: Could not find the Qt platform plugin 'windows' in ''" issue

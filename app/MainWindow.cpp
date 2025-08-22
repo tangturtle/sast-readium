@@ -8,6 +8,8 @@
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent)
 {
+    doc = new DocumentModel();
+    controller = new CoreController(doc);
     applyTheme("dark");
     initWindow();
     initContent();
@@ -49,6 +51,7 @@ void MainWindow::initContent()
     setCentralWidget(centralWidget);
 
     connect(menuBar, &MenuBar::themeChanged, this, &MainWindow::applyTheme);
+    connect(menuBar, &MenuBar::onExecuted, controller, &CoreController::execute);
 }
 
 void MainWindow::applyTheme(const QString &theme) {
