@@ -2,11 +2,11 @@
 
 #include <QMainWindow>
 #include <QSplitter>
-#include "components/MenuBar.h"
-#include "components/SideBar.h"
-#include "components/StatusBar.h"
-#include "components/ToolBar.h"
-#include "components/ViewWidget.h"
+#include "ui/MenuBar.h"
+#include "ui/SideBar.h"
+#include "ui/StatusBar.h"
+#include "ui/ToolBar.h"
+#include "ui/ViewWidget.h"
 
 class MainWindow : public QMainWindow
 {
