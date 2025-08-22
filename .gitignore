@@ -49,3 +49,5 @@ out/
 CMakeLists.txt.user
 
 .cache/
+
+.DS_Store

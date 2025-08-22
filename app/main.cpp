@@ -1,6 +1,9 @@
 #include <QApplication>
 #include <config.h>
 #include "MainWindow.h"
+#include "components/view/Views.h"
+#include "components/model/PageModel.h"
+#include "components/controller/Controller.h"
 
 int main(int argc, char** argv) {
     QApplication app(argc, argv);

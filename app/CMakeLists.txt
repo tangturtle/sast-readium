@@ -2,6 +2,13 @@ project(app LANGUAGES CXX VERSION 0.1.0.0 DESCRIPTION "SAST Readium")
 
 configure_file(config.h.in ${CMAKE_CURRENT_BINARY_DIR}/config.h)
 
+file(GLOB_RECURSE APP_SOURCES
+    "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/*.h"
+)
+
+file(GLOB UIs "${CMAKE_CURRENT_SOURCE_DIR}/*.ui")
+
 if (WIN32)
     add_executable(app app.rc)
     set_target_properties(app PROPERTIES
@@ -18,7 +25,6 @@ set_target_properties(
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
 
-file(GLOB UIs ${CMAKE_SOURCE_DIR}/app/*.ui)
 qt_add_translations(
     app
     SOURCES ${UIs}
@@ -26,24 +32,21 @@ qt_add_translations(
     TS_FILE_BASE app
 )
 
-qt_add_resources(RESs app.qrc)
-
 target_sources(
     app
     PRIVATE
     MainWindow.cpp
     main.cpp
-    components/MenuBar.cpp
-    components/SideBar.cpp
-    components/StatusBar.cpp
-    components/ToolBar.cpp
-    components/ViewWidget.cpp
-    controller/CoreController.cpp
-    controller/CoreController.h
-    controller/tool.hpp
-    model/DocumentModel.cpp
-    model/DocumentModel.h
-    ${RESs}
+    ui/MenuBar.cpp
+    ui/SideBar.cpp
+    ui/StatusBar.cpp
+    ui/ToolBar.cpp
+    ui/ViewWidget.cpp
+    
+    components/command/Commands.cpp
+    components/controller/Controller.cpp
+    components/model/PageModel.cpp
+    components/view/Views.cpp
 )
 target_include_directories(
     app
