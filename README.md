@@ -82,16 +82,61 @@ cmake --build --preset=Release-Unix
 
 ## Build Options
 
-The build system supports flexible dependency management:
+The build system supports flexible dependency management and IDE integration:
 
 - **USE_VCPKG**: Enable/disable vcpkg (auto-detected)
 - **FORCE_VCPKG**: Force vcpkg even in MSYS2
 - **CMAKE_BUILD_TYPE**: Debug/Release
+- **ENABLE_CLANGD_CONFIG**: Enable/disable automatic clangd configuration (default: ON)
+
+### Disabling clangd Auto-Configuration
+
+```bash
+# Disable clangd auto-configuration
+cmake --preset Debug-MSYS2 -DENABLE_CLANGD_CONFIG=OFF
+
+# Force update clangd config even when disabled
+.\scripts\update-clangd-config.ps1 -Auto -Force    # Windows
+./scripts/update-clangd-config.sh --auto --force   # Linux/macOS
+```
+
+## Development Environment
+
+### clangd Integration
+
+The project includes automatic clangd configuration for enhanced IDE support:
+
+```bash
+# Configuration is automatically updated when running cmake
+cmake --preset Debug          # Linux/macOS
+cmake --preset Debug-MSYS2    # Windows MSYS2
+
+# Manual configuration update
+./scripts/update-clangd-config.sh --auto    # Linux/macOS
+.\scripts\update-clangd-config.ps1 -Auto    # Windows
+
+# List available configurations
+./scripts/update-clangd-config.sh --list    # Linux/macOS
+.\scripts\update-clangd-config.ps1 -List    # Windows
+```
+
+### Makefile Support (Linux/macOS)
+
+```bash
+make help           # Show available targets
+make configure      # Configure Debug build
+make build          # Build project
+make clangd-auto    # Update clangd configuration
+make dev            # Setup development environment
+```
 
 ## Documentation
 
 - [MSYS2 Build Guide](docs/MSYS2-BUILD.md) - Comprehensive MSYS2 setup and build instructions
-- [Build Troubleshooting](docs/MSYS2-BUILD.md#troubleshooting) - Common issues and solutions
+- [clangd Setup Guide](docs/CLANGD-SETUP.md) - IDE integration and clangd configuration
+- [clangd Troubleshooting](docs/CLANGD-TROUBLESHOOTING.md) - Solutions for common clangd issues
+- [clangd Configuration Options](docs/CLANGD-CONFIG-OPTIONS.md) - Advanced configuration control
+- [Build Troubleshooting](docs/MSYS2-BUILD.md#troubleshooting) - Common build issues and solutions
 
 ## Dependencies
 

@@ -5,6 +5,8 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
@@ -12,6 +14,9 @@ set(CMAKE_AUTORCC ON)
 # MSYS2 and vcpkg configuration
 option(USE_VCPKG "Use vcpkg for dependency management" OFF)
 option(FORCE_VCPKG "Force vcpkg usage even in MSYS2" OFF)
+
+# clangd configuration
+option(ENABLE_CLANGD_CONFIG "Enable automatic clangd configuration updates" ON)
 
 # Detect MSYS2 environment
 if(WIN32 AND DEFINED ENV{MSYSTEM})
@@ -85,6 +90,95 @@ qt_standard_project_setup(I18N_TRANSLATED_LANGUAGES zh)
 add_subdirectory(controls)
 add_subdirectory(app)
 
+# Auto-update .clangd configuration for the current build directory
+if(CMAKE_EXPORT_COMPILE_COMMANDS AND ENABLE_CLANGD_CONFIG)
+    # Calculate relative path from source directory to build directory
+    file(RELATIVE_PATH BUILD_DIR_RELATIVE ${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR})
+
+    # Convert Windows backslashes to forward slashes for consistency
+    string(REPLACE "\\" "/" BUILD_DIR_RELATIVE ${BUILD_DIR_RELATIVE})
+
+    # Determine the appropriate script based on the platform
+    if(WIN32)
+        # Windows: Try PowerShell first, then batch script
+        find_program(POWERSHELL_PATH powershell)
+
+        if(POWERSHELL_PATH)
+            set(UPDATE_SCRIPT_CMD ${POWERSHELL_PATH} -ExecutionPolicy Bypass -File
+                "${CMAKE_SOURCE_DIR}/scripts/update-clangd-config.ps1"
+                -BuildDir "${BUILD_DIR_RELATIVE}")
+            set(UPDATE_SCRIPT_CMD_VERBOSE ${POWERSHELL_PATH} -ExecutionPolicy Bypass -File
+                "${CMAKE_SOURCE_DIR}/scripts/update-clangd-config.ps1"
+                -BuildDir "${BUILD_DIR_RELATIVE}" -Verbose)
+        else()
+            # Fallback to batch script
+            set(UPDATE_SCRIPT_CMD "${CMAKE_SOURCE_DIR}/scripts/update-clangd-config.bat" "${BUILD_DIR_RELATIVE}")
+            set(UPDATE_SCRIPT_CMD_VERBOSE "${CMAKE_SOURCE_DIR}/scripts/update-clangd-config.bat" "${BUILD_DIR_RELATIVE}")
+        endif()
+    else()
+        # Unix-like systems (Linux, macOS): Use shell script
+        find_program(BASH_PATH bash)
+        if(BASH_PATH)
+            set(UPDATE_SCRIPT_CMD ${BASH_PATH} "${CMAKE_SOURCE_DIR}/scripts/update-clangd-config.sh"
+                --build-dir "${BUILD_DIR_RELATIVE}")
+            set(UPDATE_SCRIPT_CMD_VERBOSE ${BASH_PATH} "${CMAKE_SOURCE_DIR}/scripts/update-clangd-config.sh"
+                --build-dir "${BUILD_DIR_RELATIVE}" --verbose)
+        else()
+            # Fallback to sh
+            set(UPDATE_SCRIPT_CMD sh "${CMAKE_SOURCE_DIR}/scripts/update-clangd-config.sh"
+                --build-dir "${BUILD_DIR_RELATIVE}")
+            set(UPDATE_SCRIPT_CMD_VERBOSE sh "${CMAKE_SOURCE_DIR}/scripts/update-clangd-config.sh"
+                --build-dir "${BUILD_DIR_RELATIVE}" --verbose)
+        endif()
+    endif()
+
+    # Add custom target to update .clangd configuration
+    if(DEFINED UPDATE_SCRIPT_CMD)
+        add_custom_target(update_clangd_config
+            COMMAND ${UPDATE_SCRIPT_CMD_VERBOSE}
+            WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+            COMMENT "Updating .clangd configuration for build directory: ${BUILD_DIR_RELATIVE}"
+            VERBATIM
+        )
+
+        # Automatically run the update during configuration
+        execute_process(
+            COMMAND ${UPDATE_SCRIPT_CMD}
+            WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+            RESULT_VARIABLE CLANGD_UPDATE_RESULT
+            OUTPUT_VARIABLE CLANGD_UPDATE_OUTPUT
+            ERROR_VARIABLE CLANGD_UPDATE_ERROR
+        )
+
+        if(CLANGD_UPDATE_RESULT EQUAL 0)
+            message(STATUS "Updated .clangd configuration for build directory: ${BUILD_DIR_RELATIVE}")
+        else()
+            message(WARNING "Failed to update .clangd configuration: ${CLANGD_UPDATE_ERROR}")
+        endif()
+    else()
+        message(WARNING "No suitable script interpreter found for updating .clangd configuration")
+    endif()
+else()
+    if(NOT CMAKE_EXPORT_COMPILE_COMMANDS)
+        message(STATUS "clangd configuration disabled: CMAKE_EXPORT_COMPILE_COMMANDS is OFF")
+    elseif(NOT ENABLE_CLANGD_CONFIG)
+        message(STATUS "clangd configuration disabled: ENABLE_CLANGD_CONFIG is OFF")
+    endif()
+endif()
+
+# Print general build configuration information
+message(STATUS "=== Build Configuration Summary ===")
+message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
+message(STATUS "C++ Standard: ${CMAKE_CXX_STANDARD}")
+message(STATUS "Export compile commands: ${CMAKE_EXPORT_COMPILE_COMMANDS}")
+message(STATUS "clangd auto-config: ${ENABLE_CLANGD_CONFIG}")
+if(USE_VCPKG_INTERNAL)
+    message(STATUS "Dependency management: vcpkg")
+else()
+    message(STATUS "Dependency management: system packages")
+endif()
+message(STATUS "=====================================")
+
 # MSYS2-specific post-build configurations
 if(MSYS2_DETECTED)
     # Print build information
@@ -94,6 +188,7 @@ if(MSYS2_DETECTED)
     message(STATUS "Using vcpkg: ${USE_VCPKG_INTERNAL}")
     message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
     message(STATUS "C++ Compiler: ${CMAKE_CXX_COMPILER}")
+    message(STATUS "clangd auto-config: ${ENABLE_CLANGD_CONFIG}")
     message(STATUS "================================")
 
     # Set RPATH for MSYS2 libraries
