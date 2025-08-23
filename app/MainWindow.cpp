@@ -4,12 +4,14 @@
 #include <QLabel>
 #include <QApplication>
 #include <QFile>
+#include "app/components/factory/WidgetFactory.h"
 
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent)
 {
     doc = new DocumentModel();
     controller = new CoreController(doc);
+    Ccontroller = new Controller(poc);
     applyTheme("dark");
     initWindow();
     initContent();
@@ -24,10 +26,11 @@ void MainWindow::initWindow()
 
 void MainWindow::initContent()
 {
+    WidgetFactory* factory = new WidgetFactory(Ccontroller, this);
     menuBar = new MenuBar(this);
     toolBar = new ToolBar(this);
     sideBar = new SideBar(this);
-    statusBar = new StatusBar(this);
+    statusBar = new StatusBar(factory,this);
     viewWidget = new ViewWidget(this);
 
     setMenuBar(menuBar);

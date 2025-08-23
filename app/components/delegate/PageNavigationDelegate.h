@@ -5,10 +5,10 @@
 class PageNavigationDelegate : public QObject {
     Q_OBJECT
 public:
-    explicit PageNavigationDelegate(QLabel* pageLabel,QObject* parent = nullptr);
+    PageNavigationDelegate(QLabel* pageLabel,QObject* parent = nullptr);
+    ~PageNavigationDelegate(){};
 public slots:
     void viewUpdate(int pageNum);
-    // void handleDocumentLoaded();
 private:
     QLabel* _pageLabel;
 };

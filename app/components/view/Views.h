@@ -8,36 +8,26 @@
 #include <QVBoxLayout>
 #include <QWidget>
 #include <QMap>
+#include <QLabel>
 
 class Controller;
 class Command;
 class PageModel;
-class PageNavigationDelegate;
 
-class WidgetFactory : public QObject {
+#include "../delegate/PageNavigationDelegate.h"
+#include "../factory/WidgetFactory.h"
+
+class Views : public QWidget{
     Q_OBJECT
 public:
-    explicit WidgetFactory(Controller* controller, QObject* parent = nullptr);
-    QPushButton* createButton(const QString& actionID,const QString& text);
+    Views(WidgetFactory* factory,PageModel* model,PageNavigationDelegate* delegate,QWidget* parent = nullptr);
 
 private:
-    Controller* _controller;
-    QMap<QString,Command*> _actionMap;
-    
-};
-
-
-
-class Viewers : public QWidget{
-    Q_OBJECT
-public:
-    explicit Viewers(WidgetFactory* factory,PageModel* model,PageNavigationDelegate* delegate,QWidget* parent = nullptr);
-private:
-    // void initUI();
+    void initUI();
 
     WidgetFactory* _factory;
     PageModel* _model;
     PageNavigationDelegate* _delegate;
-    
+    QLabel* _pageLabel;
 };
 #endif // VIEW_VIEWS_H

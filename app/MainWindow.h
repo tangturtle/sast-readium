@@ -7,8 +7,10 @@
 #include "ui/StatusBar.h"
 #include "ui/ToolBar.h"
 #include "ui/ViewWidget.h"
-#include "controller/CoreController.h"
-#include "model/DocumentModel.h"
+#include "components/controller/CoreController.h"
+#include "components/model/DocumentModel.h"
+#include "components/controller/Controller.h"
+#include "components/model/PageModel.h"
 
 class MainWindow : public QMainWindow
 {
@@ -35,4 +37,6 @@ private:
 
     CoreController* controller;
     DocumentModel* doc;
+    Controller* Ccontroller;
+    PageModel* poc;
 };

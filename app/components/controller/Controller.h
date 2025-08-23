@@ -8,7 +8,7 @@ class PageModel;
 class Controller : public QObject {
     Q_OBJECT
 public:
-    explicit Controller(PageModel* model,QObject* parent = nullptr);
+    Controller(PageModel* model,QObject* parent = nullptr);
     ~Controller(){};
 public slots:
     void goTonextPage();

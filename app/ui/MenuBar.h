@@ -1,7 +1,7 @@
 #pragma once
 
 #include <QMenuBar>
-#include "../controller/tool.hpp"
+#include "../components/controller/tool.hpp"
 
 class MenuBar : public QMenuBar
 {

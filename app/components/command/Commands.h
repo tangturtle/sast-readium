@@ -8,8 +8,8 @@ class Controller;
 class Command : public QObject {
     Q_OBJECT
 public:
-    explicit Command(QObject* parent = nullptr);
-    virtual ~Command() = default;
+    Command(QObject* parent = nullptr);
+    ~Command(){};
 public slots:
     virtual void execute() = 0;
 };
@@ -17,7 +17,7 @@ public slots:
 class PrevPageCommand : public Command {
     Q_OBJECT
 public:
-    explicit PrevPageCommand(Controller* controller, QObject* parent = nullptr);
+    PrevPageCommand(Controller* controller, QObject* parent = nullptr);
 public slots:
     void execute() override;
 private:
@@ -27,7 +27,7 @@ private:
 class NextPageCommand : public Command {
     Q_OBJECT
 public:
-    explicit NextPageCommand(Controller* controller, QObject* parent = nullptr);
+    NextPageCommand(Controller* controller, QObject* parent = nullptr);
 public slots:
     void execute() override;
 private:

@@ -47,6 +47,11 @@ target_sources(
     components/controller/Controller.cpp
     components/model/PageModel.cpp
     components/view/Views.cpp
+    components/factory/WidgetFactory.cpp
+
+    components/controller/CoreController.cpp
+    components/model/DocumentModel.cpp
+    ${RESs}
 )
 target_include_directories(
     app
