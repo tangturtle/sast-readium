@@ -3,36 +3,70 @@
     "configurePresets": [
         {
             "name": "Debug-Unix",
+            "displayName": "Debug build for Unix (system packages)",
+            "description": "Debug build using system packages instead of vcpkg",
             "generator": "Ninja",
             "binaryDir": "${sourceDir}/build/Debug",
             "cacheVariables": {
-                "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
-                "CMAKE_BUILD_TYPE": "Debug"
+                "CMAKE_BUILD_TYPE": "Debug",
+                "USE_VCPKG": "OFF"
             }
         },
         {
             "name": "Release-Unix",
-            "generator": "Ninja", 
+            "displayName": "Release build for Unix (system packages)",
+            "description": "Release build using system packages instead of vcpkg",
+            "generator": "Ninja",
             "binaryDir": "${sourceDir}/build/Release",
             "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "USE_VCPKG": "OFF"
+            }
+        },
+        {
+            "name": "Debug-Unix-vcpkg",
+            "displayName": "Debug build for Unix (with vcpkg)",
+            "description": "Debug build using vcpkg for dependency management",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build/Debug-vcpkg",
+            "cacheVariables": {
                 "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
-                "CMAKE_BUILD_TYPE": "Release"
+                "CMAKE_BUILD_TYPE": "Debug",
+                "USE_VCPKG": "ON"
+            }
+        },
+        {
+            "name": "Release-Unix-vcpkg",
+            "displayName": "Release build for Unix (with vcpkg)",
+            "description": "Release build using vcpkg for dependency management",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build/Release-vcpkg",
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+                "CMAKE_BUILD_TYPE": "Release",
+                "USE_VCPKG": "ON"
             }
         },
         {
             "name": "Debug-Windows",
+            "displayName": "Debug build for Windows (with vcpkg)",
+            "description": "Debug build using vcpkg for dependency management on Windows",
             "generator": "Visual Studio 17 2022",
             "binaryDir": "${sourceDir}/build/Debug-Windows",
             "cacheVariables": {
-                "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
+                "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+                "USE_VCPKG": "ON"
             }
         },
         {
             "name": "Release-Windows",
+            "displayName": "Release build for Windows (with vcpkg)",
+            "description": "Release build using vcpkg for dependency management on Windows",
             "generator": "Visual Studio 17 2022",
             "binaryDir": "${sourceDir}/build/Release-Windows",
             "cacheVariables": {
-                "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
+                "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+                "USE_VCPKG": "ON"
             }
         },
         {
@@ -80,17 +114,56 @@
                 "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
                 "FORCE_VCPKG": "ON"
             }
+        },
+        {
+            "name": "Release-Linux-ARM64",
+            "displayName": "Release build for Linux ARM64 (cross-compile)",
+            "description": "Cross-compilation release build for Linux ARM64",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build/Release-Linux-ARM64",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchains/aarch64-linux-gnu.cmake",
+                "USE_VCPKG": "OFF"
+            }
+        },
+        {
+            "name": "Release-Windows-ARM64",
+            "displayName": "Release build for Windows ARM64",
+            "description": "Release build for Windows ARM64 using vcpkg",
+            "generator": "Visual Studio 17 2022",
+            "binaryDir": "${sourceDir}/build/Release-Windows-ARM64",
+            "architecture": "ARM64",
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+                "USE_VCPKG": "ON",
+                "VCPKG_TARGET_TRIPLET": "arm64-windows"
+            }
         }
     ],
     "buildPresets": [
         {
             "name": "Debug-Unix",
+            "displayName": "Debug build for Unix (system packages)",
             "configurePreset": "Debug-Unix",
             "jobs": 8
         },
         {
             "name": "Release-Unix",
+            "displayName": "Release build for Unix (system packages)",
             "configurePreset": "Release-Unix",
+            "jobs": 8
+        },
+        {
+            "name": "Debug-Unix-vcpkg",
+            "displayName": "Debug build for Unix (with vcpkg)",
+            "configurePreset": "Debug-Unix-vcpkg",
+            "jobs": 8
+        },
+        {
+            "name": "Release-Unix-vcpkg",
+            "displayName": "Release build for Unix (with vcpkg)",
+            "configurePreset": "Release-Unix-vcpkg",
             "jobs": 8
         },
         {
@@ -126,6 +199,18 @@
             "displayName": "Release build for MSYS2 (with vcpkg)",
             "configurePreset": "Release-MSYS2-vcpkg",
             "jobs": 8
+        },
+        {
+            "name": "Release-Linux-ARM64",
+            "displayName": "Release build for Linux ARM64 (cross-compile)",
+            "configurePreset": "Release-Linux-ARM64",
+            "jobs": 8
+        },
+        {
+            "name": "Release-Windows-ARM64",
+            "displayName": "Release build for Windows ARM64",
+            "configurePreset": "Release-Windows-ARM64",
+            "configuration": "Release"
         }
     ]
 }

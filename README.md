@@ -13,15 +13,24 @@ A Qt6-based PDF reader application with comprehensive build support for multiple
 
 ## Build Environments
 
-### Windows with vcpkg (Traditional)
+The project uses a **tiered dependency management approach** that prioritizes system packages for better performance and reliability. See [Dependency Management Guide](docs/DEPENDENCY_MANAGEMENT.md) for detailed information.
+
+### Linux/macOS (Recommended - System Packages)
 
 ```bash
-# Configure and build with vcpkg
-cmake --preset=Release-Windows
-cmake --build --preset=Release-Windows
+# Install system dependencies
+# Ubuntu/Debian:
+sudo apt install cmake ninja-build qt6-base-dev qt6-svg-dev qt6-tools-dev libpoppler-qt6-dev
+
+# macOS:
+brew install cmake ninja qt@6 poppler-qt5
+
+# Configure and build
+cmake --preset=Release-Unix
+cmake --build --preset=Release-Unix
 ```
 
-### Windows with MSYS2 (Recommended for Unix-like workflow)
+### Windows with MSYS2 (Recommended for Windows)
 
 ```bash
 # Quick start - install dependencies and build
@@ -34,16 +43,15 @@ cmake --build --preset=Release-Windows
 
 For detailed MSYS2 setup and build instructions, see [MSYS2 Build Guide](docs/MSYS2-BUILD.md).
 
-### Linux/macOS
+### Windows with vcpkg (Fallback)
 
 ```bash
-# Install system dependencies (Ubuntu/Debian example)
-sudo apt install cmake ninja-build qt6-base-dev qt6-svg-dev qt6-tools-dev libpoppler-qt6-dev
-
-# Configure and build
-cmake --preset=Release-Unix
-cmake --build --preset=Release-Unix
+# Configure and build with vcpkg
+cmake --preset=Release-Windows
+cmake --build --preset=Release-Windows
 ```
+
+**Note**: vcpkg builds are slower but provide consistent dependency versions across platforms. Use when system packages are unavailable or insufficient.
 
 ## Quick Start
 
