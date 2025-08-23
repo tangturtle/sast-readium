@@ -9,7 +9,6 @@ class StatusBar : public QStatusBar {
 public:
     explicit StatusBar(QWidget* parent = nullptr);
     StatusBar(WidgetFactory* factory, QWidget* parent = nullptr);
-
     // interface
     void setPageInfo(int current, int total);
     void setZoomLevel(int percent);
