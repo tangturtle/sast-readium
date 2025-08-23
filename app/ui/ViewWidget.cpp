@@ -1,10 +1,8 @@
 #include "ViewWidget.h"
-#include <QVBoxLayout>
 #include <QLabel>
+#include <QVBoxLayout>
 
-ViewWidget::ViewWidget(QWidget* parent)
-    : QWidget(parent)
-{
+ViewWidget::ViewWidget(QWidget* parent) : QWidget(parent) {
     QVBoxLayout* layout = new QVBoxLayout(this);
 
     QLabel* label = new QLabel("PDF渲染窗口");

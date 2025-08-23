@@ -2,8 +2,7 @@
 
 #include <QWidget>
 
-class ViewWidget : public QWidget
-{
+class ViewWidget : public QWidget {
     Q_OBJECT
 
 public:

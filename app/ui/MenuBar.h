@@ -1,10 +1,9 @@
 #pragma once
 
 #include <QMenuBar>
-#include "../components/controller/tool.hpp"
+#include "../controller/tool.hpp"
 
-class MenuBar : public QMenuBar
-{
+class MenuBar : public QMenuBar {
     Q_OBJECT
 
 public:

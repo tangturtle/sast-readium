@@ -2,41 +2,45 @@
 
 #include <QMainWindow>
 #include <QSplitter>
+#include "controller/DocumentController.h"
+#include "controller/PageController.h"
+#include "model/DocumentModel.h"
+#include "model/PageModel.h"
 #include "ui/MenuBar.h"
 #include "ui/SideBar.h"
 #include "ui/StatusBar.h"
 #include "ui/ToolBar.h"
 #include "ui/ViewWidget.h"
-#include "components/controller/CoreController.h"
-#include "components/model/DocumentModel.h"
-#include "components/controller/Controller.h"
-#include "components/model/PageModel.h"
+#include "factory/WidgetFactory.h"
 
-class MainWindow : public QMainWindow
-{
+class MainWindow : public QMainWindow {
     Q_OBJECT
 
 public:
     MainWindow(QWidget* parent = nullptr);
-    ~MainWindow();
-    
+    ~MainWindow() noexcept;
+
 private slots:
-    void applyTheme(const QString &theme);
+    void applyTheme(const QString& theme);
 
 private:
     void initWindow();
     void initContent();
+    void initModel();
+    void initController();
+    void initConnection();
 
     MenuBar* menuBar;
     ToolBar* toolBar;
     SideBar* sideBar;
     StatusBar* statusBar;
     ViewWidget* viewWidget;
-    
+
     QSplitter* mainSplitter;
 
-    CoreController* controller;
-    DocumentModel* doc;
-    Controller* Ccontroller;
-    PageModel* poc;
+    DocumentController* documentController;
+    PageController* pageController;
+
+    DocumentModel* documentModel;
+    PageModel* pageModel;
 };

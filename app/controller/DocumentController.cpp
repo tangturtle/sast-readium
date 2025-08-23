@@ -1,6 +1,6 @@
-#include "CoreController.h"
+#include "DocumentController.h"
 
-void CoreController::initializeCommandMap() {
+void DocumentController::initializeCommandMap() {
     commandMap = {
         {ActionMap::openFile,
          [this](QWidget* ctx) {
@@ -14,11 +14,11 @@ void CoreController::initializeCommandMap() {
         {ActionMap::save, [this](QWidget* ctx) { /*....save()....*/ }}};
 }
 
-CoreController::CoreController(DocumentModel* pdf) : pdfDocument(pdf) {
+DocumentController::DocumentController(DocumentModel* pdf) : pdfDocument(pdf) {
     initializeCommandMap();
 }
 
-void CoreController::execute(ActionMap actionID, QWidget* context) {
+void DocumentController::execute(ActionMap actionID, QWidget* context) {
     qDebug() << "EventID:" << actionID << "context" << context;
 
     auto it = commandMap.find(actionID);

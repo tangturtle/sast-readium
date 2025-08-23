@@ -1,20 +1,20 @@
 #pragma once
 
-#include <QWidget>
 #include <QStandardPaths>
-#include "tool.hpp"
+#include <QWidget>
 #include "../model/DocumentModel.h"
+#include "tool.hpp"
 
-class CoreController : public QObject
-{
+class DocumentController : public QObject {
     Q_OBJECT
+
 private:
     DocumentModel* pdfDocument;
     QHash<ActionMap, std::function<void(QWidget*)>> commandMap;
     void initializeCommandMap();
+
 public:
-    CoreController(DocumentModel* pdf);
-    ~CoreController(){};
+    DocumentController(DocumentModel* pdf);
+    ~DocumentController() {};
     void execute(ActionMap actionID, QWidget* context);
 };
-

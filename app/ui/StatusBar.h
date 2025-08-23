@@ -1,11 +1,10 @@
 #pragma once
 
-#include <QStatusBar>
 #include <QLabel>
-#include "../components/factory/WidgetFactory.h"
+#include <QStatusBar>
+#include "../factory/WidgetFactory.h"
 
-class StatusBar : public QStatusBar
-{
+class StatusBar : public QStatusBar {
     Q_OBJECT
 public:
     explicit StatusBar(QWidget* parent = nullptr);

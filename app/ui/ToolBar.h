@@ -2,8 +2,7 @@
 
 #include <QToolBar>
 
-class ToolBar : public QToolBar
-{
+class ToolBar : public QToolBar {
     Q_OBJECT
 
 public:

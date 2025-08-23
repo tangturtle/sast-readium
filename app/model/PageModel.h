@@ -1,11 +1,11 @@
-#ifndef MODEL_PAGEMODEL_H
-#define MODEL_PAGEMODEL_H
+#pragma once
 
 #include <QObject>
 #include <QSharedPointer>
 
-class PageModel : public QObject{
+class PageModel : public QObject {
     Q_OBJECT
+
 public:
     PageModel(int totalPages = 1, QObject* parent = nullptr);
 
@@ -17,10 +17,11 @@ public:
     void prevPage();
 
     ~PageModel(){};
+
 signals:
     void pageUpdate(int currentPage);
+
 private:
     int _totalPages;
     int _currentPage;
 };
-#endif // MODEL_PAGEMODEL_H

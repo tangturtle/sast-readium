@@ -42,16 +42,20 @@ target_sources(
     ui/StatusBar.cpp
     ui/ToolBar.cpp
     ui/ViewWidget.cpp
-    
-    components/command/Commands.cpp
-    components/controller/Controller.cpp
-    components/model/PageModel.cpp
-    components/view/Views.cpp
-    components/factory/WidgetFactory.cpp
 
-    components/controller/CoreController.cpp
-    components/model/DocumentModel.cpp
-    ${RESs}
+    factory/WidgetFactory.cpp
+    
+    command/Commands.cpp
+
+    controller/DocumentController.cpp
+    controller/PageController.cpp
+
+    model/DocumentModel.cpp
+    model/PageModel.cpp
+
+    delegate/PageNavigationDelegate.cpp
+    
+    view/Views.cpp
 )
 target_include_directories(
     app

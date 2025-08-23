@@ -1,14 +1,13 @@
 #include "Views.h"
-#include "../controller/Controller.h"
-
+#include "../command/Commands.h"
+#include "../controller/PageController.h"
 #include "../model/PageModel.h"
 
-
-Views::Views(WidgetFactory* factory, PageModel* model, PageNavigationDelegate* delegate, QWidget* parent)
+Views::Views(WidgetFactory* factory, PageModel* model,
+                 PageNavigationDelegate* delegate, QWidget* parent)
     : QWidget(parent), _factory(factory), _model(model), _delegate(delegate) {
-        initUI();
+    initUI();
 }
-
 
 void Views::initUI() {
     QVBoxLayout* layout = new QVBoxLayout(this);

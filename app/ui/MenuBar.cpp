@@ -1,18 +1,15 @@
 #include "MenuBar.h"
-#include <QMenu>
 #include <QAction>
 #include <QActionGroup>
+#include <QMenu>
 
-MenuBar::MenuBar(QWidget* parent)
-    : QMenuBar(parent)
-{
+MenuBar::MenuBar(QWidget* parent) : QMenuBar(parent) {
     createFileMenu();
     createViewMenu();
     createThemeMenu();
 }
 
-void MenuBar::createFileMenu()
-{
+void MenuBar::createFileMenu() {
     QMenu* fileMenu = new QMenu(tr("文件(F)"), this);
     addMenu(fileMenu);
 
@@ -23,20 +20,18 @@ void MenuBar::createFileMenu()
     saveAction->setShortcut(QKeySequence("Ctrl+S"));
 
     QAction* exitAction = new QAction(tr("退出"), this);
-    exitAction->setShortcut(QKeySequence("Ctrl+Q"));  
+    exitAction->setShortcut(QKeySequence("Ctrl+Q"));
 
     fileMenu->addAction(openAction);
     fileMenu->addAction(saveAction);
     fileMenu->addSeparator();
     fileMenu->addAction(exitAction);
 
-    connect(openAction, &QAction::triggered, this, [this](){
-        emit onExecuted(ActionMap::openFile);
-    });
+    connect(openAction, &QAction::triggered, this,
+            [this]() { emit onExecuted(ActionMap::openFile); });
 }
 
-void MenuBar::createViewMenu()
-{
+void MenuBar::createViewMenu() {
     QMenu* viewMenu = new QMenu(tr("视图(V)"), this);
     addMenu(viewMenu);
 
@@ -55,17 +50,16 @@ void MenuBar::createViewMenu()
     viewMenu->addAction(zoomOutAction);
 }
 
-void MenuBar::createThemeMenu()
-{
+void MenuBar::createThemeMenu() {
     QMenu* themeMenu = new QMenu(tr("主题(T)"), this);
     addMenu(themeMenu);
-    
+
     QAction* lightThemeAction = new QAction(tr("浅色"), this);
     lightThemeAction->setCheckable(true);
-    
+
     QAction* darkThemeAction = new QAction(tr("深色"), this);
     darkThemeAction->setCheckable(true);
-    
+
     QActionGroup* themeGroup = new QActionGroup(this);
     themeGroup->addAction(lightThemeAction);
     themeGroup->addAction(darkThemeAction);
