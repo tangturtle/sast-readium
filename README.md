@@ -23,7 +23,9 @@ The project uses a **tiered dependency management approach** that prioritizes sy
 sudo apt install cmake ninja-build qt6-base-dev qt6-svg-dev qt6-tools-dev libpoppler-qt6-dev
 
 # macOS:
-brew install cmake ninja qt@6 poppler-qt5
+brew install cmake ninja qt@6
+brew tap gocram/poppler-qt6
+brew install poppler-qt6
 
 # Configure and build
 cmake --preset=Release-Unix

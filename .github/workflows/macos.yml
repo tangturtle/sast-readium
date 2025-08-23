@@ -44,19 +44,19 @@ jobs:
             runner: macos-13  # Intel runner
             preset: Release-Unix
             cache_key: macos-intel-x64
-            packages: cmake ninja qt@6 poppler-qt5 pkg-config ccache
+            packages: cmake ninja qt@6 pkg-config ccache
           # Apple Silicon ARM64 build
           - arch: arm64
             runner: macos-latest  # Apple Silicon runner
             preset: Release-Unix
             cache_key: macos-apple-arm64
-            packages: cmake ninja qt@6 poppler-qt5 pkg-config ccache
+            packages: cmake ninja qt@6 pkg-config ccache
           # Debug build for primary architecture
           - arch: arm64
             runner: macos-latest
             preset: Debug-Unix
             cache_key: macos-apple-arm64-debug
-            packages: cmake ninja qt@6 poppler-qt5 pkg-config ccache
+            packages: cmake ninja qt@6 pkg-config ccache
             build_type: Debug
 
     steps:
@@ -90,10 +90,16 @@ jobs:
         run: |
           echo "Installing Homebrew packages..."
           brew install ${{ matrix.packages }}
-          
+
+          # Add custom tap and install poppler-qt6
+          echo "Adding custom tap for poppler-qt6..."
+          brew tap gocram/poppler-qt6
+          brew install poppler-qt6
+
           # Verify installations
           echo "Installed package versions:"
-          brew list --versions cmake ninja qt@6 poppler-qt5 pkg-config ccache || true
+          brew list --versions cmake ninja qt@6 pkg-config ccache || true
+          brew list --versions poppler-qt6 || true
 
       - name: Verify dependencies
         run: |
@@ -102,25 +108,25 @@ jobs:
           echo "Xcode version: $(xcodebuild -version | head -1)"
           
           # Check Qt6 installation
-          export PKG_CONFIG_PATH="$(brew --prefix qt@6)/lib/pkgconfig:$PKG_CONFIG_PATH"
+          export PKG_CONFIG_PATH="$(brew --prefix qt@6)/lib/pkgconfig:$(brew --prefix poppler-qt6)/lib/pkgconfig:$PKG_CONFIG_PATH"
           pkg-config --exists Qt6Core && echo "✓ Qt6Core found" || echo "✗ Qt6Core not found"
           pkg-config --exists Qt6Widgets && echo "✓ Qt6Widgets found" || echo "✗ Qt6Widgets not found"
           pkg-config --exists Qt6Svg && echo "✓ Qt6Svg found" || echo "✗ Qt6Svg not found"
-          pkg-config --exists poppler-qt5 && echo "✓ poppler-qt5 found" || echo "✗ poppler-qt5 not found"
+          pkg-config --exists poppler-qt6 && echo "✓ poppler-qt6 found" || echo "✗ poppler-qt6 not found"
           
           # Check build tools
           which cmake ninja ccache clang++ || true
           
           echo "Qt6 version: $(pkg-config --modversion Qt6Core 2>/dev/null || echo 'Not found')"
-          echo "Poppler version: $(pkg-config --modversion poppler-qt5 2>/dev/null || echo 'Not found')"
+          echo "Poppler version: $(pkg-config --modversion poppler-qt6 2>/dev/null || echo 'Not found')"
 
       - name: Configure CMake (with ccache)
         run: |
           export PATH="/usr/local/opt/ccache/libexec:/opt/homebrew/opt/ccache/libexec:$PATH"
-          export PKG_CONFIG_PATH="$(brew --prefix qt@6)/lib/pkgconfig:$PKG_CONFIG_PATH"
+          export PKG_CONFIG_PATH="$(brew --prefix qt@6)/lib/pkgconfig:$(brew --prefix poppler-qt6)/lib/pkgconfig:$PKG_CONFIG_PATH"
           export CC="ccache clang"
           export CXX="ccache clang++"
-          
+
           cmake --preset=${{ matrix.preset }} -DUSE_VCPKG=OFF \
             -DCMAKE_C_COMPILER_LAUNCHER=ccache \
             -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
@@ -184,7 +190,12 @@ jobs:
       - name: Install system dependencies
         run: |
           echo "Installing Homebrew packages for Universal build..."
-          brew install cmake ninja qt@6 poppler-qt5 pkg-config ccache
+          brew install cmake ninja qt@6 pkg-config ccache
+
+          # Add custom tap and install poppler-qt6
+          echo "Adding custom tap for poppler-qt6..."
+          brew tap gocram/poppler-qt6
+          brew install poppler-qt6
 
       - name: Verify Universal build environment
         run: |
@@ -196,16 +207,16 @@ jobs:
           lipo -info /usr/bin/file 2>/dev/null || echo "lipo not available"
           
           # Verify Qt6 installation
-          export PKG_CONFIG_PATH="$(brew --prefix qt@6)/lib/pkgconfig:$PKG_CONFIG_PATH"
+          export PKG_CONFIG_PATH="$(brew --prefix qt@6)/lib/pkgconfig:$(brew --prefix poppler-qt6)/lib/pkgconfig:$PKG_CONFIG_PATH"
           pkg-config --exists Qt6Core && echo "✓ Qt6Core found" || echo "✗ Qt6Core not found"
 
       - name: Configure CMake (Universal Binary)
         run: |
           export PATH="/opt/homebrew/opt/ccache/libexec:$PATH"
-          export PKG_CONFIG_PATH="$(brew --prefix qt@6)/lib/pkgconfig:$PKG_CONFIG_PATH"
+          export PKG_CONFIG_PATH="$(brew --prefix qt@6)/lib/pkgconfig:$(brew --prefix poppler-qt6)/lib/pkgconfig:$PKG_CONFIG_PATH"
           export CC="ccache clang"
           export CXX="ccache clang++"
-          
+
           cmake --preset=Release-Unix -DUSE_VCPKG=OFF \
             -DCMAKE_OSX_ARCHITECTURES="x86_64;arm64" \
             -DCMAKE_C_COMPILER_LAUNCHER=ccache \

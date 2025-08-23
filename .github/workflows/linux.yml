@@ -78,9 +78,7 @@ jobs:
       - name: Install system dependencies
         run: |
           # Use cached package lists if available
-          if [ ! -f /var/lib/apt/lists/lock ]; then
-            sudo apt update
-          fi
+          sudo apt update
           sudo apt install -y ${{ matrix.packages }}
 
       - name: Verify dependencies

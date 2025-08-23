@@ -34,7 +34,7 @@ The project uses a **tiered dependency management approach**:
   - PDF rendering library
   - System package names:
     - Ubuntu: `libpoppler-qt6-dev`
-    - macOS: `poppler-qt5` (Qt6 compatible)
+    - macOS: `poppler-qt6` (via custom tap: `brew tap gocram/poppler-qt6`)
     - MSYS2: `mingw-w64-x86_64-poppler-qt6`
 
 ### Build Tools
@@ -183,10 +183,12 @@ cmake --preset <your-preset> -DUSE_VCPKG=OFF  # or ON
    ```bash
    # Ubuntu
    sudo apt install qt6-base-dev qt6-svg-dev qt6-tools-dev libpoppler-qt6-dev
-   
-   # macOS  
-   brew install qt@6 poppler-qt5
-   
+
+   # macOS
+   brew install qt@6
+   brew tap gocram/poppler-qt6
+   brew install poppler-qt6
+
    # MSYS2
    pacman -S mingw-w64-x86_64-qt6-base mingw-w64-x86_64-qt6-svg mingw-w64-x86_64-poppler-qt6
    ```
