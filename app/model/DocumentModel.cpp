@@ -1,11 +1,9 @@
 #include "DocumentModel.h"
 
-bool DocumentModel::isNULL() { 
-    return false; 
-}
+bool DocumentModel::isNULL() { return false; }
 
-bool DocumentModel::openFromFile(const QString& filePath) { 
-    if (filePath.isEmpty() || !QFile::exists(filePath)){
+bool DocumentModel::openFromFile(const QString& filePath) {
+    if (filePath.isEmpty() || !QFile::exists(filePath)) {
         qWarning() << "Invalid file path:" << filePath;
         return false;
     }
@@ -19,6 +17,6 @@ bool DocumentModel::openFromFile(const QString& filePath) {
     document = std::move(_document);
     currentFilePath = filePath;
     qDebug() << "Opened successfully:" << filePath;
-    
+
     return true;
 }

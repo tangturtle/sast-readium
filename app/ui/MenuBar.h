@@ -3,8 +3,7 @@
 #include <QMenuBar>
 #include "../controller/tool.hpp"
 
-class MenuBar : public QMenuBar
-{
+class MenuBar : public QMenuBar {
     Q_OBJECT
 
 public:

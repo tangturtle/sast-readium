@@ -2,21 +2,16 @@
 #include "../model/PageModel.h"
 
 Controller::Controller(PageModel* model, QObject* parent)
-    : QObject(parent), _model(model)
-{
-}
+    : QObject(parent), _model(model) {}
 
-void Controller::goTonextPage()
-{
+void Controller::goTonextPage() {
     if (_model) {
         _model->nextPage();
     }
 }
 
-void Controller::goToprevPage()
-{
+void Controller::goToprevPage() {
     if (_model) {
         _model->prevPage();
     }
 }
-

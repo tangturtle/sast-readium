@@ -1,12 +1,12 @@
-#ifndef MODEL_PAGEMODEL_H
-#define MODEL_PAGEMODEL_H
+#pragma once
 
 #include <QObject>
-//#include <poppler/qt5/poppler-qt5.h>
+// #include <poppler/qt5/poppler-qt5.h>
 #include <QSharedPointer>
 
-class PageModel : public QObject{
+class PageModel : public QObject {
     Q_OBJECT
+
 public:
     explicit PageModel(int totalPages = 1, QObject* parent = nullptr);
 
@@ -14,19 +14,20 @@ public:
     int totalPages() const;
 
     // void loadDocument(const QString& filePath);
-    //QSharedPointer<Poppler::Document> getDocument() const;
+    // QSharedPointer<Poppler::Document> getDocument() const;
 
     void setCurrentPage(int pageNum);
     void nextPage();
     void prevPage();
 
     ~PageModel() = default;
+
 signals:
     void pageUpdate(int currentPage);
     // void documentLoaded();
+
 private:
     int _totalPages;
     int _currentPage;
-    //QSharedPointer<Poppler::Document> _document;
+    // QSharedPointer<Poppler::Document> _document;
 };
-#endif // MODEL_PAGEMODEL_H

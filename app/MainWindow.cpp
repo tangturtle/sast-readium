@@ -1,13 +1,11 @@
 #include "MainWindow.h"
+#include <QApplication>
 #include <QBoxLayout>
+#include <QFile>
 #include <QFrame>
 #include <QLabel>
-#include <QApplication>
-#include <QFile>
 
-MainWindow::MainWindow(QWidget* parent)
-    : QMainWindow(parent)
-{
+MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     doc = new DocumentModel();
     controller = new CoreController(doc);
     applyTheme("dark");
@@ -17,13 +15,9 @@ MainWindow::MainWindow(QWidget* parent)
 
 MainWindow::~MainWindow() {}
 
-void MainWindow::initWindow()
-{
-    resize(1280, 800);
-}
+void MainWindow::initWindow() { resize(1280, 800); }
 
-void MainWindow::initContent()
-{
+void MainWindow::initContent() {
     menuBar = new MenuBar(this);
     toolBar = new ToolBar(this);
     sideBar = new SideBar(this);
@@ -35,14 +29,14 @@ void MainWindow::initContent()
     setStatusBar(statusBar);
 
     mainSplitter = new QSplitter(Qt::Horizontal, this);
-    
+
     mainSplitter->addWidget(sideBar);
     mainSplitter->addWidget(viewWidget);
-    
+
     mainSplitter->setCollapsible(0, true);
     mainSplitter->setCollapsible(1, false);
-    mainSplitter->setStretchFactor(1, 1); 
-    mainSplitter->setSizes({200, 1000});  
+    mainSplitter->setStretchFactor(1, 1);
+    mainSplitter->setSizes({200, 1000});
 
     QWidget* centralWidget = new QWidget(this);
     QHBoxLayout* mainLayout = new QHBoxLayout(centralWidget);
@@ -51,11 +45,13 @@ void MainWindow::initContent()
     setCentralWidget(centralWidget);
 
     connect(menuBar, &MenuBar::themeChanged, this, &MainWindow::applyTheme);
-    connect(menuBar, &MenuBar::onExecuted, controller, &CoreController::execute);
+    connect(menuBar, &MenuBar::onExecuted, controller,
+            &CoreController::execute);
 }
 
-void MainWindow::applyTheme(const QString &theme) {
-    auto path = QString("%1/styles/%2.qss").arg(qApp->applicationDirPath(), theme);
+void MainWindow::applyTheme(const QString& theme) {
+    auto path =
+        QString("%1/styles/%2.qss").arg(qApp->applicationDirPath(), theme);
 
     QFile file(path);
     file.open(QFile::ReadOnly);

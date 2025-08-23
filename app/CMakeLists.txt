@@ -43,10 +43,15 @@ target_sources(
     ui/ToolBar.cpp
     ui/ViewWidget.cpp
     
-    components/command/Commands.cpp
-    components/controller/Controller.cpp
-    components/model/PageModel.cpp
-    components/view/Views.cpp
+    command/Commands.cpp
+
+    controller/Controller.cpp
+    controller/CoreController.cpp
+
+    model/PageModel.cpp
+    model/DocumentModel.cpp
+    
+    view/Views.cpp
 )
 target_include_directories(
     app

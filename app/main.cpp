@@ -1,9 +1,9 @@
-#include <QApplication>
 #include <config.h>
+#include <QApplication>
 #include "MainWindow.h"
-#include "components/view/Views.h"
-#include "components/model/PageModel.h"
-#include "components/controller/Controller.h"
+#include "controller/Controller.h"
+#include "model/PageModel.h"
+#include "view/Views.h"
 
 int main(int argc, char** argv) {
     QApplication app(argc, argv);

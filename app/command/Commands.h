@@ -1,5 +1,4 @@
-#ifndef COMMAND_COMMANDS_H
-#define COMMAND_COMMANDS_H
+#pragma once
 
 #include <QObject>
 
@@ -7,30 +6,37 @@ class Controller;
 
 class Command : public QObject {
     Q_OBJECT
+
 public:
     explicit Command(QObject* parent = nullptr);
     virtual ~Command() = default;
+
 public slots:
     virtual void execute() = 0;
 };
 
 class PrevPageCommand : public Command {
     Q_OBJECT
+
 public:
     explicit PrevPageCommand(Controller* controller, QObject* parent = nullptr);
+
 public slots:
     void execute() override;
+
 private:
     Controller* _controller;
 };
 
 class NextPageCommand : public Command {
     Q_OBJECT
+
 public:
     explicit NextPageCommand(Controller* controller, QObject* parent = nullptr);
+
 public slots:
     void execute() override;
+
 private:
     Controller* _controller;
 };
-#endif // COMMAND_COMMANDS_H

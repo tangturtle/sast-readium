@@ -1,10 +1,9 @@
 #pragma once
 
-#include <QWidget>
 #include <QTabWidget>
+#include <QWidget>
 
-class SideBar : public QWidget
-{
+class SideBar : public QWidget {
     Q_OBJECT
 public:
     SideBar(QWidget* parent = nullptr);
