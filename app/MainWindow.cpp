@@ -6,11 +6,11 @@
 #include <QLabel>
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
-    doc = new DocumentModel();
-    controller = new CoreController(doc);
     applyTheme("dark");
     initWindow();
     initContent();
+    initModel();
+    initController();
 }
 
 MainWindow::~MainWindow() {}
@@ -45,8 +45,6 @@ void MainWindow::initContent() {
     setCentralWidget(centralWidget);
 
     connect(menuBar, &MenuBar::themeChanged, this, &MainWindow::applyTheme);
-    connect(menuBar, &MenuBar::onExecuted, controller,
-            &CoreController::execute);
 }
 
 void MainWindow::applyTheme(const QString& theme) {
@@ -56,4 +54,17 @@ void MainWindow::applyTheme(const QString& theme) {
     QFile file(path);
     file.open(QFile::ReadOnly);
     setStyleSheet(QLatin1String(file.readAll()));
+}
+
+void MainWindow::initModel() {
+    documentModel = new DocumentModel();
+    // pageModel = new PageModel();
+}
+
+void MainWindow::initController() {
+    documentController = new DocumentController(documentModel);
+    // pageController = new PageController(pageModel);
+ 
+    connect(menuBar, &MenuBar::onExecuted, documentController,
+            &DocumentController::execute);
 }

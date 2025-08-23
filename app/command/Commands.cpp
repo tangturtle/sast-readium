@@ -1,21 +1,21 @@
 #include "Commands.h"
-#include "../controller/Controller.h"
+#include "../controller/PageController.h"
 Command::Command(QObject* parent) : QObject(parent) {}
 
-PrevPageCommand::PrevPageCommand(Controller* controller, QObject* parent)
+PrevPageCommand::PrevPageCommand(PageController* controller, QObject* parent)
     : Command(parent), _controller(controller) {}
 
 void PrevPageCommand::execute() {
     if (_controller) {
-        _controller->goToprevPage();
+        _controller->goToPrevPage();
     }
 }
 
-NextPageCommand::NextPageCommand(Controller* controller, QObject* parent)
+NextPageCommand::NextPageCommand(PageController* controller, QObject* parent)
     : Command(parent), _controller(controller) {}
 
 void NextPageCommand::execute() {
     if (_controller) {
-        _controller->goTonextPage();
+        _controller->goToNextPage();
     }
 }

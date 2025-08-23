@@ -45,11 +45,11 @@ target_sources(
     
     command/Commands.cpp
 
-    controller/Controller.cpp
-    controller/CoreController.cpp
+    controller/DocumentController.cpp
+    controller/PageController.cpp
 
-    model/PageModel.cpp
     model/DocumentModel.cpp
+    model/PageModel.cpp
     
     view/Views.cpp
 )

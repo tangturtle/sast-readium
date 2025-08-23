@@ -1,9 +1,9 @@
 #include "Views.h"
 #include "../command/Commands.h"
-#include "../controller/Controller.h"
+#include "../controller/PageController.h"
 #include "../model/PageModel.h"
 
-WidgetFactory::WidgetFactory(Controller* controller, QObject* parent)
+WidgetFactory::WidgetFactory(PageController* controller, QObject* parent)
     : QObject(parent), _controller(controller) {
     _actionMap["next"] = new NextPageCommand(_controller, this);
     _actionMap["prev"] = new PrevPageCommand(_controller, this);

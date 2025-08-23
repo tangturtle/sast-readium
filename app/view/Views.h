@@ -8,7 +8,7 @@
 #include <QVBoxLayout>
 #include <QWidget>
 
-class Controller;
+class PageController;
 class Command;
 class PageModel;
 class PageNavigationDelegate;
@@ -16,11 +16,11 @@ class PageNavigationDelegate;
 class WidgetFactory : public QObject {
     Q_OBJECT
 public:
-    explicit WidgetFactory(Controller* controller, QObject* parent = nullptr);
+    explicit WidgetFactory(PageController* controller, QObject* parent = nullptr);
     QPushButton* createButton(const QString& actionID, const QString& text);
 
 private:
-    Controller* _controller;
+    PageController* _controller;
     QMap<QString, Command*> _actionMap;
 };
 

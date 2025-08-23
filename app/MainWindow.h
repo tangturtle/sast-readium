@@ -2,8 +2,10 @@
 
 #include <QMainWindow>
 #include <QSplitter>
-#include "controller/CoreController.h"
+#include "controller/DocumentController.h"
+#include "controller/PageController.h"
 #include "model/DocumentModel.h"
+#include "model/PageModel.h"
 #include "ui/MenuBar.h"
 #include "ui/SideBar.h"
 #include "ui/StatusBar.h"
@@ -15,7 +17,7 @@ class MainWindow : public QMainWindow {
 
 public:
     MainWindow(QWidget* parent = nullptr);
-    ~MainWindow();
+    ~MainWindow() noexcept;
 
 private slots:
     void applyTheme(const QString& theme);
@@ -23,6 +25,8 @@ private slots:
 private:
     void initWindow();
     void initContent();
+    void initModel();
+    void initController();
 
     MenuBar* menuBar;
     ToolBar* toolBar;
@@ -32,6 +36,9 @@ private:
 
     QSplitter* mainSplitter;
 
-    CoreController* controller;
-    DocumentModel* doc;
+    DocumentController* documentController;
+    // PageController* pageController;
+
+    DocumentModel* documentModel;
+    // PageModel* pageModel;
 };

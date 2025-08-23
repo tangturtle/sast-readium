@@ -2,7 +2,7 @@
 
 #include <QObject>
 
-class Controller;
+class PageController;
 
 class Command : public QObject {
     Q_OBJECT
@@ -19,24 +19,24 @@ class PrevPageCommand : public Command {
     Q_OBJECT
 
 public:
-    explicit PrevPageCommand(Controller* controller, QObject* parent = nullptr);
+    explicit PrevPageCommand(PageController* controller, QObject* parent = nullptr);
 
 public slots:
     void execute() override;
 
 private:
-    Controller* _controller;
+    PageController* _controller;
 };
 
 class NextPageCommand : public Command {
     Q_OBJECT
 
 public:
-    explicit NextPageCommand(Controller* controller, QObject* parent = nullptr);
+    explicit NextPageCommand(PageController* controller, QObject* parent = nullptr);
 
 public slots:
     void execute() override;
 
 private:
-    Controller* _controller;
+    PageController* _controller;
 };

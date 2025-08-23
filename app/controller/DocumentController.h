@@ -5,7 +5,7 @@
 #include "../model/DocumentModel.h"
 #include "tool.hpp"
 
-class CoreController : public QObject {
+class DocumentController : public QObject {
     Q_OBJECT
 
 private:
@@ -14,7 +14,7 @@ private:
     void initializeCommandMap();
 
 public:
-    CoreController(DocumentModel* pdf);
-    ~CoreController() {};
+    DocumentController(DocumentModel* pdf);
+    ~DocumentController() {};
     void execute(ActionMap actionID, QWidget* context);
 };
