@@ -34,7 +34,7 @@ The project uses a **tiered dependency management approach**:
   - PDF rendering library
   - System package names:
     - Ubuntu: `libpoppler-qt6-dev`
-    - macOS: `poppler-qt6` (via custom tap: `brew tap gocram/poppler-qt6`)
+    - macOS: Built from source with Qt6 support (automated in CI)
     - MSYS2: `mingw-w64-x86_64-poppler-qt6`
 
 ### Build Tools
@@ -186,8 +186,8 @@ cmake --preset <your-preset> -DUSE_VCPKG=OFF  # or ON
 
    # macOS
    brew install qt@6
-   brew tap gocram/poppler-qt6
-   brew install poppler-qt6
+   # Note: poppler-qt6 is built from source automatically in CI
+   # For local development, see manual build instructions below
 
    # MSYS2
    pacman -S mingw-w64-x86_64-qt6-base mingw-w64-x86_64-qt6-svg mingw-w64-x86_64-poppler-qt6
@@ -208,4 +208,40 @@ If system packages fail, you can always fallback:
 
 ```bash
 cmake --preset Release-Unix-vcpkg -DFORCE_VCPKG=ON
+```
+
+### Building poppler-qt6 manually on macOS
+
+For local development on macOS, you'll need to build poppler with Qt6 support manually:
+
+```bash
+# Install dependencies
+brew install cmake ninja qt@6 cairo fontconfig freetype gettext glib gpgme jpeg-turbo libpng libtiff little-cms2 nspr nss openjpeg
+
+# Download and build poppler
+POPPLER_VERSION="25.08.0"
+curl -L "https://poppler.freedesktop.org/poppler-${POPPLER_VERSION}.tar.xz" -o poppler.tar.xz
+tar -xf poppler.tar.xz
+cd "poppler-${POPPLER_VERSION}"
+
+# Configure with Qt6 support
+export PKG_CONFIG_PATH="$(brew --prefix qt@6)/lib/pkgconfig:$PKG_CONFIG_PATH"
+mkdir build && cd build
+cmake .. \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DCMAKE_INSTALL_PREFIX="$(brew --prefix)" \
+  -DENABLE_QT6=ON \
+  -DENABLE_QT5=OFF \
+  -DENABLE_GLIB=ON \
+  -DENABLE_CPP=ON \
+  -DBUILD_GTK_TESTS=OFF \
+  -DENABLE_BOOST=OFF
+
+# Build and install
+make -j$(sysctl -n hw.ncpu)
+sudo make install
+
+# Verify installation
+export PKG_CONFIG_PATH="$(brew --prefix)/lib/pkgconfig:$PKG_CONFIG_PATH"
+pkg-config --exists poppler-qt6 && echo "✓ poppler-qt6 installed successfully"
 ```

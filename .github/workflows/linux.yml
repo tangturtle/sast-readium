@@ -40,13 +40,13 @@ jobs:
             runner: ubuntu-latest
             preset: Release-Unix
             cache_key: linux-system-x64
-            packages: qt6-base-dev qt6-svg-dev qt6-tools-dev qt6-l10n-tools libpoppler-qt6-dev build-essential cmake ninja-build pkg-config ccache
+            packages: qt6-base-dev qt6-svg-dev qt6-tools-dev qt6-l10n-tools libpoppler-qt6-dev build-essential cmake ninja-build pkg-config
           # Debug build for primary architecture
           - arch: x64
             runner: ubuntu-latest
             preset: Debug-Unix
             cache_key: linux-system-x64-debug
-            packages: qt6-base-dev qt6-svg-dev qt6-tools-dev qt6-l10n-tools libpoppler-qt6-dev build-essential cmake ninja-build pkg-config ccache
+            packages: qt6-base-dev qt6-svg-dev qt6-tools-dev qt6-l10n-tools libpoppler-qt6-dev build-essential cmake ninja-build pkg-config
             build_type: Debug
 
     steps:
@@ -68,13 +68,6 @@ jobs:
             ${{ runner.os }}-apt-${{ env.CACHE_VERSION }}-
             ${{ runner.os }}-apt-
 
-      # ccache for compilation caching
-      - name: Setup ccache
-        uses: hendrikmuhs/ccache-action@v1.2
-        with:
-          key: ${{ matrix.cache_key }}-ccache-${{ env.CACHE_VERSION }}
-          max-size: 500M
-
       - name: Install system dependencies
         run: |
           # Use cached package lists if available
@@ -92,19 +85,14 @@ jobs:
           pkg-config --exists poppler-qt6 && echo "✓ poppler-qt6 found" || echo "✗ poppler-qt6 not found"
           
           # Check build tools
-          which cmake ninja ccache gcc g++ || true
+          which cmake ninja gcc g++ || true
           
           echo "Qt6 version: $(pkg-config --modversion Qt6Core 2>/dev/null || echo 'Not found')"
           echo "Poppler version: $(pkg-config --modversion poppler-qt6 2>/dev/null || echo 'Not found')"
 
-      - name: Configure CMake (with ccache)
+      - name: Configure CMake
         run: |
-          export PATH="/usr/lib/ccache:$PATH"
-          export CC="ccache gcc"
-          export CXX="ccache g++"
-          cmake --preset=${{ matrix.preset }} -DUSE_VCPKG=OFF \
-            -DCMAKE_C_COMPILER_LAUNCHER=ccache \
-            -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+          cmake --preset=${{ matrix.preset }} -DUSE_VCPKG=OFF
 
       - name: Build (optimized)
         run: |
@@ -116,9 +104,6 @@ jobs:
           
           echo "Building with $JOBS parallel jobs"
           cmake --build --preset=${{ matrix.preset }} --parallel $JOBS
-
-      - name: Show ccache statistics
-        run: ccache -s
 
       - name: Upload system build artifacts
         uses: actions/upload-artifact@v4
@@ -302,7 +287,7 @@ jobs:
           echo "# Linux Build Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "## Build Strategy" >> $GITHUB_STEP_SUMMARY
-          echo "- **Primary**: System packages with ccache (fastest)" >> $GITHUB_STEP_SUMMARY
+          echo "- **Primary**: System packages (fastest)" >> $GITHUB_STEP_SUMMARY
           echo "- **Cross-compile**: ARM64 support" >> $GITHUB_STEP_SUMMARY
           echo "- **Fallback**: vcpkg when system packages fail" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
@@ -337,7 +322,6 @@ jobs:
           
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "## Performance Optimizations" >> $GITHUB_STEP_SUMMARY
-          echo "- **ccache**: Compilation caching (500MB limit)" >> $GITHUB_STEP_SUMMARY
           echo "- **System packages**: Prioritized over vcpkg" >> $GITHUB_STEP_SUMMARY
           echo "- **Parallel builds**: Optimized job count (75% of cores)" >> $GITHUB_STEP_SUMMARY
           echo "- **Package caching**: APT cache persistence" >> $GITHUB_STEP_SUMMARY

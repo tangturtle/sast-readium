@@ -24,8 +24,7 @@ sudo apt install cmake ninja-build qt6-base-dev qt6-svg-dev qt6-tools-dev libpop
 
 # macOS:
 brew install cmake ninja qt@6
-brew tap gocram/poppler-qt6
-brew install poppler-qt6
+# Note: poppler-qt6 needs to be built from source (see docs/DEPENDENCY_MANAGEMENT.md)
 
 # Configure and build
 cmake --preset=Release-Unix
