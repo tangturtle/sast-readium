@@ -42,6 +42,8 @@ target_sources(
     ui/StatusBar.cpp
     ui/ToolBar.cpp
     ui/ViewWidget.cpp
+
+    factory/WidgetFactory.cpp
     
     command/Commands.cpp
 
@@ -50,6 +52,8 @@ target_sources(
 
     model/DocumentModel.cpp
     model/PageModel.cpp
+
+    delegate/PageNavigationDelegate.cpp
     
     view/Views.cpp
 )

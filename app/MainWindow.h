@@ -11,6 +11,7 @@
 #include "ui/StatusBar.h"
 #include "ui/ToolBar.h"
 #include "ui/ViewWidget.h"
+#include "factory/WidgetFactory.h"
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
@@ -27,6 +28,7 @@ private:
     void initContent();
     void initModel();
     void initController();
+    void initConnection();
 
     MenuBar* menuBar;
     ToolBar* toolBar;
@@ -37,8 +39,8 @@ private:
     QSplitter* mainSplitter;
 
     DocumentController* documentController;
-    // PageController* pageController;
+    PageController* pageController;
 
     DocumentModel* documentModel;
-    // PageModel* pageModel;
+    PageModel* pageModel;
 };

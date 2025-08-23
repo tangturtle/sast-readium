@@ -2,11 +2,13 @@
 
 #include <QLabel>
 #include <QStatusBar>
+#include "../factory/WidgetFactory.h"
 
 class StatusBar : public QStatusBar {
     Q_OBJECT
 public:
     explicit StatusBar(QWidget* parent = nullptr);
+    StatusBar(WidgetFactory* factory, QWidget* parent = nullptr);
 
     // interface
     void setPageInfo(int current, int total);

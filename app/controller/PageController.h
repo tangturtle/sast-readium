@@ -8,7 +8,7 @@ class PageController : public QObject {
     Q_OBJECT
 
 public:
-    explicit PageController(PageModel* model, QObject* parent = nullptr);
+    PageController(PageModel* model, QObject* parent = nullptr);
     ~PageController() {};
 
 public slots:

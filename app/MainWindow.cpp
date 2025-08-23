@@ -7,21 +7,27 @@
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     applyTheme("dark");
+
     initWindow();
-    initContent();
     initModel();
     initController();
+    initContent();
+    
+    initConnection();
 }
 
 MainWindow::~MainWindow() {}
 
+// initialize
 void MainWindow::initWindow() { resize(1280, 800); }
 
 void MainWindow::initContent() {
+    WidgetFactory* factory = new WidgetFactory(pageController, this);
+
     menuBar = new MenuBar(this);
     toolBar = new ToolBar(this);
     sideBar = new SideBar(this);
-    statusBar = new StatusBar(this);
+    statusBar = new StatusBar(factory, this);
     viewWidget = new ViewWidget(this);
 
     setMenuBar(menuBar);
@@ -43,10 +49,26 @@ void MainWindow::initContent() {
     mainLayout->setContentsMargins(0, 0, 0, 0);
     mainLayout->addWidget(mainSplitter);
     setCentralWidget(centralWidget);
-
-    connect(menuBar, &MenuBar::themeChanged, this, &MainWindow::applyTheme);
 }
 
+void MainWindow::initModel() {
+    documentModel = new DocumentModel();
+    pageModel = new PageModel();
+}
+
+void MainWindow::initController() {
+    documentController = new DocumentController(documentModel);
+    pageController = new PageController(pageModel);
+}
+
+void MainWindow::initConnection() {
+
+    connect(menuBar, &MenuBar::themeChanged, this, &MainWindow::applyTheme);
+
+    connect(menuBar, &MenuBar::onExecuted, documentController, &DocumentController::execute);
+}
+
+// function
 void MainWindow::applyTheme(const QString& theme) {
     auto path =
         QString("%1/styles/%2.qss").arg(qApp->applicationDirPath(), theme);
@@ -54,17 +76,4 @@ void MainWindow::applyTheme(const QString& theme) {
     QFile file(path);
     file.open(QFile::ReadOnly);
     setStyleSheet(QLatin1String(file.readAll()));
-}
-
-void MainWindow::initModel() {
-    documentModel = new DocumentModel();
-    // pageModel = new PageModel();
-}
-
-void MainWindow::initController() {
-    documentController = new DocumentController(documentModel);
-    // pageController = new PageController(pageModel);
- 
-    connect(menuBar, &MenuBar::onExecuted, documentController,
-            &DocumentController::execute);
 }

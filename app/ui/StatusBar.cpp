@@ -28,3 +28,13 @@ void StatusBar::setZoomLevel(int percent) {
 void StatusBar::setMessage(const QString& message) {
     showMessage(message, 3000);
 }
+
+StatusBar::StatusBar(WidgetFactory* factory, QWidget* parent)
+    : StatusBar(parent)
+{
+    QPushButton* prevButton = factory->createButton(actionID::prev, "Prev");
+    QPushButton* nextButton = factory->createButton(actionID::next, "Next");
+
+    addWidget(prevButton);
+    addWidget(nextButton);
+}

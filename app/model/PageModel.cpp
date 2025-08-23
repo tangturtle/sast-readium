@@ -25,14 +25,3 @@ void PageModel::prevPage() {
         setCurrentPage(--_currentPage);
     }
 }
-
-// void PageModel::loadDocument(const QString& filePath) {
-//     _document = Poppler::Document::load(filePath);
-//     if (_document) {
-//         _totalPages = _document->numPages();
-//         _currentPage = 1;
-//         emit documentLoaded();
-//         emit pageUpdate(_currentPage);
-//     } else {
-//         qWarning() << "Failed to load document from" << filePath;
-//     }
