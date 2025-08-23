@@ -1,5 +1,5 @@
 {
-    "version": 2,
+    "version": 3,
     "configurePresets": [
         {
             "name": "Debug-Unix",
@@ -30,9 +30,55 @@
         {
             "name": "Release-Windows",
             "generator": "Visual Studio 17 2022",
-            "binaryDir": "${sourceDir}/build/Release-Windows", 
+            "binaryDir": "${sourceDir}/build/Release-Windows",
             "cacheVariables": {
                 "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
+            }
+        },
+        {
+            "name": "Debug-MSYS2",
+            "displayName": "Debug build for MSYS2 (system packages)",
+            "description": "Debug build using MSYS2 system packages instead of vcpkg",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build/Debug-MSYS2",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "USE_VCPKG": "OFF"
+            }
+        },
+        {
+            "name": "Release-MSYS2",
+            "displayName": "Release build for MSYS2 (system packages)",
+            "description": "Release build using MSYS2 system packages instead of vcpkg",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build/Release-MSYS2",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "USE_VCPKG": "OFF"
+            }
+        },
+        {
+            "name": "Debug-MSYS2-vcpkg",
+            "displayName": "Debug build for MSYS2 (with vcpkg)",
+            "description": "Debug build using vcpkg in MSYS2 environment",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build/Debug-MSYS2-vcpkg",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+                "FORCE_VCPKG": "ON"
+            }
+        },
+        {
+            "name": "Release-MSYS2-vcpkg",
+            "displayName": "Release build for MSYS2 (with vcpkg)",
+            "description": "Release build using vcpkg in MSYS2 environment",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build/Release-MSYS2-vcpkg",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+                "FORCE_VCPKG": "ON"
             }
         }
     ],
@@ -54,8 +100,32 @@
         },
         {
             "name": "Release-Windows",
-            "configurePreset": "Release-Windows", 
+            "configurePreset": "Release-Windows",
             "configuration": "Release"
+        },
+        {
+            "name": "Debug-MSYS2",
+            "displayName": "Debug build for MSYS2 (system packages)",
+            "configurePreset": "Debug-MSYS2",
+            "jobs": 8
+        },
+        {
+            "name": "Release-MSYS2",
+            "displayName": "Release build for MSYS2 (system packages)",
+            "configurePreset": "Release-MSYS2",
+            "jobs": 8
+        },
+        {
+            "name": "Debug-MSYS2-vcpkg",
+            "displayName": "Debug build for MSYS2 (with vcpkg)",
+            "configurePreset": "Debug-MSYS2-vcpkg",
+            "jobs": 8
+        },
+        {
+            "name": "Release-MSYS2-vcpkg",
+            "displayName": "Release build for MSYS2 (with vcpkg)",
+            "configurePreset": "Release-MSYS2-vcpkg",
+            "jobs": 8
         }
     ]
 }

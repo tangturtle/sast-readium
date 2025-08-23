@@ -1,0 +1,187 @@
+name: MSYS2 Build
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  msys2-build:
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { sys: mingw64, env: x86_64, build_type: Release }
+          - { sys: mingw64, env: x86_64, build_type: Debug }
+          - { sys: mingw32, env: i686, build_type: Release }
+
+    name: MSYS2 ${{ matrix.sys }} ${{ matrix.build_type }}
+
+    defaults:
+      run:
+        shell: msys2 {0}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup MSYS2
+      uses: msys2/setup-msys2@v2
+      with:
+        msystem: ${{ matrix.sys }}
+        update: true
+        install: >-
+          mingw-w64-${{ matrix.env }}-cmake
+          mingw-w64-${{ matrix.env }}-ninja
+          mingw-w64-${{ matrix.env }}-gcc
+          mingw-w64-${{ matrix.env }}-qt6-base
+          mingw-w64-${{ matrix.env }}-qt6-svg
+          mingw-w64-${{ matrix.env }}-qt6-tools
+          mingw-w64-${{ matrix.env }}-poppler-qt6
+          mingw-w64-${{ matrix.env }}-pkg-config
+          git
+
+    - name: Check dependencies
+      run: |
+        echo "Checking MSYS2 environment..."
+        echo "MSYSTEM: $MSYSTEM"
+        echo "MSYSTEM_PREFIX: $MSYSTEM_PREFIX"
+        echo "MSYSTEM_CARCH: $MSYSTEM_CARCH"
+        
+        echo "Checking installed packages..."
+        pacman -Q | grep -E "(cmake|ninja|gcc|qt6|poppler)" || true
+        
+        echo "Checking commands..."
+        which cmake ninja gcc g++ qmake6 pkg-config || true
+        
+        echo "Checking Qt6 installation..."
+        pkg-config --exists Qt6Core && echo "Qt6Core found" || echo "Qt6Core not found"
+        pkg-config --exists poppler-qt6 && echo "poppler-qt6 found" || echo "poppler-qt6 not found"
+
+    - name: Configure CMake (System packages)
+      run: |
+        echo "Configuring with system packages..."
+        cmake --preset=${{ matrix.build_type }}-MSYS2
+
+    - name: Build (System packages)
+      run: |
+        echo "Building with system packages..."
+        cmake --build --preset=${{ matrix.build_type }}-MSYS2 --parallel 2
+
+    - name: Test build output
+      run: |
+        echo "Testing build output..."
+        chmod +x scripts/test-msys2-build.sh
+        ./scripts/test-msys2-build.sh -t ${{ matrix.build_type }} -s
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: sast-readium-msys2-${{ matrix.sys }}-${{ matrix.build_type }}
+        path: |
+          build/${{ matrix.build_type }}-MSYS2/app/app.exe
+          build/${{ matrix.build_type }}-MSYS2/app/*.dll
+          build/${{ matrix.build_type }}-MSYS2/app/styles/
+        retention-days: 7
+
+  msys2-vcpkg-build:
+    runs-on: windows-latest
+    if: github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'test-vcpkg')
+    
+    name: MSYS2 with vcpkg
+
+    defaults:
+      run:
+        shell: msys2 {0}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup MSYS2
+      uses: msys2/setup-msys2@v2
+      with:
+        msystem: mingw64
+        update: true
+        install: >-
+          mingw-w64-x86_64-cmake
+          mingw-w64-x86_64-ninja
+          mingw-w64-x86_64-gcc
+          mingw-w64-x86_64-pkg-config
+          git
+
+    - name: Setup vcpkg
+      uses: lukka/run-vcpkg@v11
+      with:
+        vcpkgGitCommitId: '4887ad6d1414f74cb7cb8d1e527fb46adb4e9ace'
+
+    - name: Configure CMake (vcpkg)
+      run: |
+        echo "Configuring with vcpkg..."
+        export VCPKG_ROOT="${{ github.workspace }}/vcpkg"
+        cmake --preset=Release-MSYS2-vcpkg
+
+    - name: Build (vcpkg)
+      run: |
+        echo "Building with vcpkg..."
+        export VCPKG_ROOT="${{ github.workspace }}/vcpkg"
+        cmake --build --preset=Release-MSYS2-vcpkg --parallel 2
+
+    - name: Test build output
+      run: |
+        echo "Testing vcpkg build output..."
+        chmod +x scripts/test-msys2-build.sh
+        ./scripts/test-msys2-build.sh -t Release -v
+
+    - name: Upload vcpkg build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: sast-readium-msys2-vcpkg-release
+        path: |
+          build/Release-MSYS2-vcpkg/app/app.exe
+          build/Release-MSYS2-vcpkg/app/*.dll
+          build/Release-MSYS2-vcpkg/app/styles/
+        retention-days: 7
+
+  documentation-check:
+    runs-on: ubuntu-latest
+    name: Check MSYS2 Documentation
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Check documentation files
+      run: |
+        echo "Checking MSYS2 documentation..."
+        
+        # Check if documentation files exist
+        test -f docs/MSYS2-BUILD.md && echo "✓ MSYS2-BUILD.md exists" || echo "✗ MSYS2-BUILD.md missing"
+        test -f scripts/build-msys2.sh && echo "✓ build-msys2.sh exists" || echo "✗ build-msys2.sh missing"
+        test -f scripts/build-msys2.bat && echo "✓ build-msys2.bat exists" || echo "✗ build-msys2.bat missing"
+        test -f scripts/check-msys2-deps.sh && echo "✓ check-msys2-deps.sh exists" || echo "✗ check-msys2-deps.sh missing"
+        test -f scripts/test-msys2-build.sh && echo "✓ test-msys2-build.sh exists" || echo "✗ test-msys2-build.sh missing"
+        
+        # Check if scripts are executable
+        test -x scripts/build-msys2.sh && echo "✓ build-msys2.sh is executable" || echo "✗ build-msys2.sh not executable"
+        test -x scripts/check-msys2-deps.sh && echo "✓ check-msys2-deps.sh is executable" || echo "✗ check-msys2-deps.sh not executable"
+        test -x scripts/test-msys2-build.sh && echo "✓ test-msys2-build.sh is executable" || echo "✗ test-msys2-build.sh not executable"
+        
+        # Check README mentions MSYS2
+        grep -q "MSYS2" README.md && echo "✓ README.md mentions MSYS2" || echo "✗ README.md doesn't mention MSYS2"
+        
+        # Check CMakePresets.json has MSYS2 presets
+        grep -q "MSYS2" CMakePresets.json && echo "✓ CMakePresets.json has MSYS2 presets" || echo "✗ CMakePresets.json missing MSYS2 presets"
+
+    - name: Validate markdown
+      uses: DavidAnson/markdownlint-action@v1
+      with:
+        files: 'docs/MSYS2-BUILD.md'
+        config: |
+          {
+            "MD013": false,
+            "MD033": false
+          }
