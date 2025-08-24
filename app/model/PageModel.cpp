@@ -39,3 +39,8 @@ void PageModel::prevPage() {
         setCurrentPage(_totalPages-1);
     }
 }
+
+void PageModel::updateInfo(Poppler::Document* document) {
+    _totalPages = document->numPages();
+    _currentPage = 0;
+}

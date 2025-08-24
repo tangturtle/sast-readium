@@ -73,6 +73,7 @@ void MainWindow::initConnection() {
     connect(menuBar, &MenuBar::onExecuted, documentController, &DocumentController::execute);
 
     connect(renderModel, &RenderModel::renderPageDone, viewWidget, &ViewWidget::changeImage);
+    connect(renderModel, &RenderModel::documentChanged, pageModel, &PageModel::updateInfo);
 }
 
 // function

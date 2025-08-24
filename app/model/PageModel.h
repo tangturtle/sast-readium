@@ -20,6 +20,8 @@ public:
     void prevPage();
 
     ~PageModel(){};
+public slots:
+    void updateInfo(Poppler::Document* document);
 
 signals:
     void pageUpdate(int currentPage);
