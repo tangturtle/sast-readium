@@ -3,13 +3,8 @@
 #include "qlogging.h"
 #include "qmessagebox.h"
 
-RenderModel::RenderModel(Poppler::Document *_document, QObject *parent) : document(_document),QObject(parent){
-    if(!document){
-            document = Poppler::Document::load(
-        "e:\\work\\sast-readium\\fork-sast-readium\\sast-readium\\app\\test.pdf"
-    );
-    }
-};
+RenderModel::RenderModel(Poppler::Document *_document, QObject *parent) : document(_document),QObject(parent){}
+
 
 QImage RenderModel::renderPage(int pageNum,double xres,double yres,int x,int y,int w,int h){
     if(!document){
