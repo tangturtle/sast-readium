@@ -1,5 +1,5 @@
 #include "PageController.h"
-#include "../model/PageModel.h"
+#include "model/PageModel.h"
 
 PageController::PageController(PageModel* model, QObject* parent)
     : QObject(parent), _model(model) {

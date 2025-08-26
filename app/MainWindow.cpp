@@ -4,9 +4,7 @@
 #include <QFile>
 #include <QFrame>
 #include <QLabel>
-#include <iostream>
 #include "model/RenderModel.h"
-#include "qmessagebox.h"
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     applyTheme("dark");

@@ -1,7 +1,6 @@
 #include "RenderModel.h"
 #include "qimage.h"
 #include "qlogging.h"
-#include "qmessagebox.h"
 
 RenderModel::RenderModel(Poppler::Document *_document, QObject *parent) : document(_document),QObject(parent){}
 

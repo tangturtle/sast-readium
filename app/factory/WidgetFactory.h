@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QPushButton>
 #include <QMap>
-#include "../controller/PageController.h"
+#include "controller/PageController.h"
 #include <QMessageBox>
 
 class Controller;
