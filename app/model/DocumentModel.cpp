@@ -1,8 +1,6 @@
 #include "DocumentModel.h"
-#include <algorithm>
 #include "RenderModel.h"
 #include "qimage.h"
-#include "qmessagebox.h"
 
 DocumentModel::DocumentModel(RenderModel* _renderModel): renderModel(_renderModel) {
     qDebug() << "DocumentModel created";

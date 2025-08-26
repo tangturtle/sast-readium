@@ -1,6 +1,5 @@
 #include "PageModel.h"
 #include "RenderModel.h"
-#include "qmessagebox.h"
 
 PageModel::PageModel(int totalPages, QObject* parent)
     : QObject(parent), _totalPages(totalPages), _currentPage(1) {}
