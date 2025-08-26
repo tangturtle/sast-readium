@@ -14,7 +14,8 @@ public:
     ViewWidget(QWidget* parent = nullptr);
 public slots:
     void changeImage(const QImage& image);
+protected:
+    void paintEvent(QPaintEvent* event) override;
 private:
-    QLabel* label;
-    QVBoxLayout* layout;
+    QImage currentImage;
 };

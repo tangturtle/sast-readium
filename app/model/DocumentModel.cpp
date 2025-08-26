@@ -20,9 +20,13 @@ bool DocumentModel::openFromFile(const QString& filePath) {
         return false;
     }
     if(document){
-        document.release();
+        document.reset();
     }
     document = std::move(_document);
+    document->setRenderHint(Poppler::Document::Antialiasing, true);
+    document->setRenderHint(Poppler::Document::TextAntialiasing, true);
+    document->setRenderHint(Poppler::Document::TextHinting, true);
+    document->setRenderHint(Poppler::Document::TextSlightHinting, true);
     currentFilePath = filePath;
     qDebug() << "Opened successfully:" << filePath;
 

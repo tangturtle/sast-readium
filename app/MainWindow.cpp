@@ -54,7 +54,7 @@ void MainWindow::initContent() {
 }
 
 void MainWindow::initModel() {
-    renderModel = new RenderModel();
+    renderModel = new RenderModel(this->logicalDpiX(), this->logicalDpiY());
     documentModel = new DocumentModel(renderModel);
     pageModel = new PageModel(renderModel);
 }
