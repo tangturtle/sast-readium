@@ -30,8 +30,8 @@ void StatusBar::setPageInfo(int current, int total) {
     pageLabel->setText(QString("页: %1/%2").arg(current).arg(total));
 }
 
-void StatusBar::setZoomLevel(int percent) {
-    zoomLabel->setText(QString("比例: %1%").arg(percent));
+void StatusBar::setZoomInfo(double scale) {
+    zoomLabel->setText(QString("比例: %1%").arg(scale * 100, 0, 'f', 0));
 }
 
 void StatusBar::setMessage(const QString& message) {

@@ -14,7 +14,7 @@ public:
 public slots:
     // interface
     void setPageInfo(int current, int total);
-    void setZoomLevel(int percent);
+    void setZoomInfo(double scale);
     void setMessage(const QString& message);
 
 private:

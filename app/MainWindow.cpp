@@ -75,6 +75,8 @@ void MainWindow::initConnection() {
 
     connect(pageModel, &PageModel::pageUpdate, statusBar, &StatusBar::setPageInfo);
     connect(documentModel, &DocumentModel::pageUpdate, statusBar, &StatusBar::setPageInfo);
+
+    connect(viewWidget, &ViewWidget::scaleChanged, statusBar, &StatusBar::setZoomInfo);
 }
 
 // function
