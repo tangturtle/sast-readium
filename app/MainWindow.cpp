@@ -18,7 +18,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
 
 }
 
-MainWindow::~MainWindow() {}
+MainWindow::~MainWindow() noexcept {}
 
 // initialize
 void MainWindow::initWindow() { resize(1280, 800); }

@@ -1,21 +1,24 @@
 #pragma once
 
+
 #include <QWidget>
-#include <QLabel>
-#include <QBoxLayout>
+#include <QGraphicsView>
+#include <QGraphicsScene>
+#include <QGraphicsPixmapItem>
 #include <QImage>
 #include <QPixmap>
+#include <QVBoxLayout>
 #include "qtmetamacros.h"
 
 class ViewWidget : public QWidget {
     Q_OBJECT
-
 public:
     ViewWidget(QWidget* parent = nullptr);
 public slots:
     void changeImage(const QImage& image);
-protected:
-    void paintEvent(QPaintEvent* event) override;
 private:
-    QImage currentImage;
+    QGraphicsView* view;
+    QGraphicsScene* scene;
+    QGraphicsPixmapItem* pixmapItem;
+    QVBoxLayout* layout;
 };

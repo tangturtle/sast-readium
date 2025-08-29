@@ -1,6 +1,5 @@
 #include "DocumentModel.h"
 #include "RenderModel.h"
-#include "qimage.h"
 
 DocumentModel::DocumentModel(RenderModel* _renderModel): renderModel(_renderModel) {
     qDebug() << "DocumentModel created";
@@ -20,7 +19,7 @@ bool DocumentModel::openFromFile(const QString& filePath) {
         return false;
     }
     if(document){
-        document.reset();
+        document.reset();          // 使用reset而不是release,因为release只是释放了智能指针的控制权，并不会删除对象本身，导致内存泄漏
     }
     document = std::move(_document);
     document->setRenderHint(Poppler::Document::Antialiasing, true);
@@ -31,7 +30,7 @@ bool DocumentModel::openFromFile(const QString& filePath) {
     qDebug() << "Opened successfully:" << filePath;
 
     renderModel->setDocument(document.get());
-    QImage image = renderModel->renderPage();
+    // QImage image = renderModel->renderPage(); // 由 PageModel 负责初始渲染
 
     return true;
 }
