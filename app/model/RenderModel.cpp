@@ -13,7 +13,7 @@ QImage RenderModel::renderPage(int pageNum, double xres, double yres, int x, int
         return QImage();
     }
     std::unique_ptr<Poppler::Page> pdfPage = document->page(pageNum);
-    if(!pdfPage){
+    if (!pdfPage) {
         qDebug() << "Page not found";
         return QImage();
     }
@@ -26,15 +26,15 @@ QImage RenderModel::renderPage(int pageNum, double xres, double yres, int x, int
     return image;
 }
 
-int RenderModel::getPageCount(){
-    if(!document){
+int RenderModel::getPageCount() {
+    if (!document) {
         return 0;
     }
     return document->numPages();
 }
 
-void RenderModel::setDocument(Poppler::Document * _document){
-    if(!_document){
+void RenderModel::setDocument(Poppler::Document* _document) {
+    if (!_document) {
         return;
     }
     // document.reset(_document);       //  这里不能用reset，因为_document是外部传入的智能指针，
