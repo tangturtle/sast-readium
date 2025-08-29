@@ -69,6 +69,7 @@ void MainWindow::initConnection() {
     connect(menuBar, &MenuBar::themeChanged, this, &MainWindow::applyTheme);
 
     connect(menuBar, &MenuBar::onExecuted, documentController, &DocumentController::execute);
+    connect(menuBar, &MenuBar::onExecuted, this, &MainWindow::handleActionExecuted);
 
     connect(renderModel, &RenderModel::renderPageDone, viewWidget, &ViewWidget::changeImage);
     connect(renderModel, &RenderModel::documentChanged, pageModel, &PageModel::updateInfo);
@@ -85,4 +86,25 @@ void MainWindow::applyTheme(const QString& theme) {
     QFile file(path);
     file.open(QFile::ReadOnly);
     setStyleSheet(QLatin1String(file.readAll()));
+}
+
+void MainWindow::handleActionExecuted(ActionMap id) {
+    switch (id) {
+        case ActionMap::fullScreen:
+            qDebug() << "Toggle Full Screen";
+            if (isFullScreen()) {
+                showNormal();
+            } else {
+                showFullScreen();
+            }
+            break;
+        case ActionMap::zoomIn:
+            qDebug() << "Zoom In";
+            // To be realized
+            break;
+        case ActionMap::zoomOut:
+            qDebug() << "Zoom Out";
+            // To be realized
+            break;
+    }
 }
