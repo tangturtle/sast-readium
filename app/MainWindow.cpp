@@ -72,6 +72,9 @@ void MainWindow::initConnection() {
 
     connect(renderModel, &RenderModel::renderPageDone, viewWidget, &ViewWidget::changeImage);
     connect(renderModel, &RenderModel::documentChanged, pageModel, &PageModel::updateInfo);
+
+    connect(pageModel, &PageModel::pageUpdate, statusBar, &StatusBar::setPageInfo);
+    connect(documentModel, &DocumentModel::pageUpdate, statusBar, &StatusBar::setPageInfo);
 }
 
 // function

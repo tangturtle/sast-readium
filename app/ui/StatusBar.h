@@ -2,14 +2,16 @@
 
 #include <QLabel>
 #include <QStatusBar>
-#include "factory/WidgetFactory.h"
 #include <QMessageBox>
+#include "../factory/WidgetFactory.h"
 
 class StatusBar : public QStatusBar {
     Q_OBJECT
 public:
     explicit StatusBar(QWidget* parent = nullptr);
     StatusBar(WidgetFactory* factory, QWidget* parent = nullptr);
+
+public slots:
     // interface
     void setPageInfo(int current, int total);
     void setZoomLevel(int percent);
