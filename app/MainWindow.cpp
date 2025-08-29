@@ -13,15 +13,15 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     initModel();
     initController();
     initContent();
-    
     initConnection();
-
 }
 
 MainWindow::~MainWindow() {}
 
 // initialize
-void MainWindow::initWindow() { resize(1280, 800); }
+void MainWindow::initWindow() {
+    resize(1280, 800);
+}
 
 void MainWindow::initContent() {
     WidgetFactory* factory = new WidgetFactory(pageController, this);
@@ -65,7 +65,6 @@ void MainWindow::initController() {
 }
 
 void MainWindow::initConnection() {
-
     connect(menuBar, &MenuBar::themeChanged, this, &MainWindow::applyTheme);
 
     connect(menuBar, &MenuBar::onExecuted, documentController, &DocumentController::execute);
@@ -80,8 +79,7 @@ void MainWindow::initConnection() {
 
 // function
 void MainWindow::applyTheme(const QString& theme) {
-    auto path =
-        QString("%1/styles/%2.qss").arg(qApp->applicationDirPath(), theme);
+    auto path = QString("%1/styles/%2.qss").arg(qApp->applicationDirPath(), theme);
 
     QFile file(path);
     file.open(QFile::ReadOnly);
@@ -91,7 +89,6 @@ void MainWindow::applyTheme(const QString& theme) {
 void MainWindow::handleActionExecuted(ActionMap id) {
     switch (id) {
         case ActionMap::fullScreen:
-            qDebug() << "Toggle Full Screen";
             if (isFullScreen()) {
                 showNormal();
             } else {
@@ -99,12 +96,10 @@ void MainWindow::handleActionExecuted(ActionMap id) {
             }
             break;
         case ActionMap::zoomIn:
-            qDebug() << "Zoom In";
-            // To be realized
+            viewWidget->zoomIn();
             break;
         case ActionMap::zoomOut:
-            qDebug() << "Zoom Out";
-            // To be realized
+            viewWidget->zoomOut();
             break;
     }
 }

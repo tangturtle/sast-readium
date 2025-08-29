@@ -40,10 +40,10 @@ void MenuBar::createViewMenu() {
     fullScreenAction->setCheckable(true);
 
     QAction* zoomInAction = new QAction(tr("放大"), this);
-    zoomInAction->setShortcut(QKeySequence("Ctrl++"));
+    zoomInAction->setShortcuts({QKeySequence("Ctrl++"), QKeySequence("Ctrl+=")});
 
     QAction* zoomOutAction = new QAction(tr("缩小"), this);
-    zoomOutAction->setShortcut(QKeySequence("Ctrl+-"));
+    zoomOutAction->setShortcuts({QKeySequence("Ctrl+-"), QKeySequence("Ctrl+_")});
 
     viewMenu->addAction(fullScreenAction);
     viewMenu->addSeparator();
@@ -52,6 +52,10 @@ void MenuBar::createViewMenu() {
 
     connect(fullScreenAction, &QAction::triggered, this, 
         [this]() { emit onExecuted(ActionMap::fullScreen); });
+    connect(zoomInAction, &QAction::triggered, this, 
+        [this]() { emit onExecuted(ActionMap::zoomIn); });
+    connect(zoomOutAction, &QAction::triggered, this, 
+        [this]() { emit onExecuted(ActionMap::zoomOut); });
 }
 
 void MenuBar::createThemeMenu() {
