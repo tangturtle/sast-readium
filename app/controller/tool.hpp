@@ -1,3 +1,3 @@
 #pragma once
 
-enum ActionMap { openFile, save, close, fullScreen, zoomIn, zoomOut };
+enum ActionMap { openFile, saveFile, closeFile, fullScreen, zoomIn, zoomOut };
