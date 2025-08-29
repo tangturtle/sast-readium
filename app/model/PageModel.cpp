@@ -42,6 +42,6 @@ void PageModel::updateInfo(Poppler::Document* document) {
     _currentPage = 1;
     if (_renderModel && _totalPages > 0) {
         // 文档加载后，自动渲染首页
-        _renderModel->renderPage(_currentPage);
+        _renderModel->renderPage(_currentPage - 1); // poppler::document从0开始计数，但为方便page从1开始计数，此处需要-1
     }
 }

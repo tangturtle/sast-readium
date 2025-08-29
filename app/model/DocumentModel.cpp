@@ -32,5 +32,7 @@ bool DocumentModel::openFromFile(const QString& filePath) {
     renderModel->setDocument(document.get());
     // QImage image = renderModel->renderPage(); // 由 PageModel 负责初始渲染
 
+    emit pageUpdate(1, renderModel->getPageCount()); // 当打开新pdf文件时立即更新page数
+
     return true;
 }
