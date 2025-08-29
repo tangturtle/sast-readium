@@ -1,20 +1,30 @@
 #pragma once
 
 #include <QWidget>
-#include <QLabel>
-#include <QBoxLayout>
+#include <QGraphicsView>
+#include <QGraphicsScene>
+#include <QGraphicsPixmapItem>
 #include <QImage>
 #include <QPixmap>
-#include "qtmetamacros.h"
+#include <QMessageBox>
 
-class ViewWidget : public QWidget {
+class ViewWidget : public QGraphicsView {
     Q_OBJECT
 
 public:
     ViewWidget(QWidget* parent = nullptr);
-public slots:
     void changeImage(const QImage& image);
+
+public slots:
+    void zoomIn();
+    void zoomOut();
+
+signals:
+    void scaleChanged(double scale);
+
 private:
-    QLabel* label;
-    QVBoxLayout* layout;
+    QGraphicsScene* scene;
+    double currentScale; 
+    const double maxScale;
+    const double minScale;  
 };

@@ -27,6 +27,8 @@ bool DocumentModel::openFromFile(const QString& filePath) {
     qDebug() << "Opened successfully:" << filePath;
 
     renderModel->setDocument(document.get());
+    emit pageUpdate(1, renderModel->getPageCount());
+    
     QImage image = renderModel->renderPage();
 
     return true;
