@@ -1,6 +1,11 @@
-#include "ViewWidget.h"
 
-ViewWidget::ViewWidget(QWidget* parent) : QGraphicsView(parent), currentScale(1.0), maxScale(4.0), minScale(0.25) {
+#include "ViewWidget.h"
+#include <QLabel>
+#include <QVBoxLayout>
+#include "qmessagebox.h"
+
+ViewWidget::ViewWidget(QWidget* parent) : QGraphicsView(parent),
+currentScale(1.0), maxScale(4.0), minScale(0.25)  {
     scene = new QGraphicsScene(this);
     this->setScene(scene);
     this->setRenderHint(QPainter::Antialiasing);
@@ -8,12 +13,14 @@ ViewWidget::ViewWidget(QWidget* parent) : QGraphicsView(parent), currentScale(1.
     this->setDragMode(QGraphicsView::ScrollHandDrag);
 }
 
+
 void ViewWidget::changeImage(const QImage& image) {
-    if (image.isNull()) {
+    if(image.isNull()){
         QMessageBox::warning(this, "Error", "无法渲染页面");
         return;
     }
     QGraphicsPixmapItem* item = new QGraphicsPixmapItem(QPixmap::fromImage(image));
+    item->setTransformationMode(Qt::SmoothTransformation);
     scene->clear();
     scene->addItem(item);
 
