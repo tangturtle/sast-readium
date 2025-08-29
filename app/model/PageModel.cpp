@@ -40,4 +40,8 @@ void PageModel::prevPage() {
 void PageModel::updateInfo(Poppler::Document* document) {
     _totalPages = document->numPages();
     _currentPage = 1;
+    if (_renderModel && _totalPages > 0) {
+        // 文档加载后，自动渲染首页
+        _renderModel->renderPage(_currentPage);
+    }
 }
