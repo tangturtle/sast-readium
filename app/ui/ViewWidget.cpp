@@ -22,19 +22,21 @@ void ViewWidget::changeImage(const QImage& image) {
 }
 
 void ViewWidget::zoomIn() {
-    currentScale *= 1.25; 
-    if (currentScale > maxScale) {
-        currentScale = maxScale; 
+    double newScale = currentScale * 1.25;
+    if (newScale > maxScale) {
+        newScale = maxScale;
     }
-    scale(1.25, 1.25);
+    scale(newScale / currentScale, newScale / currentScale);
+    currentScale = newScale;
     emit scaleChanged(currentScale);
 }
 
 void ViewWidget::zoomOut() {
-    currentScale *= 0.8;
-    if (currentScale < minScale) {
-        currentScale = minScale;
+    double newScale = currentScale * 0.8;
+    if (newScale < minScale) {
+        newScale = minScale;
     }
-    scale(0.8, 0.8);
+    scale(newScale / currentScale, newScale / currentScale);
+    currentScale = newScale;
     emit scaleChanged(currentScale);
 }
