@@ -37,24 +37,80 @@ target_sources(
     PRIVATE
     MainWindow.cpp
     main.cpp
-    ui/MenuBar.cpp
-    ui/SideBar.cpp
-    ui/StatusBar.cpp
-    ui/ToolBar.cpp
-    ui/ViewWidget.cpp
 
+    # Core UI components
+    ui/core/MenuBar.cpp
+    ui/core/SideBar.cpp
+    ui/core/StatusBar.cpp
+    ui/core/ToolBar.cpp
+    ui/core/ViewWidget.cpp
+
+    # Viewer components
+    ui/viewer/PDFViewer.cpp
+    ui/viewer/PDFOutlineWidget.cpp
+    ui/viewer/PDFViewerEnhancements.cpp
+    ui/viewer/PDFAnimations.cpp
+
+    # UI Widgets
+    ui/widgets/DocumentTabWidget.cpp
+    ui/widgets/SearchWidget.cpp
+    ui/widgets/BookmarkWidget.cpp
+    ui/widgets/AnnotationToolbar.cpp
+
+    # Dialog components
+    ui/dialogs/DocumentComparison.cpp
+    ui/dialogs/DocumentMetadataDialog.cpp
+
+    # Thumbnail system
+    ui/thumbnail/ThumbnailWidget.cpp
+    ui/thumbnail/ThumbnailModel.cpp
+    ui/thumbnail/ThumbnailDelegate.cpp
+    ui/thumbnail/ThumbnailGenerator.cpp
+    ui/thumbnail/ThumbnailListView.cpp
+    ui/thumbnail/ThumbnailContextMenu.cpp
+
+    # UI Manager components
+    ui/managers/PerformanceMonitor.cpp
+    ui/managers/AccessibilityManager.cpp
+
+    # Core Manager components
+    managers/StyleManager.cpp
+
+    # Viewer components (continued)
+    ui/viewer/PDFPrerenderer.cpp
+
+    # Cache management
+    cache/PDFCacheManager.cpp
+
+    # Utility components (temporarily removed due to compilation issues)
+    utils/PDFUtilities.cpp
+    utils/DocumentAnalyzer.cpp
+
+    # Manager components
+    managers/RecentFilesManager.cpp
+
+    # Other components
+    plugin/PluginManager.cpp
     factory/WidgetFactory.cpp
-    
     command/Commands.cpp
 
+    # Controllers
     controller/DocumentController.cpp
     controller/PageController.cpp
 
+    # Models
     model/DocumentModel.cpp
     model/PageModel.cpp
+    model/PDFOutlineModel.cpp
+    model/AsyncDocumentLoader.cpp
+    model/SearchModel.cpp
+    model/BookmarkModel.cpp
+    model/AnnotationModel.cpp
 
+    # Delegates
     delegate/PageNavigationDelegate.cpp
-    
+
+    # Views
     view/Views.cpp
 )
 target_include_directories(

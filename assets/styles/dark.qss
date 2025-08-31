@@ -102,6 +102,69 @@ QWidget#SideBar {
     border-right: 1px solid #1b1b1c;
 }
 
+/* 缩略图样式 - Chrome暗色风格 */
+ThumbnailListView {
+    background-color: #2d2d2d;
+    border: none;
+    outline: none;
+    padding: 8px;
+}
+
+ThumbnailListView::item {
+    background-color: transparent;
+    border: none;
+    padding: 0px;
+    margin: 4px;
+}
+
+ThumbnailListView::item:selected {
+    background-color: transparent;
+    border: 2px solid #8ab4f8;
+    border-radius: 8px;
+}
+
+ThumbnailListView::item:hover {
+    background-color: transparent;
+    border: 1px solid #8ab4f8;
+    border-radius: 8px;
+}
+
+/* 缩略图滚动条 - 暗色主题 */
+ThumbnailListView QScrollBar:vertical {
+    border: none;
+    background-color: transparent;
+    width: 12px;
+    margin: 0px;
+    border-radius: 6px;
+}
+
+ThumbnailListView QScrollBar::handle:vertical {
+    background-color: rgba(255, 255, 255, 0.2);
+    min-height: 20px;
+    border-radius: 6px;
+    margin: 0px 2px;
+}
+
+ThumbnailListView QScrollBar::handle:vertical:hover {
+    background-color: rgba(255, 255, 255, 0.4);
+}
+
+ThumbnailListView QScrollBar::handle:vertical:pressed {
+    background-color: rgba(255, 255, 255, 0.6);
+}
+
+ThumbnailListView QScrollBar::add-line:vertical,
+ThumbnailListView QScrollBar::sub-line:vertical {
+    height: 0px;
+    border: none;
+    background: transparent;
+}
+
+ThumbnailListView QScrollBar::add-page:vertical,
+ThumbnailListView QScrollBar::sub-page:vertical {
+    background: transparent;
+}
+
 QTabWidget::pane {
     border: none;
     background-color: #252526;

@@ -70,6 +70,17 @@ void Widget::applyTheme(const QString &theme) {
     auto path = QString("%1/styles/%2.qss").arg(qApp->applicationDirPath(), theme);
 
     QFile file(path);
-    file.open(QFile::ReadOnly);
-    setStyleSheet(QLatin1String(file.readAll()));
+    if (file.exists() && file.open(QFile::ReadOnly)) {
+        QString styleSheet = QLatin1String(file.readAll());
+        file.close();
+
+        if (!styleSheet.isEmpty()) {
+            setStyleSheet(styleSheet);
+            return;
+        }
+    }
+
+    // 如果外部文件不可用，使用基本样式
+    qWarning() << "External theme file not found or empty:" << path;
+    setStyleSheet(""); // 使用默认样式
 }

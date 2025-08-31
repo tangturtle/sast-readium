@@ -2,19 +2,52 @@
 
 #include <QStandardPaths>
 #include <QWidget>
+#include <QObject>
+#include <QHash>
+#include <QString>
+#include <functional>
 #include "../model/DocumentModel.h"
+#include "../managers/RecentFilesManager.h"
 #include "tool.hpp"
+
+// 前向声明
+class QWidget;
 
 class DocumentController : public QObject {
     Q_OBJECT
 
 private:
-    DocumentModel* pdfDocument;
+    DocumentModel* documentModel;
+    RecentFilesManager* recentFilesManager;
     QHash<ActionMap, std::function<void(QWidget*)>> commandMap;
     void initializeCommandMap();
 
 public:
-    DocumentController(DocumentModel* pdf);
-    ~DocumentController() {};
+    DocumentController(DocumentModel* model);
+    ~DocumentController() = default;
     void execute(ActionMap actionID, QWidget* context);
+
+    // 多文档操作方法
+    bool openDocument(const QString& filePath);
+    bool closeDocument(int index);
+    bool closeCurrentDocument();
+    void switchToDocument(int index);
+    void showDocumentMetadata(QWidget* parent);
+    void saveDocumentCopy(QWidget* parent);
+
+    // 最近文件管理
+    void setRecentFilesManager(RecentFilesManager* manager);
+    RecentFilesManager* getRecentFilesManager() const { return recentFilesManager; }
+
+    // 获取文档模型
+    DocumentModel* getDocumentModel() const { return documentModel; }
+
+signals:
+    void documentOperationCompleted(ActionMap action, bool success);
+    void sideBarToggleRequested();
+    void sideBarShowRequested();
+    void sideBarHideRequested();
+    void viewModeChangeRequested(int mode); // 0=SinglePage, 1=ContinuousScroll
+    void pdfActionRequested(ActionMap action);
+    void themeToggleRequested();
 };
