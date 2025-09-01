@@ -55,14 +55,14 @@ When you run `cmake --preset <preset>`, the system automatically:
 
 ## Script Comparison
 
-| Feature | Windows PowerShell | Windows Batch | Unix Shell |
-|---------|-------------------|---------------|------------|
-| Auto-detection | ✅ | ✅ | ✅ |
-| Manual selection | ✅ | ✅ | ✅ |
-| List configurations | ✅ | ✅ | ✅ |
-| Verbose output | ✅ | ❌ | ✅ |
-| Help message | ✅ | ✅ | ✅ |
-| Error handling | ✅ | ✅ | ✅ |
+| Feature             | Windows PowerShell | Windows Batch | Unix Shell |
+| ------------------- | ------------------ | ------------- | ---------- |
+| Auto-detection      | ✅                 | ✅            | ✅         |
+| Manual selection    | ✅                 | ✅            | ✅         |
+| List configurations | ✅                 | ✅            | ✅         |
+| Verbose output      | ✅                 | ❌            | ✅         |
+| Help message        | ✅                 | ✅            | ✅         |
+| Error handling      | ✅                 | ✅            | ✅         |
 
 ## Usage Examples
 

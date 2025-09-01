@@ -93,7 +93,7 @@ signals:
     void pageDoubleClicked(int pageNumber);
     void pageRightClicked(int pageNumber, const QPoint& globalPos);
     void currentPageChanged(int pageNumber);
-    void selectionChanged(const QList<int>& selectedPages);
+    void pageSelectionChanged(const QList<int>& selectedPages);
     void scrollPositionChanged(int position, int maximum);
     void visibleRangeChanged(int firstVisible, int lastVisible);
 

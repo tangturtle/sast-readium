@@ -1,14 +1,15 @@
 #pragma once
 
-#include <QStandardPaths>
-#include <QWidget>
-#include <QObject>
 #include <QHash>
+#include <QObject>
+#include <QStandardPaths>
 #include <QString>
+#include <QWidget>
 #include <functional>
-#include "../model/DocumentModel.h"
 #include "../managers/RecentFilesManager.h"
+#include "../model/DocumentModel.h"
 #include "tool.hpp"
+
 
 // 前向声明
 class QWidget;
@@ -37,7 +38,9 @@ public:
 
     // 最近文件管理
     void setRecentFilesManager(RecentFilesManager* manager);
-    RecentFilesManager* getRecentFilesManager() const { return recentFilesManager; }
+    RecentFilesManager* getRecentFilesManager() const {
+        return recentFilesManager;
+    }
 
     // 获取文档模型
     DocumentModel* getDocumentModel() const { return documentModel; }
@@ -47,7 +50,7 @@ signals:
     void sideBarToggleRequested();
     void sideBarShowRequested();
     void sideBarHideRequested();
-    void viewModeChangeRequested(int mode); // 0=SinglePage, 1=ContinuousScroll
+    void viewModeChangeRequested(int mode);  // 0=SinglePage, 1=ContinuousScroll
     void pdfActionRequested(ActionMap action);
     void themeToggleRequested();
 };

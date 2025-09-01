@@ -374,7 +374,7 @@ void ThumbnailListView::clearSelection()
 {
     selectionModel()->clearSelection();
     m_selectedPages.clear();
-    emit selectionChanged(m_selectedPages);
+    emit pageSelectionChanged(m_selectedPages);
 }
 
 QList<int> ThumbnailListView::selectedPages() const

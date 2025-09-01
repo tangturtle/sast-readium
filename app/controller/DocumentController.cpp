@@ -1,11 +1,12 @@
 #include "DocumentController.h"
-#include "../ui/dialogs/DocumentMetadataDialog.h"
-#include <QFileDialog>
+#include <poppler/qt6/poppler-qt6.h>
 #include <QDebug>
+#include <QFile>
+#include <QFileDialog>
 #include <QMessageBox>
 #include <QStandardPaths>
-#include <QFile>
-#include <poppler/qt6/poppler-qt6.h>
+#include "../ui/dialogs/DocumentMetadataDialog.h"
+
 
 void DocumentController::initializeCommandMap() {
     commandMap = {
@@ -22,9 +23,7 @@ void DocumentController::initializeCommandMap() {
              }
          }},
         {ActionMap::save, [this](QWidget* ctx) { /*....save()....*/ }},
-        {ActionMap::saveAs, [this](QWidget* ctx) {
-            saveDocumentCopy(ctx);
-        }},
+        {ActionMap::saveAs, [this](QWidget* ctx) { saveDocumentCopy(ctx); }},
         {ActionMap::newTab,
          [this](QWidget* ctx) {
              QString filePath = QFileDialog::getOpenFileName(
@@ -47,7 +46,8 @@ void DocumentController::initializeCommandMap() {
         {ActionMap::closeCurrentTab,
          [this](QWidget* ctx) {
              bool success = closeCurrentDocument();
-             emit documentOperationCompleted(ActionMap::closeCurrentTab, success);
+             emit documentOperationCompleted(ActionMap::closeCurrentTab,
+                                             success);
          }},
         {ActionMap::closeAllTabs,
          [this](QWidget* ctx) {
@@ -81,24 +81,18 @@ void DocumentController::initializeCommandMap() {
              }
          }},
         {ActionMap::toggleSideBar,
-         [this](QWidget* ctx) {
-             emit sideBarToggleRequested();
-         }},
+         [this](QWidget* ctx) { emit sideBarToggleRequested(); }},
         {ActionMap::showSideBar,
-         [this](QWidget* ctx) {
-             emit sideBarShowRequested();
-         }},
+         [this](QWidget* ctx) { emit sideBarShowRequested(); }},
         {ActionMap::hideSideBar,
-         [this](QWidget* ctx) {
-             emit sideBarHideRequested();
-         }},
+         [this](QWidget* ctx) { emit sideBarHideRequested(); }},
         {ActionMap::setSinglePageMode,
          [this](QWidget* ctx) {
-             emit viewModeChangeRequested(0); // SinglePage
+             emit viewModeChangeRequested(0);  // SinglePage
          }},
         {ActionMap::setContinuousScrollMode,
          [this](QWidget* ctx) {
-             emit viewModeChangeRequested(1); // ContinuousScroll
+             emit viewModeChangeRequested(1);  // ContinuousScroll
          }},
         // 页面导航操作
         {ActionMap::firstPage,
@@ -123,13 +117,9 @@ void DocumentController::initializeCommandMap() {
          }},
         // 缩放操作
         {ActionMap::zoomIn,
-         [this](QWidget* ctx) {
-             emit pdfActionRequested(ActionMap::zoomIn);
-         }},
+         [this](QWidget* ctx) { emit pdfActionRequested(ActionMap::zoomIn); }},
         {ActionMap::zoomOut,
-         [this](QWidget* ctx) {
-             emit pdfActionRequested(ActionMap::zoomOut);
-         }},
+         [this](QWidget* ctx) { emit pdfActionRequested(ActionMap::zoomOut); }},
         {ActionMap::fitToWidth,
          [this](QWidget* ctx) {
              emit pdfActionRequested(ActionMap::fitToWidth);
@@ -153,14 +143,10 @@ void DocumentController::initializeCommandMap() {
          }},
         // 主题操作
         {ActionMap::toggleTheme,
-         [this](QWidget* ctx) {
-             emit themeToggleRequested();
-         }},
+         [this](QWidget* ctx) { emit themeToggleRequested(); }},
         // 文档信息操作
         {ActionMap::showDocumentMetadata,
-         [this](QWidget* ctx) {
-             showDocumentMetadata(ctx);
-         }},
+         [this](QWidget* ctx) { showDocumentMetadata(ctx); }},
         // 最近文件操作
         {ActionMap::openRecentFile,
          [this](QWidget* ctx) {
@@ -174,8 +160,7 @@ void DocumentController::initializeCommandMap() {
              }
          }},
         // 从合并分支添加的操作
-        {ActionMap::saveFile, [this](QWidget* ctx) { /*....save()....*/ }}
-    };
+        {ActionMap::saveFile, [this](QWidget* ctx) { /*....save()....*/ }}};
 }
 
 DocumentController::DocumentController(DocumentModel* model)
@@ -233,9 +218,10 @@ void DocumentController::showDocumentMetadata(QWidget* parent) {
     QString currentFileName = documentModel->getCurrentFileName();
 
     // 暂时使用简单的消息框显示基本信息，避免复杂的对话框导致编译问题
-    QString info = QString("文档信息:\n文件名: %1\n路径: %2")
-                   .arg(currentFileName.isEmpty() ? tr("未知") : currentFileName)
-                   .arg(currentFilePath.isEmpty() ? tr("未知") : currentFilePath);
+    QString info =
+        QString("文档信息:\n文件名: %1\n路径: %2")
+            .arg(currentFileName.isEmpty() ? tr("未知") : currentFileName)
+            .arg(currentFilePath.isEmpty() ? tr("未知") : currentFilePath);
 
     // Get the current document from the model
     Poppler::Document* currentDoc = documentModel->getCurrentDocument();
@@ -263,19 +249,19 @@ void DocumentController::saveDocumentCopy(QWidget* parent) {
 
     // 获取当前文档信息
     QString currentFileName = documentModel->getCurrentFileName();
-    QString suggestedName = currentFileName.isEmpty() ? "document_copy.pdf" :
-                           currentFileName + "_copy.pdf";
+    QString suggestedName = currentFileName.isEmpty()
+                                ? "document_copy.pdf"
+                                : currentFileName + "_copy.pdf";
 
     // 显示保存对话框
     QString filePath = QFileDialog::getSaveFileName(
-        parent,
-        tr("另存副本"),
-        QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/" + suggestedName,
-        tr("PDF Files (*.pdf)")
-    );
+        parent, tr("另存副本"),
+        QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) +
+            "/" + suggestedName,
+        tr("PDF Files (*.pdf)"));
 
     if (filePath.isEmpty()) {
-        return; // 用户取消了操作
+        return;  // 用户取消了操作
     }
 
     // 确保文件扩展名为.pdf
@@ -295,14 +281,16 @@ void DocumentController::saveDocumentCopy(QWidget* parent) {
 
         if (!targetDir.exists()) {
             if (!targetDir.mkpath(targetDir.absolutePath())) {
-                errorMessage = tr("无法创建目标目录：%1").arg(targetDir.absolutePath());
+                errorMessage =
+                    tr("无法创建目标目录：%1").arg(targetDir.absolutePath());
                 throw std::runtime_error(errorMessage.toStdString());
             }
         }
 
         // 检查目标目录是否可写
         if (!targetInfo.dir().isReadable()) {
-            errorMessage = tr("目标目录不可访问：%1").arg(targetDir.absolutePath());
+            errorMessage =
+                tr("目标目录不可访问：%1").arg(targetDir.absolutePath());
             throw std::runtime_error(errorMessage.toStdString());
         }
 
@@ -327,8 +315,10 @@ void DocumentController::saveDocumentCopy(QWidget* parent) {
 
         // 如果目标文件已存在，询问用户是否覆盖
         if (QFile::exists(filePath)) {
-            int result = QMessageBox::question(parent, tr("文件已存在"),
-                tr("目标文件已存在：\n%1\n\n是否要覆盖现有文件？").arg(filePath),
+            int result = QMessageBox::question(
+                parent, tr("文件已存在"),
+                tr("目标文件已存在：\n%1\n\n是否要覆盖现有文件？")
+                    .arg(filePath),
                 QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
 
             if (result != QMessageBox::Yes) {
@@ -348,7 +338,9 @@ void DocumentController::saveDocumentCopy(QWidget* parent) {
         success = QFile::copy(originalPath, filePath);
 
         if (!success) {
-            errorMessage = tr("文件复制失败。可能的原因：\n- 磁盘空间不足\n- 文件权限问题\n- 目标路径无效");
+            errorMessage =
+                tr("文件复制失败。可能的原因：\n- 磁盘空间不足\n- "
+                   "文件权限问题\n- 目标路径无效");
             throw std::runtime_error(errorMessage.toStdString());
         }
 
@@ -364,20 +356,24 @@ void DocumentController::saveDocumentCopy(QWidget* parent) {
 
         if (originalFileInfo.size() != copiedFileInfo.size()) {
             errorMessage = tr("复制的文件大小不匹配，可能复制不完整");
-            QFile::remove(filePath); // 清理不完整的文件
+            QFile::remove(filePath);  // 清理不完整的文件
             throw std::runtime_error(errorMessage.toStdString());
         }
 
         // 成功完成
-        QMessageBox::information(parent, tr("保存成功"),
-            tr("文档副本已成功保存到：\n%1\n\n文件大小：%2\n\n注意：当前版本将原始PDF文件复制为副本。如需将当前的标注和修改嵌入到副本中，需要使用专门的PDF编辑功能。")
-            .arg(filePath)
-            .arg(copiedFileInfo.size()));
+        QMessageBox::information(
+            parent, tr("保存成功"),
+            tr("文档副本已成功保存到：\n%1\n\n文件大小：%"
+               "2\n\n注意：当前版本将原始PDF文件复制为副本。如需将当前的标注和"
+               "修改嵌入到副本中，需要使用专门的PDF编辑功能。")
+                .arg(filePath)
+                .arg(copiedFileInfo.size()));
 
     } catch (const std::exception& e) {
         success = false;
         if (errorMessage.isEmpty()) {
-            errorMessage = tr("保存过程中发生未知错误：%1").arg(QString::fromStdString(e.what()));
+            errorMessage = tr("保存过程中发生未知错误：%1")
+                               .arg(QString::fromStdString(e.what()));
         }
 
         QMessageBox::critical(parent, tr("保存失败"), errorMessage);

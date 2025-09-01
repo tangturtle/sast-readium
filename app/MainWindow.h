@@ -5,17 +5,18 @@
 #include "controller/DocumentController.h"
 #include "controller/PageController.h"
 #include "controller/tool.hpp"
+#include "factory/WidgetFactory.h"
+#include "managers/RecentFilesManager.h"
+#include "managers/StyleManager.h"
 #include "model/DocumentModel.h"
 #include "model/PageModel.h"
+#include "model/RenderModel.h"
 #include "ui/core/MenuBar.h"
 #include "ui/core/SideBar.h"
 #include "ui/core/StatusBar.h"
 #include "ui/core/ToolBar.h"
 #include "ui/core/ViewWidget.h"
-#include "managers/StyleManager.h"
-#include "managers/RecentFilesManager.h"
-#include "factory/WidgetFactory.h"
-#include "model/RenderModel.h"
+
 
 class MainWindow : public QMainWindow {
     Q_OBJECT

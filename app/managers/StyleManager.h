@@ -1,26 +1,23 @@
 #pragma once
 
-#include <QObject>
-#include <QString>
+#include <QApplication>
 #include <QColor>
 #include <QFont>
-#include <QApplication>
+#include <QObject>
+#include <QString>
 
-enum class Theme {
-    Light,
-    Dark
-};
+enum class Theme { Light, Dark };
 
 class StyleManager : public QObject {
     Q_OBJECT
 
 public:
     static StyleManager& instance();
-    
+
     // 主题管理
     void setTheme(Theme theme);
     Theme currentTheme() const { return m_currentTheme; }
-    
+
     // 样式表获取
     QString getApplicationStyleSheet() const;
     QString getToolbarStyleSheet() const;
@@ -28,7 +25,7 @@ public:
     QString getPDFViewerStyleSheet() const;
     QString getButtonStyleSheet() const;
     QString getScrollBarStyleSheet() const;
-    
+
     // 颜色获取
     QColor primaryColor() const;
     QColor secondaryColor() const;
@@ -40,12 +37,12 @@ public:
     QColor hoverColor() const;
     QColor pressedColor() const;
     QColor accentColor() const;
-    
+
     // 字体获取
     QFont defaultFont() const;
     QFont titleFont() const;
     QFont buttonFont() const;
-    
+
     // 尺寸常量
     int buttonHeight() const { return 32; }
     int buttonMinWidth() const { return 80; }
@@ -62,13 +59,13 @@ private:
     ~StyleManager() = default;
     StyleManager(const StyleManager&) = delete;
     StyleManager& operator=(const StyleManager&) = delete;
-    
+
     void updateColors();
     QString createButtonStyle() const;
     QString createScrollBarStyle() const;
-    
+
     Theme m_currentTheme;
-    
+
     // 颜色定义
     QColor m_primaryColor;
     QColor m_secondaryColor;

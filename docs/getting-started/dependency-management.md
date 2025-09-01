@@ -12,18 +12,19 @@ The project uses a **tiered dependency management approach**:
 
 ## Dependency Priority Matrix
 
-| Platform | Primary Method | Fallback Method | Notes |
-|----------|----------------|-----------------|-------|
-| Ubuntu/Debian | `apt` system packages | vcpkg | System packages preferred for CI speed |
-| macOS | `brew` system packages | vcpkg | Homebrew provides excellent Qt6 support |
-| Windows MSVC | vcpkg | N/A | Limited system package options |
-| Windows MSYS2 | `pacman` system packages | vcpkg | Best Windows alternative to vcpkg |
+| Platform      | Primary Method           | Fallback Method | Notes                                   |
+| ------------- | ------------------------ | --------------- | --------------------------------------- |
+| Ubuntu/Debian | `apt` system packages    | vcpkg           | System packages preferred for CI speed  |
+| macOS         | `brew` system packages   | vcpkg           | Homebrew provides excellent Qt6 support |
+| Windows MSVC  | vcpkg                    | N/A             | Limited system package options          |
+| Windows MSYS2 | `pacman` system packages | vcpkg           | Best Windows alternative to vcpkg       |
 
 ## Required Dependencies
 
 ### Core Dependencies
 
 - **Qt6** (>= 6.2)
+
   - Components: Core, Gui, Widgets, Svg, LinguistTools
   - System package names:
     - Ubuntu: `qt6-base-dev qt6-svg-dev qt6-tools-dev qt6-l10n-tools`
@@ -84,7 +85,7 @@ You can override the automatic selection:
 ### System Package Presets (Preferred)
 
 - `Debug-Unix` - Debug build with system packages
-- `Release-Unix` - Release build with system packages  
+- `Release-Unix` - Release build with system packages
 - `Debug-MSYS2` - Debug build with MSYS2 system packages
 - `Release-MSYS2` - Release build with MSYS2 system packages
 
@@ -102,11 +103,13 @@ You can override the automatic selection:
 ### GitHub Actions Workflows
 
 1. **System Package Builds (Primary)**
+
    - Ubuntu: Uses `apt` packages
    - macOS: Uses `brew` packages
    - Faster execution, better caching
 
 2. **vcpkg Builds (Fallback)**
+
    - All platforms including Windows MSVC
    - Runs if system builds fail or for comprehensive testing
    - Slower but more consistent across platforms
@@ -131,11 +134,11 @@ You can override the automatic selection:
 
 ## Performance Comparison
 
-| Method | Build Time | Cache Efficiency | Reliability | Maintenance |
-|--------|------------|------------------|-------------|-------------|
-| System Packages | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
-| vcpkg | ⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ |
-| MSYS2 | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ |
+| Method          | Build Time | Cache Efficiency | Reliability | Maintenance |
+| --------------- | ---------- | ---------------- | ----------- | ----------- |
+| System Packages | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐       | ⭐⭐⭐⭐    | ⭐⭐⭐⭐⭐  |
+| vcpkg           | ⭐⭐       | ⭐⭐⭐           | ⭐⭐⭐⭐⭐  | ⭐⭐⭐      |
+| MSYS2           | ⭐⭐⭐⭐   | ⭐⭐⭐⭐         | ⭐⭐⭐⭐    | ⭐⭐⭐⭐    |
 
 ## Troubleshooting
 

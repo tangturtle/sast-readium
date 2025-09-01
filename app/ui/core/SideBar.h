@@ -23,6 +23,7 @@ public:
 
     // 显示/隐藏控制
     bool isVisible() const;
+    using QWidget::setVisible;  // Bring base class method into scope
     void setVisible(bool visible, bool animated = true);
     void toggleVisibility(bool animated = true);
 

@@ -125,7 +125,6 @@ target_link_libraries(
     app
     PRIVATE
     Qt::Core Qt::Gui Qt::Widgets Qt::Svg
-    controls
     PkgConfig::POPPLER_QT6
 )
 

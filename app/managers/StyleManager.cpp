@@ -6,9 +6,7 @@ StyleManager& StyleManager::instance() {
     return instance;
 }
 
-StyleManager::StyleManager() : m_currentTheme(Theme::Light) {
-    updateColors();
-}
+StyleManager::StyleManager() : m_currentTheme(Theme::Light) { updateColors(); }
 
 void StyleManager::setTheme(Theme theme) {
     if (m_currentTheme != theme) {
@@ -21,28 +19,28 @@ void StyleManager::setTheme(Theme theme) {
 void StyleManager::updateColors() {
     if (m_currentTheme == Theme::Light) {
         // 亮色主题
-        m_primaryColor = QColor(0, 120, 212);      // 蓝色
-        m_secondaryColor = QColor(96, 94, 92);     // 灰色
-        m_backgroundColor = QColor(255, 255, 255); // 白色
-        m_surfaceColor = QColor(250, 250, 250);    // 浅灰
-        m_textColor = QColor(32, 31, 30);          // 深灰
-        m_textSecondaryColor = QColor(96, 94, 92); // 中灰
-        m_borderColor = QColor(225, 223, 221);     // 边框灰
-        m_hoverColor = QColor(243, 242, 241);      // 悬停灰
-        m_pressedColor = QColor(237, 235, 233);    // 按下灰
-        m_accentColor = QColor(16, 110, 190);      // 强调蓝
+        m_primaryColor = QColor(0, 120, 212);       // 蓝色
+        m_secondaryColor = QColor(96, 94, 92);      // 灰色
+        m_backgroundColor = QColor(255, 255, 255);  // 白色
+        m_surfaceColor = QColor(250, 250, 250);     // 浅灰
+        m_textColor = QColor(32, 31, 30);           // 深灰
+        m_textSecondaryColor = QColor(96, 94, 92);  // 中灰
+        m_borderColor = QColor(225, 223, 221);      // 边框灰
+        m_hoverColor = QColor(243, 242, 241);       // 悬停灰
+        m_pressedColor = QColor(237, 235, 233);     // 按下灰
+        m_accentColor = QColor(16, 110, 190);       // 强调蓝
     } else {
         // 暗色主题
-        m_primaryColor = QColor(96, 205, 255);     // 亮蓝
-        m_secondaryColor = QColor(152, 151, 149);  // 亮灰
-        m_backgroundColor = QColor(32, 31, 30);    // 深灰
-        m_surfaceColor = QColor(40, 39, 38);       // 表面灰
-        m_textColor = QColor(255, 255, 255);       // 白色
-        m_textSecondaryColor = QColor(200, 198, 196); // 浅灰
-        m_borderColor = QColor(72, 70, 68);        // 边框深灰
-        m_hoverColor = QColor(50, 49, 48);         // 悬停深灰
-        m_pressedColor = QColor(60, 58, 56);       // 按下深灰
-        m_accentColor = QColor(118, 185, 237);     // 强调亮蓝
+        m_primaryColor = QColor(96, 205, 255);         // 亮蓝
+        m_secondaryColor = QColor(152, 151, 149);      // 亮灰
+        m_backgroundColor = QColor(32, 31, 30);        // 深灰
+        m_surfaceColor = QColor(40, 39, 38);           // 表面灰
+        m_textColor = QColor(255, 255, 255);           // 白色
+        m_textSecondaryColor = QColor(200, 198, 196);  // 浅灰
+        m_borderColor = QColor(72, 70, 68);            // 边框深灰
+        m_hoverColor = QColor(50, 49, 48);             // 悬停深灰
+        m_pressedColor = QColor(60, 58, 56);           // 按下深灰
+        m_accentColor = QColor(118, 185, 237);         // 强调亮蓝
     }
 }
 
@@ -72,12 +70,13 @@ QString StyleManager::getApplicationStyleSheet() const {
             padding: 0 4px 0 4px;
             color: %6;
         }
-    )").arg(backgroundColor().name())
-       .arg(textColor().name())
-       .arg(borderColor().name())
-       .arg(borderRadius())
-       .arg(surfaceColor().name())
-       .arg(textSecondaryColor().name());
+    )")
+        .arg(backgroundColor().name())
+        .arg(textColor().name())
+        .arg(borderColor().name())
+        .arg(borderRadius())
+        .arg(surfaceColor().name())
+        .arg(textSecondaryColor().name());
 }
 
 QString StyleManager::getToolbarStyleSheet() const {
@@ -87,9 +86,10 @@ QString StyleManager::getToolbarStyleSheet() const {
             border-bottom: 1px solid %2;
             padding: %3px;
         }
-    )").arg(surfaceColor().name())
-       .arg(borderColor().name())
-       .arg(spacing());
+    )")
+        .arg(surfaceColor().name())
+        .arg(borderColor().name())
+        .arg(spacing());
 }
 
 QString StyleManager::getButtonStyleSheet() const {
@@ -124,16 +124,17 @@ QString StyleManager::createButtonStyle() const {
         QPushButton:focus {
             border: 2px solid %8;
         }
-    )").arg(surfaceColor().name())
-       .arg(borderColor().name())
-       .arg(borderRadius())
-       .arg(textColor().name())
-       .arg(buttonMinWidth())
-       .arg(buttonHeight())
-       .arg(hoverColor().name())
-       .arg(accentColor().name())
-       .arg(pressedColor().name())
-       .arg(textSecondaryColor().name());
+    )")
+        .arg(surfaceColor().name())
+        .arg(borderColor().name())
+        .arg(borderRadius())
+        .arg(textColor().name())
+        .arg(buttonMinWidth())
+        .arg(buttonHeight())
+        .arg(hoverColor().name())
+        .arg(accentColor().name())
+        .arg(pressedColor().name())
+        .arg(textSecondaryColor().name());
 }
 
 QColor StyleManager::primaryColor() const { return m_primaryColor; }
@@ -189,12 +190,13 @@ QString StyleManager::getStatusBarStyleSheet() const {
         QStatusBar QLineEdit:focus {
             border-color: %6;
         }
-    )").arg(surfaceColor().name())
-       .arg(borderColor().name())
-       .arg(textColor().name())
-       .arg(textSecondaryColor().name())
-       .arg(backgroundColor().name())
-       .arg(accentColor().name());
+    )")
+        .arg(surfaceColor().name())
+        .arg(borderColor().name())
+        .arg(textColor().name())
+        .arg(textSecondaryColor().name())
+        .arg(backgroundColor().name())
+        .arg(accentColor().name());
 }
 
 QString StyleManager::getPDFViewerStyleSheet() const {
@@ -212,8 +214,9 @@ QString StyleManager::getPDFViewerStyleSheet() const {
             border-radius: 4px;
             margin: 8px;
         }
-    )").arg(QColor(240, 240, 240).name())
-       .arg(borderColor().name());
+    )")
+        .arg(QColor(240, 240, 240).name())
+        .arg(borderColor().name());
 }
 
 QString StyleManager::getScrollBarStyleSheet() const {
@@ -266,8 +269,9 @@ QString StyleManager::createScrollBarStyle() const {
         QScrollBar::sub-line:horizontal {
             width: 0px;
         }
-    )").arg(surfaceColor().name())
-       .arg(borderColor().name())
-       .arg(textSecondaryColor().name())
-       .arg(secondaryColor().name());
+    )")
+        .arg(surfaceColor().name())
+        .arg(borderColor().name())
+        .arg(textSecondaryColor().name())
+        .arg(secondaryColor().name());
 }

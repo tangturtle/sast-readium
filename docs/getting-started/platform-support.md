@@ -6,28 +6,28 @@ This document outlines the comprehensive platform support for SAST Readium, incl
 
 ### ✅ Fully Supported (CI Tested)
 
-| Platform | Architecture | Build Method | Package Manager | CI Status |
-|----------|-------------|--------------|-----------------|-----------|
-| **Linux** | x86_64 | Native | System packages (apt) | ✅ Primary |
-| **macOS** | x86_64 (Intel) | Native | System packages (brew) | ✅ Primary |
-| **macOS** | ARM64 (Apple Silicon) | Native | System packages (brew) | ✅ Primary |
-| **Windows** | x86_64 | Native | vcpkg | ✅ Primary |
-| **Windows** | x86_64 | MSYS2 | System packages (pacman) | ✅ Alternative |
-| **Windows** | i686 (32-bit) | MSYS2 | System packages (pacman) | ✅ Legacy |
+| Platform    | Architecture          | Build Method | Package Manager          | CI Status      |
+| ----------- | --------------------- | ------------ | ------------------------ | -------------- |
+| **Linux**   | x86_64                | Native       | System packages (apt)    | ✅ Primary     |
+| **macOS**   | x86_64 (Intel)        | Native       | System packages (brew)   | ✅ Primary     |
+| **macOS**   | ARM64 (Apple Silicon) | Native       | System packages (brew)   | ✅ Primary     |
+| **Windows** | x86_64                | Native       | vcpkg                    | ✅ Primary     |
+| **Windows** | x86_64                | MSYS2        | System packages (pacman) | ✅ Alternative |
+| **Windows** | i686 (32-bit)         | MSYS2        | System packages (pacman) | ✅ Legacy      |
 
 ### 🔄 Cross-Compilation Supported (On-Demand)
 
-| Platform | Architecture | Build Method | Package Manager | CI Status |
-|----------|-------------|--------------|-----------------|-----------|
-| **Linux** | ARM64 (aarch64) | Cross-compile | System packages | 🔄 On-demand |
-| **Windows** | ARM64 | Cross-compile | vcpkg | 🔄 On-demand |
+| Platform    | Architecture    | Build Method  | Package Manager | CI Status    |
+| ----------- | --------------- | ------------- | --------------- | ------------ |
+| **Linux**   | ARM64 (aarch64) | Cross-compile | System packages | 🔄 On-demand |
+| **Windows** | ARM64           | Cross-compile | vcpkg           | 🔄 On-demand |
 
 ### 🚧 Planned Support
 
-| Platform | Architecture | Build Method | Package Manager | Status |
-|----------|-------------|--------------|-----------------|--------|
-| **FreeBSD** | x86_64 | Native | pkg | 🚧 Planned |
-| **Linux** | RISC-V | Cross-compile | System packages | 🚧 Future |
+| Platform    | Architecture | Build Method  | Package Manager | Status     |
+| ----------- | ------------ | ------------- | --------------- | ---------- |
+| **FreeBSD** | x86_64       | Native        | pkg             | 🚧 Planned |
+| **Linux**   | RISC-V       | Cross-compile | System packages | 🚧 Future  |
 
 ## Build Configuration Details
 
@@ -158,7 +158,7 @@ cmake --build --preset=Release-Windows-ARM64
 
 - **Linux x86_64** - System packages (fastest)
 - **macOS Intel** - System packages
-- **macOS Apple Silicon** - System packages  
+- **macOS Apple Silicon** - System packages
 - **Windows x86_64** - vcpkg (most compatible)
 - **Windows MSYS2** - System packages (alternative)
 
@@ -185,25 +185,25 @@ cmake --build --preset=Release-Windows-ARM64
 
 ### Build Time Comparison (Approximate)
 
-| Platform | Method | Clean Build | Incremental | Cache Hit |
-|----------|--------|-------------|-------------|-----------|
-| Linux x86_64 | System | 3-5 min | 30-60 sec | 1-2 min |
-| macOS x86_64 | System | 4-6 min | 45-90 sec | 1-3 min |
-| macOS ARM64 | System | 3-4 min | 30-45 sec | 1-2 min |
-| Windows | vcpkg | 15-25 min | 2-5 min | 5-10 min |
-| Windows | MSYS2 | 5-8 min | 1-2 min | 2-3 min |
-| Linux ARM64 | Cross | 8-12 min | 2-4 min | 3-5 min |
-| Windows ARM64 | Cross | 20-30 min | 3-6 min | 8-12 min |
+| Platform      | Method | Clean Build | Incremental | Cache Hit |
+| ------------- | ------ | ----------- | ----------- | --------- |
+| Linux x86_64  | System | 3-5 min     | 30-60 sec   | 1-2 min   |
+| macOS x86_64  | System | 4-6 min     | 45-90 sec   | 1-3 min   |
+| macOS ARM64   | System | 3-4 min     | 30-45 sec   | 1-2 min   |
+| Windows       | vcpkg  | 15-25 min   | 2-5 min     | 5-10 min  |
+| Windows       | MSYS2  | 5-8 min     | 1-2 min     | 2-3 min   |
+| Linux ARM64   | Cross  | 8-12 min    | 2-4 min     | 3-5 min   |
+| Windows ARM64 | Cross  | 20-30 min   | 3-6 min     | 8-12 min  |
 
 ### Resource Usage
 
-| Platform | CPU Cores | Memory | Disk Space |
-|----------|-----------|--------|------------|
-| Linux x86_64 | 2-4 | 2-4 GB | 1-2 GB |
-| macOS | 2-4 | 3-6 GB | 2-3 GB |
-| Windows vcpkg | 2-4 | 4-8 GB | 5-10 GB |
-| Windows MSYS2 | 2-4 | 2-4 GB | 2-3 GB |
-| Cross-compile | 2-4 | 3-6 GB | 3-5 GB |
+| Platform      | CPU Cores | Memory | Disk Space |
+| ------------- | --------- | ------ | ---------- |
+| Linux x86_64  | 2-4       | 2-4 GB | 1-2 GB     |
+| macOS         | 2-4       | 3-6 GB | 2-3 GB     |
+| Windows vcpkg | 2-4       | 4-8 GB | 5-10 GB    |
+| Windows MSYS2 | 2-4       | 2-4 GB | 2-3 GB     |
+| Cross-compile | 2-4       | 3-6 GB | 3-5 GB     |
 
 ## Deployment Targets
 

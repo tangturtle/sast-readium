@@ -10,6 +10,9 @@
 #include "qtmetamacros.h"
 #include "RenderModel.h"
 
+// Forward declarations
+class RecentFilesManager;
+
 struct DocumentInfo {
     QString filePath;
     QString fileName;

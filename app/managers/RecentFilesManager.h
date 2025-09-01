@@ -1,11 +1,11 @@
 #pragma once
 
+#include <QDateTime>
+#include <QFileInfo>
+#include <QMutex>
 #include <QObject>
 #include <QSettings>
 #include <QStringList>
-#include <QMutex>
-#include <QFileInfo>
-#include <QDateTime>
 
 /**
  * 最近文件信息结构
@@ -15,11 +15,10 @@ struct RecentFileInfo {
     QString fileName;
     QDateTime lastOpened;
     qint64 fileSize;
-    
+
     RecentFileInfo() : fileSize(0) {}
-    
-    RecentFileInfo(const QString& path) 
-        : filePath(path), fileSize(0) {
+
+    RecentFileInfo(const QString& path) : filePath(path), fileSize(0) {
         QFileInfo info(path);
         fileName = info.fileName();
         lastOpened = QDateTime::currentDateTime();
@@ -27,11 +26,11 @@ struct RecentFileInfo {
             fileSize = info.size();
         }
     }
-    
+
     bool isValid() const {
         return !filePath.isEmpty() && QFileInfo(filePath).exists();
     }
-    
+
     bool operator==(const RecentFileInfo& other) const {
         return filePath == other.filePath;
     }
@@ -54,11 +53,11 @@ public:
     QStringList getRecentFilePaths() const;
     void clearRecentFiles();
     void removeRecentFile(const QString& filePath);
-    
+
     // 配置管理
     void setMaxRecentFiles(int maxFiles);
     int getMaxRecentFiles() const;
-    
+
     // 实用功能
     bool hasRecentFiles() const;
     int getRecentFilesCount() const;
@@ -87,7 +86,7 @@ private:
     QList<RecentFileInfo> m_recentFiles;
     int m_maxRecentFiles;
     mutable QMutex m_mutex;
-    
+
     static const int DEFAULT_MAX_RECENT_FILES = 10;
     static const QString SETTINGS_GROUP;
     static const QString SETTINGS_MAX_FILES_KEY;
