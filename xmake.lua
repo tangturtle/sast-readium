@@ -16,13 +16,23 @@ set_warnings("all")
 -- Build modes
 add_rules("mode.debug", "mode.release")
 
--- Force MinGW toolchain to avoid Qt detection issues
-set_toolchains("mingw")
-
 -- Package requirements (only non-Qt packages)
 add_requires("pkgconfig::poppler-qt6")
 
 -- Build options
+option("toolchain")
+    set_default("auto")
+    set_description("Select toolchain (auto, mingw, msvc, clang, gcc)")
+    set_values("auto", "mingw", "msvc", "clang", "gcc")
+    set_showmenu(true)
+option_end()
+
+option("qt_path")
+    set_default("")
+    set_description("Custom Qt installation path")
+    set_showmenu(true)
+option_end()
+
 option("enable_clangd")
     set_default(true)
     set_description("Enable clangd configuration generation")
@@ -41,10 +51,103 @@ option("enable_examples")
     set_showmenu(true)
 option_end()
 
--- Detect MSYS2 environment
+-- Platform and toolchain detection functions
 function is_msys2()
     return is_plat("windows") and os.getenv("MSYSTEM")
 end
+
+function get_default_toolchain()
+    if is_plat("windows") then
+        if is_msys2() then
+            return "mingw"
+        else
+            return "msvc"
+        end
+    elseif is_plat("linux") then
+        return "gcc"
+    elseif is_plat("macosx") then
+        return "clang"
+    else
+        return "gcc"
+    end
+end
+
+function configure_toolchain()
+    local toolchain = get_config("toolchain")
+    if toolchain == "auto" then
+        toolchain = get_default_toolchain()
+    end
+
+    print("Selected toolchain: " .. toolchain)
+
+    if toolchain == "mingw" then
+        set_toolchains("mingw")
+    elseif toolchain == "msvc" then
+        set_toolchains("msvc")
+    elseif toolchain == "clang" then
+        set_toolchains("clang")
+    elseif toolchain == "gcc" then
+        set_toolchains("gcc")
+    end
+
+    return toolchain
+end
+
+function find_qt_installation()
+    local custom_qt = get_config("qt_path")
+    if custom_qt and custom_qt ~= "" then
+        return custom_qt
+    end
+
+    if is_plat("windows") then
+        -- Try common Qt installation paths on Windows
+        local qt_paths = {
+            "D:/msys64/mingw64",  -- MSYS2
+            "C:/Qt/6.5.0/mingw_64",  -- Qt installer with MinGW
+            "C:/Qt/6.5.0/msvc2022_64",  -- Qt installer with MSVC
+            "C:/Qt/Tools/mingw1120_64",  -- Qt Tools MinGW
+        }
+
+        for _, qt_path in ipairs(qt_paths) do
+            if os.isdir(qt_path .. "/include/qt6") then
+                return qt_path
+            end
+        end
+    elseif is_plat("linux") then
+        -- Try common Qt installation paths on Linux
+        local qt_paths = {
+            "/usr",
+            "/usr/local",
+            "/opt/qt6",
+            os.getenv("HOME") .. "/Qt/6.5.0/gcc_64"
+        }
+
+        for _, qt_path in ipairs(qt_paths) do
+            if os.isdir(qt_path .. "/include/qt6") or os.isdir(qt_path .. "/include/QtCore") then
+                return qt_path
+            end
+        end
+    elseif is_plat("macosx") then
+        -- Try common Qt installation paths on macOS
+        local qt_paths = {
+            "/usr/local",
+            "/opt/homebrew",
+            "/opt/qt6",
+            os.getenv("HOME") .. "/Qt/6.5.0/macos"
+        }
+
+        for _, qt_path in ipairs(qt_paths) do
+            if os.isdir(qt_path .. "/include/qt6") or os.isdir(qt_path .. "/include/QtCore") then
+                return qt_path
+            end
+        end
+    end
+
+    return nil
+end
+
+-- Configure toolchain before defining targets
+configure_toolchain()
 
 -- Main application target
 target("sast-readium")
@@ -101,30 +204,69 @@ target("sast-readium")
 
     -- Set output directory
     set_targetdir("$(builddir)")
-    
-    -- Manual Qt configuration
-    if is_plat("windows") then
-        -- Always use MSYS2 Qt paths since we're in MSYS2 environment
-        local qt_base = "D:/msys64/mingw64"
 
-        -- Include directories (order matters!)
-        add_includedirs(qt_base .. "/include/qt6")
-        add_includedirs(qt_base .. "/include/qt6/QtCore")
-        add_includedirs(qt_base .. "/include/qt6/QtGui")
-        add_includedirs(qt_base .. "/include/qt6/QtWidgets")
-        add_includedirs(qt_base .. "/include/qt6/QtSvg")
-        add_includedirs(qt_base .. "/include/qt6/QtConcurrent")
+    -- Qt configuration
+    local qt_base = find_qt_installation()
+    if qt_base then
+        print("Found Qt installation at: " .. qt_base)
 
-        -- Library directories and links
-        add_linkdirs(qt_base .. "/lib")
-        -- Use MinGW library names (libQt6Core.dll.a, etc.)
-        add_links("Qt6Core", "Qt6Gui", "Qt6Widgets", "Qt6Svg", "Qt6Concurrent")
+        -- Configure Qt include directories
+        if is_plat("windows") then
+            add_includedirs(qt_base .. "/include/qt6")
+            add_includedirs(qt_base .. "/include/qt6/QtCore")
+            add_includedirs(qt_base .. "/include/qt6/QtGui")
+            add_includedirs(qt_base .. "/include/qt6/QtWidgets")
+            add_includedirs(qt_base .. "/include/qt6/QtSvg")
+            add_includedirs(qt_base .. "/include/qt6/QtConcurrent")
+
+            -- Library directories and links
+            add_linkdirs(qt_base .. "/lib")
+            add_links("Qt6Core", "Qt6Gui", "Qt6Widgets", "Qt6Svg", "Qt6Concurrent")
+        elseif is_plat("linux") then
+            if os.isdir(qt_base .. "/include/qt6") then
+                add_includedirs(qt_base .. "/include/qt6")
+                add_includedirs(qt_base .. "/include/qt6/QtCore")
+                add_includedirs(qt_base .. "/include/qt6/QtGui")
+                add_includedirs(qt_base .. "/include/qt6/QtWidgets")
+                add_includedirs(qt_base .. "/include/qt6/QtSvg")
+                add_includedirs(qt_base .. "/include/qt6/QtConcurrent")
+            else
+                add_includedirs(qt_base .. "/include/QtCore")
+                add_includedirs(qt_base .. "/include/QtGui")
+                add_includedirs(qt_base .. "/include/QtWidgets")
+                add_includedirs(qt_base .. "/include/QtSvg")
+                add_includedirs(qt_base .. "/include/QtConcurrent")
+            end
+
+            add_linkdirs(qt_base .. "/lib")
+            add_links("Qt6Core", "Qt6Gui", "Qt6Widgets", "Qt6Svg", "Qt6Concurrent")
+        elseif is_plat("macosx") then
+            if os.isdir(qt_base .. "/include/qt6") then
+                add_includedirs(qt_base .. "/include/qt6")
+                add_includedirs(qt_base .. "/include/qt6/QtCore")
+                add_includedirs(qt_base .. "/include/qt6/QtGui")
+                add_includedirs(qt_base .. "/include/qt6/QtWidgets")
+                add_includedirs(qt_base .. "/include/qt6/QtSvg")
+                add_includedirs(qt_base .. "/include/qt6/QtConcurrent")
+            else
+                add_includedirs(qt_base .. "/include/QtCore")
+                add_includedirs(qt_base .. "/include/QtGui")
+                add_includedirs(qt_base .. "/include/QtWidgets")
+                add_includedirs(qt_base .. "/include/QtSvg")
+                add_includedirs(qt_base .. "/include/QtConcurrent")
+            end
+
+            add_linkdirs(qt_base .. "/lib")
+            add_links("Qt6Core", "Qt6Gui", "Qt6Widgets", "Qt6Svg", "Qt6Concurrent")
+        end
 
         -- Qt defines
         add_defines("QT_CORE_LIB", "QT_GUI_LIB", "QT_WIDGETS_LIB", "QT_SVG_LIB")
-        add_defines("QT_NO_DEBUG")
-
-        print("Using MSYS2 Qt with MinGW compiler")
+        if is_mode("release") then
+            add_defines("QT_NO_DEBUG")
+        end
+    else
+        print("Warning: Qt installation not found. Please specify qt_path option.")
     end
     
     -- Add poppler-qt6 dependency
@@ -155,9 +297,37 @@ target("sast-readium")
     
     -- Compiler settings
     set_languages("cxx20")
-    add_cxxflags("-std=c++20")
     set_warnings("all")
-    
+
+    -- Toolchain-specific compiler flags
+    local current_toolchain = get_config("toolchain")
+    if current_toolchain == "auto" then
+        current_toolchain = get_default_toolchain()
+    end
+
+    if current_toolchain == "gcc" or current_toolchain == "mingw" then
+        add_cxxflags("-std=c++20")
+        if is_mode("debug") then
+            add_cxxflags("-g", "-O0")
+        else
+            add_cxxflags("-O3", "-DNDEBUG")
+        end
+    elseif current_toolchain == "clang" then
+        add_cxxflags("-std=c++20")
+        if is_mode("debug") then
+            add_cxxflags("-g", "-O0")
+        else
+            add_cxxflags("-O3", "-DNDEBUG")
+        end
+    elseif current_toolchain == "msvc" then
+        add_cxxflags("/std:c++20")
+        if is_mode("debug") then
+            add_cxxflags("/Od", "/Zi")
+        else
+            add_cxxflags("/O2", "/DNDEBUG")
+        end
+    end
+
     -- Build mode specific settings
     if is_mode("release") then
         set_optimize("fastest")
@@ -168,16 +338,29 @@ target("sast-readium")
         set_symbols("debug")
         add_defines("DEBUG", "_DEBUG")
     end
-    
+
     -- Platform-specific configurations
     if is_plat("windows") then
         add_defines("WIN32", "_WINDOWS", "UNICODE", "_UNICODE")
         if is_mode("release") then
             set_kind("binary")
         end
-        
+
         -- Windows RC file
         add_files("app/app.rc")
+
+        -- Windows-specific linker flags
+        if current_toolchain == "msvc" then
+            add_ldflags("/SUBSYSTEM:WINDOWS")
+        end
+    elseif is_plat("linux") then
+        add_defines("LINUX")
+        -- Linux-specific settings
+        add_syslinks("pthread", "dl")
+    elseif is_plat("macosx") then
+        add_defines("MACOS")
+        -- macOS-specific settings
+        add_frameworks("CoreFoundation", "CoreServices")
     end
 
     -- Translation files (Qt rules disabled to avoid assertion errors)
@@ -324,10 +507,24 @@ after_build(function (target)
     print("C++ Standard: cxx20")
     print("Platform: %s", get_config("plat"))
     print("Architecture: %s", get_config("arch"))
+
+    local current_toolchain = get_config("toolchain")
+    if current_toolchain == "auto" then
+        current_toolchain = get_default_toolchain()
+    end
+    print("Toolchain: %s", current_toolchain)
+
     if is_msys2() then
         print("MSYS2 environment detected")
         print("MSYSTEM: %s", os.getenv("MSYSTEM"))
     end
-    print("Qt: Manual configuration (auto-detection disabled)")
+
+    local qt_base = find_qt_installation()
+    if qt_base then
+        print("Qt installation: %s", qt_base)
+    else
+        print("Qt installation: Not found")
+    end
+
     print("=====================================")
 end)
