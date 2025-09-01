@@ -1,5 +1,23 @@
 #include "DocumentModel.h"
 #include <QFileInfo>
+#include "RenderModel.h"
+
+// 添加支持RenderModel的构造函数
+DocumentModel::DocumentModel(RenderModel* _renderModel): renderModel(_renderModel), currentDocumentIndex(-1) {
+    qDebug() << "DocumentModel created with RenderModel";
+    // 初始化异步加载器
+    asyncLoader = new AsyncDocumentLoader(this);
+
+    // 连接异步加载器信号
+    connect(asyncLoader, &AsyncDocumentLoader::documentLoaded,
+            this, &DocumentModel::onDocumentLoaded);
+    connect(asyncLoader, &AsyncDocumentLoader::loadingProgressChanged,
+            this, &DocumentModel::loadingProgressChanged);
+    connect(asyncLoader, &AsyncDocumentLoader::loadingMessageChanged,
+            this, &DocumentModel::loadingMessageChanged);
+    connect(asyncLoader, &AsyncDocumentLoader::loadingFailed,
+            this, &DocumentModel::loadingFailed);
+}
 
 DocumentModel::DocumentModel() : currentDocumentIndex(-1) {
     // 初始化异步加载器

@@ -7,6 +7,8 @@
 #include <vector>
 #include <memory>
 #include "AsyncDocumentLoader.h"
+#include "qtmetamacros.h"
+#include "RenderModel.h"
 
 struct DocumentInfo {
     QString filePath;
@@ -29,11 +31,17 @@ private:
     // 异步加载器
     AsyncDocumentLoader* asyncLoader;
 
+    // 从合并分支添加的成员
+    QString currentFilePath;
+    std::unique_ptr<Poppler::Document> document;
+    RenderModel* renderModel;
+
 private slots:
     void onDocumentLoaded(Poppler::Document* document, const QString& filePath);
 
 public:
     DocumentModel();
+    DocumentModel(RenderModel* _renderModel);
     ~DocumentModel() = default;
 
     // 多文档管理
@@ -53,6 +61,10 @@ public:
     Poppler::Document* getDocument(int index) const;
     bool isEmpty() const;
     bool isValidIndex(int index) const;
+    bool isNULL();
+
+    // 最近文件管理器设置
+    void setRecentFilesManager(RecentFilesManager* manager);
 
 signals:
     void documentOpened(int index, const QString& fileName);
@@ -65,4 +77,8 @@ signals:
     void loadingMessageChanged(const QString& message);
     void loadingStarted(const QString& filePath);
     void loadingFailed(const QString& error, const QString& filePath);
+
+    // 从合并分支添加的信号
+    void renderPageDone(QImage image);
+    void pageUpdate(int currentPage, int totalPages);
 };

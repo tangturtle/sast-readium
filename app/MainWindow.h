@@ -15,6 +15,7 @@
 #include "managers/StyleManager.h"
 #include "managers/RecentFilesManager.h"
 #include "factory/WidgetFactory.h"
+#include "model/RenderModel.h"
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
@@ -37,6 +38,7 @@ private slots:
     void onPDFActionRequested(ActionMap action);
     void onThemeToggleRequested();
     void onOpenRecentFileRequested(const QString& filePath);
+    void handleActionExecuted(ActionMap id);
 
 private:
     void initWindow();
@@ -58,6 +60,7 @@ private:
 
     DocumentModel* documentModel;
     PageModel* pageModel;
+    RenderModel* renderModel;
 
     RecentFilesManager* recentFilesManager;
 

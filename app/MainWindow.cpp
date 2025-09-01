@@ -6,6 +6,7 @@
 #include <QFrame>
 #include <QLabel>
 #include <QDebug>
+#include "model/RenderModel.h"
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     qDebug() << "MainWindow: Starting initialization...";
@@ -43,10 +44,12 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     qDebug() << "MainWindow: Initialization completed successfully";
 }
 
-MainWindow::~MainWindow() {}
+MainWindow::~MainWindow() noexcept {}
 
 // initialize
-void MainWindow::initWindow() { resize(1280, 800); }
+void MainWindow::initWindow() {
+    resize(1280, 800);
+}
 
 void MainWindow::initContent() {
     WidgetFactory* factory = new WidgetFactory(pageController, this);
@@ -92,8 +95,9 @@ void MainWindow::initContent() {
 }
 
 void MainWindow::initModel() {
-    documentModel = new DocumentModel();
-    pageModel = new PageModel();
+    renderModel = new RenderModel(this->logicalDpiX(), this->logicalDpiY());
+    documentModel = new DocumentModel(renderModel);
+    pageModel = new PageModel(renderModel);
     recentFilesManager = new RecentFilesManager(this);
 }
 
@@ -106,10 +110,10 @@ void MainWindow::initController() {
 }
 
 void MainWindow::initConnection() {
-
     connect(menuBar, &MenuBar::themeChanged, this, &MainWindow::applyTheme);
 
     connect(menuBar, &MenuBar::onExecuted, documentController, &DocumentController::execute);
+    connect(menuBar, &MenuBar::onExecuted, this, &MainWindow::handleActionExecuted);
 
     // 连接最近文件信号
     connect(menuBar, &MenuBar::openRecentFileRequested,
@@ -220,6 +224,13 @@ void MainWindow::initConnection() {
     // 连接状态栏页码跳转信号
     connect(statusBar, &StatusBar::pageJumpRequested,
             this, &MainWindow::onPageJumpRequested);
+
+    // 添加RenderModel连接（从合并分支集成）
+    connect(renderModel, &RenderModel::renderPageDone, viewWidget, &ViewWidget::changeImage);
+    connect(renderModel, &RenderModel::documentChanged, pageModel, &PageModel::updateInfo);
+    connect(pageModel, &PageModel::pageUpdate, statusBar, &StatusBar::setPageInfo);
+    connect(documentModel, &DocumentModel::pageUpdate, statusBar, &StatusBar::setPageInfo);
+    connect(viewWidget, &ViewWidget::scaleChanged, statusBar, &StatusBar::setZoomInfo);
 }
 
 void MainWindow::onDocumentOperationCompleted(ActionMap action, bool success) {
@@ -427,4 +438,27 @@ void MainWindow::applyTheme(const QString& theme) {
     m_currentAppliedTheme = theme; // 更新当前应用的主题状态
 
     qDebug() << "Applied fallback theme using StyleManager:" << theme;
+}
+
+void MainWindow::handleActionExecuted(ActionMap id) {
+    switch (id) {
+        case ActionMap::fullScreen:
+            if (isFullScreen()) {
+                showNormal();
+            } else {
+                showFullScreen();
+            }
+            break;
+        case ActionMap::zoomIn:
+            // 通过现有的PDF操作信号处理缩放
+            emit pdfViewerActionRequested(ActionMap::zoomIn);
+            break;
+        case ActionMap::zoomOut:
+            // 通过现有的PDF操作信号处理缩放
+            emit pdfViewerActionRequested(ActionMap::zoomOut);
+            break;
+        default:
+            // 其他操作通过DocumentController处理
+            break;
+    }
 }

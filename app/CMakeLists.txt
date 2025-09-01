@@ -106,6 +106,7 @@ target_sources(
     model/SearchModel.cpp
     model/BookmarkModel.cpp
     model/AnnotationModel.cpp
+    model/RenderModel.cpp
 
     # Delegates
     delegate/PageNavigationDelegate.cpp
@@ -117,6 +118,7 @@ target_include_directories(
     app
     PRIVATE
     ${CMAKE_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_BINARY_DIR}
 )
 target_link_libraries(

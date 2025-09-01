@@ -172,7 +172,9 @@ void DocumentController::initializeCommandMap() {
              if (recentFilesManager) {
                  recentFilesManager->clearRecentFiles();
              }
-         }}
+         }},
+        // 从合并分支添加的操作
+        {ActionMap::saveFile, [this](QWidget* ctx) { /*....save()....*/ }}
     };
 }
 

@@ -47,5 +47,9 @@ enum ActionMap {
     showDocumentMetadata,
     // 最近文件操作
     openRecentFile,
-    clearRecentFiles
+    clearRecentFiles,
+    // 从合并分支添加的操作
+    saveFile,
+    closeFile,
+    fullScreen
 };
