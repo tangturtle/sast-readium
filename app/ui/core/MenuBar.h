@@ -18,9 +18,11 @@ signals:
     void themeChanged(const QString& theme);
     void onExecuted(ActionMap id, QWidget* context = nullptr);
     void openRecentFileRequested(const QString& filePath);
+    void welcomeScreenToggleRequested();
 
 public slots:
     void setRecentFilesManager(RecentFilesManager* manager);
+    void setWelcomeScreenEnabled(bool enabled);
 
 private slots:
     void updateRecentFilesMenu();
@@ -37,4 +39,5 @@ private:
     RecentFilesManager* m_recentFilesManager;
     QMenu* m_recentFilesMenu;
     QAction* m_clearRecentFilesAction;
+    QAction* m_welcomeScreenToggleAction;
 };

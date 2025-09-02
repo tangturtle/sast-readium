@@ -367,3 +367,76 @@ QScrollBar::sub-page:horizontal {
 QGraphicsView {
 background-color: #f0f0f0;
 }
+
+/* WelcomeWidget 样式 */
+WelcomeWidget {
+    background-color: #f6f6f7;
+    border: none;
+}
+
+/* WelcomeWidget 滚动区域 */
+WelcomeWidget QScrollArea {
+    background-color: transparent;
+    border: none;
+}
+
+/* WelcomeWidget 内容区域 */
+WelcomeWidget QWidget#WelcomeContentWidget {
+    background-color: transparent;
+    border: none;
+}
+
+/* WelcomeWidget 标题标签 */
+WelcomeWidget QLabel#WelcomeTitleLabel {
+    color: #333333;
+    font-size: 24px;
+    font-weight: bold;
+    margin: 0px;
+}
+
+/* WelcomeWidget 版本标签 */
+WelcomeWidget QLabel#WelcomeVersionLabel {
+    color: #606060;
+    font-size: 12px;
+    margin: 0px;
+}
+
+/* WelcomeWidget 最近文件标题 */
+WelcomeWidget QLabel#WelcomeRecentFilesTitle {
+    color: #333333;
+    font-size: 16px;
+    font-weight: bold;
+    margin: 0px;
+}
+
+/* WelcomeWidget 无最近文件标签 */
+WelcomeWidget QLabel#WelcomeNoRecentFilesLabel {
+    color: #606060;
+    font-size: 14px;
+    margin: 20px;
+}
+
+/* WelcomeWidget 分隔线 */
+WelcomeWidget QFrame#WelcomeSeparatorLine {
+    background-color: #e0e0e0;
+    border: none;
+}
+
+/* WelcomeWidget 按钮 */
+WelcomeWidget QPushButton {
+    background-color: #f0f0f0;
+    color: #333333;
+    border: 1px solid #c0c0c0;
+    border-radius: 4px;
+    padding: 8px 16px;
+    font-size: 14px;
+    min-width: 100px;
+}
+
+WelcomeWidget QPushButton:hover {
+    background-color: #e0e0e0;
+}
+
+WelcomeWidget QPushButton:pressed {
+    background-color: #c0e0ff;
+}

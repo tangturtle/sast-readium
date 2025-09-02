@@ -1,0 +1,561 @@
+#include "RecentFileListWidget.h"
+#include "../../managers/RecentFilesManager.h"
+#include "../../managers/StyleManager.h"
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QScrollArea>
+#include <QLabel>
+#include <QPushButton>
+#include <QFrame>
+#include <QTimer>
+#include <QMouseEvent>
+#include <QDateTime>
+#include <QFileInfo>
+#include <QDir>
+#include <QPainter>
+#include <QDebug>
+
+// Static const member definitions
+const int RecentFileItemWidget::ITEM_HEIGHT;
+const int RecentFileItemWidget::PADDING;
+const int RecentFileItemWidget::SPACING;
+
+const int RecentFileListWidget::MAX_VISIBLE_ITEMS;
+const int RecentFileListWidget::REFRESH_DELAY;
+
+// RecentFileItemWidget Implementation
+RecentFileItemWidget::RecentFileItemWidget(const RecentFileInfo& fileInfo, QWidget* parent)
+    : QFrame(parent)
+    , m_fileInfo(fileInfo)
+    , m_mainLayout(nullptr)
+    , m_infoLayout(nullptr)
+    , m_fileNameLabel(nullptr)
+    , m_filePathLabel(nullptr)
+    , m_lastOpenedLabel(nullptr)
+    , m_removeButton(nullptr)
+    , m_isHovered(false)
+    , m_isPressed(false)
+{
+    setObjectName("RecentFileItemWidget");
+    setFixedHeight(ITEM_HEIGHT);
+    setFrameShape(QFrame::NoFrame);
+    setCursor(Qt::PointingHandCursor);
+    
+    setupUI();
+    updateDisplay();
+    applyTheme();
+}
+
+RecentFileItemWidget::~RecentFileItemWidget()
+{
+}
+
+void RecentFileItemWidget::updateFileInfo(const RecentFileInfo& fileInfo)
+{
+    m_fileInfo = fileInfo;
+    updateDisplay();
+}
+
+void RecentFileItemWidget::applyTheme()
+{
+    StyleManager& styleManager = StyleManager::instance();
+    
+    // 设置基本样式
+    QString baseStyle = QString(
+        "RecentFileItemWidget {"
+        "    background-color: transparent;"
+        "    border: none;"
+        "    border-radius: 4px;"
+        "}"
+        "RecentFileItemWidget:hover {"
+        "    background-color: %1;"
+        "}"
+    ).arg(styleManager.hoverColor().name());
+    
+    setStyleSheet(baseStyle);
+    
+    // 更新标签样式
+    if (m_fileNameLabel) {
+        m_fileNameLabel->setStyleSheet(QString(
+            "QLabel {"
+            "    color: %1;"
+            "    font-size: 14px;"
+            "    font-weight: bold;"
+            "    margin: 0px;"
+            "}"
+        ).arg(styleManager.textColor().name()));
+    }
+    
+    if (m_filePathLabel) {
+        m_filePathLabel->setStyleSheet(QString(
+            "QLabel {"
+            "    color: %1;"
+            "    font-size: 12px;"
+            "    margin: 0px;"
+            "}"
+        ).arg(styleManager.textSecondaryColor().name()));
+    }
+    
+    if (m_lastOpenedLabel) {
+        m_lastOpenedLabel->setStyleSheet(QString(
+            "QLabel {"
+            "    color: %1;"
+            "    font-size: 11px;"
+            "    margin: 0px;"
+            "}"
+        ).arg(styleManager.textSecondaryColor().name()));
+    }
+    
+    // 更新移除按钮样式
+    if (m_removeButton) {
+        m_removeButton->setStyleSheet(QString(
+            "QPushButton {"
+            "    background-color: transparent;"
+            "    border: none;"
+            "    color: %1;"
+            "    font-size: 16px;"
+            "    width: 20px;"
+            "    height: 20px;"
+            "    border-radius: 10px;"
+            "}"
+            "QPushButton:hover {"
+            "    background-color: %2;"
+            "    color: %3;"
+            "}"
+        ).arg(styleManager.textSecondaryColor().name())
+         .arg(styleManager.pressedColor().name())
+         .arg(styleManager.textColor().name()));
+    }
+}
+
+void RecentFileItemWidget::mousePressEvent(QMouseEvent* event)
+{
+    if (event->button() == Qt::LeftButton) {
+        m_isPressed = true;
+        update();
+    }
+    QFrame::mousePressEvent(event);
+}
+
+void RecentFileItemWidget::mouseReleaseEvent(QMouseEvent* event)
+{
+    if (event->button() == Qt::LeftButton && m_isPressed) {
+        m_isPressed = false;
+        if (rect().contains(event->pos())) {
+            emit clicked(m_fileInfo.filePath);
+        }
+        update();
+    }
+    QFrame::mouseReleaseEvent(event);
+}
+
+void RecentFileItemWidget::enterEvent(QEnterEvent* event)
+{
+    setHovered(true);
+    QFrame::enterEvent(event);
+}
+
+void RecentFileItemWidget::leaveEvent(QEvent* event)
+{
+    setHovered(false);
+    QFrame::leaveEvent(event);
+}
+
+void RecentFileItemWidget::paintEvent(QPaintEvent* event)
+{
+    QFrame::paintEvent(event);
+    
+    if (m_isPressed) {
+        QPainter painter(this);
+        painter.setRenderHint(QPainter::Antialiasing);
+        
+        StyleManager& styleManager = StyleManager::instance();
+        QColor pressedColor = styleManager.pressedColor();
+        pressedColor.setAlpha(100);
+        
+        painter.fillRect(rect(), pressedColor);
+    }
+}
+
+void RecentFileItemWidget::onRemoveClicked()
+{
+    emit removeRequested(m_fileInfo.filePath);
+}
+
+void RecentFileItemWidget::setupUI()
+{
+    m_mainLayout = new QHBoxLayout(this);
+    m_mainLayout->setContentsMargins(PADDING, PADDING, PADDING, PADDING);
+    m_mainLayout->setSpacing(SPACING);
+    
+    // 文件信息区域
+    m_infoLayout = new QVBoxLayout();
+    m_infoLayout->setContentsMargins(0, 0, 0, 0);
+    m_infoLayout->setSpacing(SPACING);
+    
+    m_fileNameLabel = new QLabel();
+    m_fileNameLabel->setObjectName("RecentFileNameLabel");
+    
+    m_filePathLabel = new QLabel();
+    m_filePathLabel->setObjectName("RecentFilePathLabel");
+    
+    m_lastOpenedLabel = new QLabel();
+    m_lastOpenedLabel->setObjectName("RecentFileLastOpenedLabel");
+    
+    m_infoLayout->addWidget(m_fileNameLabel);
+    m_infoLayout->addWidget(m_filePathLabel);
+    m_infoLayout->addWidget(m_lastOpenedLabel);
+    m_infoLayout->addStretch();
+    
+    // 移除按钮
+    m_removeButton = new QPushButton("×");
+    m_removeButton->setObjectName("RecentFileRemoveButton");
+    m_removeButton->setCursor(Qt::PointingHandCursor);
+    m_removeButton->setToolTip("Remove from recent files");
+    connect(m_removeButton, &QPushButton::clicked, this, &RecentFileItemWidget::onRemoveClicked);
+    
+    m_mainLayout->addLayout(m_infoLayout, 1);
+    m_mainLayout->addWidget(m_removeButton, 0, Qt::AlignTop);
+}
+
+void RecentFileItemWidget::updateDisplay()
+{
+    if (!m_fileNameLabel || !m_filePathLabel || !m_lastOpenedLabel) return;
+    
+    // 更新文件名
+    m_fileNameLabel->setText(m_fileInfo.fileName);
+    
+    // 更新文件路径（显示相对路径或缩短的绝对路径）
+    QString displayPath = m_fileInfo.filePath;
+    QFileInfo fileInfo(displayPath);
+    if (displayPath.length() > 60) {
+        displayPath = "..." + displayPath.right(57);
+    }
+    m_filePathLabel->setText(displayPath);
+    
+    // 更新最后打开时间
+    QString timeText = "Last opened: ";
+    QDateTime now = QDateTime::currentDateTime();
+    qint64 secondsAgo = m_fileInfo.lastOpened.secsTo(now);
+    
+    if (secondsAgo < 60) {
+        timeText += "Just now";
+    } else if (secondsAgo < 3600) {
+        timeText += QString("%1 minutes ago").arg(secondsAgo / 60);
+    } else if (secondsAgo < 86400) {
+        timeText += QString("%1 hours ago").arg(secondsAgo / 3600);
+    } else if (secondsAgo < 604800) {
+        timeText += QString("%1 days ago").arg(secondsAgo / 86400);
+    } else {
+        timeText += m_fileInfo.lastOpened.toString("MMM dd, yyyy");
+    }
+    
+    m_lastOpenedLabel->setText(timeText);
+    
+    // 设置工具提示
+    setToolTip(QString("Click to open: %1").arg(m_fileInfo.filePath));
+}
+
+void RecentFileItemWidget::setHovered(bool hovered)
+{
+    if (m_isHovered == hovered) return;
+    
+    m_isHovered = hovered;
+    
+    // 显示/隐藏移除按钮
+    if (m_removeButton) {
+        m_removeButton->setVisible(hovered);
+    }
+    
+    update();
+}
+
+// RecentFileListWidget Implementation
+RecentFileListWidget::RecentFileListWidget(QWidget* parent)
+    : QWidget(parent)
+    , m_recentFilesManager(nullptr)
+    , m_mainLayout(nullptr)
+    , m_scrollArea(nullptr)
+    , m_contentWidget(nullptr)
+    , m_contentLayout(nullptr)
+    , m_emptyLabel(nullptr)
+    , m_refreshTimer(nullptr)
+    , m_isInitialized(false)
+{
+    setObjectName("RecentFileListWidget");
+    
+    setupUI();
+    
+    // 设置刷新定时器
+    m_refreshTimer = new QTimer(this);
+    m_refreshTimer->setSingleShot(true);
+    m_refreshTimer->setInterval(REFRESH_DELAY);
+    connect(m_refreshTimer, &QTimer::timeout, this, &RecentFileListWidget::onRefreshTimer);
+    
+    m_isInitialized = true;
+    updateEmptyState();
+}
+
+RecentFileListWidget::~RecentFileListWidget()
+{
+}
+
+void RecentFileListWidget::setRecentFilesManager(RecentFilesManager* manager)
+{
+    if (m_recentFilesManager == manager) return;
+    
+    // 断开旧连接
+    if (m_recentFilesManager) {
+        disconnect(m_recentFilesManager, nullptr, this, nullptr);
+    }
+    
+    m_recentFilesManager = manager;
+    
+    // 建立新连接
+    if (m_recentFilesManager) {
+        connect(m_recentFilesManager, &RecentFilesManager::recentFilesChanged,
+                this, &RecentFileListWidget::onRecentFilesChanged);
+    }
+    
+    // 刷新列表
+    refreshList();
+}
+
+void RecentFileListWidget::refreshList()
+{
+    if (!m_recentFilesManager) {
+        clearList();
+        return;
+    }
+
+    qDebug() << "RecentFileListWidget: Refreshing list...";
+
+    // 清空现有列表
+    clearList();
+
+    // 获取最近文件列表
+    QList<RecentFileInfo> recentFiles = m_recentFilesManager->getRecentFiles();
+
+    // 限制显示数量
+    int maxItems = qMin(recentFiles.size(), MAX_VISIBLE_ITEMS);
+
+    // 添加文件条目
+    for (int i = 0; i < maxItems; ++i) {
+        const RecentFileInfo& fileInfo = recentFiles[i];
+        if (fileInfo.isValid()) {
+            addFileItem(fileInfo);
+        }
+    }
+
+    updateEmptyState();
+
+    qDebug() << "RecentFileListWidget: List refreshed with" << m_fileItems.size() << "items";
+}
+
+void RecentFileListWidget::clearList()
+{
+    qDebug() << "RecentFileListWidget: Clearing list...";
+
+    // 删除所有文件条目
+    for (RecentFileItemWidget* item : m_fileItems) {
+        if (item) {
+            m_contentLayout->removeWidget(qobject_cast<QWidget*>(item));
+            item->deleteLater();
+        }
+    }
+    m_fileItems.clear();
+
+    updateEmptyState();
+}
+
+void RecentFileListWidget::applyTheme()
+{
+    if (!m_isInitialized) return;
+
+    qDebug() << "RecentFileListWidget: Applying theme...";
+
+    StyleManager& styleManager = StyleManager::instance();
+
+    // 更新空状态标签样式
+    if (m_emptyLabel) {
+        m_emptyLabel->setStyleSheet(QString(
+            "QLabel {"
+            "    color: %1;"
+            "    font-size: 14px;"
+            "    margin: 20px;"
+            "}"
+        ).arg(styleManager.textSecondaryColor().name()));
+    }
+
+    // 更新滚动区域样式
+    if (m_scrollArea) {
+        m_scrollArea->setStyleSheet(QString(
+            "QScrollArea {"
+            "    background-color: transparent;"
+            "    border: none;"
+            "}"
+            "QScrollBar:vertical {"
+            "    background-color: %1;"
+            "    width: 8px;"
+            "    border-radius: 4px;"
+            "}"
+            "QScrollBar::handle:vertical {"
+            "    background-color: %2;"
+            "    border-radius: 4px;"
+            "    min-height: 20px;"
+            "}"
+            "QScrollBar::handle:vertical:hover {"
+            "    background-color: %3;"
+            "}"
+        ).arg(styleManager.surfaceColor().name())
+         .arg(styleManager.borderColor().name())
+         .arg(styleManager.textSecondaryColor().name()));
+    }
+
+    // 应用主题到所有文件条目
+    for (RecentFileItemWidget* item : m_fileItems) {
+        item->applyTheme();
+    }
+}
+
+bool RecentFileListWidget::isEmpty() const
+{
+    return m_fileItems.isEmpty();
+}
+
+int RecentFileListWidget::itemCount() const
+{
+    return m_fileItems.size();
+}
+
+void RecentFileListWidget::onRecentFilesChanged()
+{
+    qDebug() << "RecentFileListWidget: Recent files changed, scheduling refresh...";
+    scheduleRefresh();
+}
+
+void RecentFileListWidget::resizeEvent(QResizeEvent* event)
+{
+    QWidget::resizeEvent(event);
+
+    // 确保内容宽度适应
+    if (m_contentWidget) {
+        m_contentWidget->setFixedWidth(event->size().width());
+    }
+}
+
+void RecentFileListWidget::onItemClicked(const QString& filePath)
+{
+    qDebug() << "RecentFileListWidget: Item clicked:" << filePath;
+    emit fileClicked(filePath);
+}
+
+void RecentFileListWidget::onItemRemoveRequested(const QString& filePath)
+{
+    qDebug() << "RecentFileListWidget: Remove requested for:" << filePath;
+
+    // 从管理器中移除文件
+    if (m_recentFilesManager) {
+        m_recentFilesManager->removeRecentFile(filePath);
+    }
+
+    emit fileRemoveRequested(filePath);
+}
+
+void RecentFileListWidget::onRefreshTimer()
+{
+    refreshList();
+}
+
+void RecentFileListWidget::setupUI()
+{
+    m_mainLayout = new QVBoxLayout(this);
+    m_mainLayout->setContentsMargins(0, 0, 0, 0);
+    m_mainLayout->setSpacing(0);
+
+    // 创建滚动区域
+    m_scrollArea = new QScrollArea();
+    m_scrollArea->setWidgetResizable(true);
+    m_scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    m_scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    m_scrollArea->setFrameShape(QFrame::NoFrame);
+
+    // 创建内容容器
+    m_contentWidget = new QWidget();
+    m_contentWidget->setObjectName("RecentFileListContentWidget");
+
+    m_contentLayout = new QVBoxLayout(m_contentWidget);
+    m_contentLayout->setContentsMargins(0, 0, 0, 0);
+    m_contentLayout->setSpacing(2);
+    m_contentLayout->setAlignment(Qt::AlignTop);
+
+    // 空状态标签
+    m_emptyLabel = new QLabel("No recent files");
+    m_emptyLabel->setObjectName("RecentFileListEmptyLabel");
+    m_emptyLabel->setAlignment(Qt::AlignCenter);
+    m_emptyLabel->setVisible(false);
+
+    m_contentLayout->addWidget(m_emptyLabel);
+    m_contentLayout->addStretch();
+
+    m_scrollArea->setWidget(m_contentWidget);
+    m_mainLayout->addWidget(m_scrollArea);
+}
+
+void RecentFileListWidget::setupConnections()
+{
+    // 连接已在setRecentFilesManager中处理
+}
+
+void RecentFileListWidget::addFileItem(const RecentFileInfo& fileInfo)
+{
+    RecentFileItemWidget* item = new RecentFileItemWidget(fileInfo, this);
+
+    connect(item, &RecentFileItemWidget::clicked,
+            this, &RecentFileListWidget::onItemClicked);
+    connect(item, &RecentFileItemWidget::removeRequested,
+            this, &RecentFileListWidget::onItemRemoveRequested);
+
+    // 插入到布局中（在空标签和弹性空间之前）
+    int insertIndex = m_contentLayout->count() - 1; // 在弹性空间之前
+    if (m_emptyLabel && m_emptyLabel->isVisible()) {
+        insertIndex = m_contentLayout->count() - 2; // 在空标签和弹性空间之前
+    }
+
+    m_contentLayout->insertWidget(insertIndex, item);
+    m_fileItems.append(item);
+
+    // 应用主题
+    item->applyTheme();
+}
+
+void RecentFileListWidget::removeFileItem(const QString& filePath)
+{
+    for (int i = 0; i < m_fileItems.size(); ++i) {
+        RecentFileItemWidget* item = m_fileItems[i];
+        if (item->fileInfo().filePath == filePath) {
+            m_contentLayout->removeWidget(qobject_cast<QWidget*>(item));
+            m_fileItems.removeAt(i);
+            item->deleteLater();
+            break;
+        }
+    }
+
+    updateEmptyState();
+}
+
+void RecentFileListWidget::updateEmptyState()
+{
+    bool isEmpty = m_fileItems.isEmpty();
+
+    if (m_emptyLabel) {
+        m_emptyLabel->setVisible(isEmpty);
+    }
+}
+
+void RecentFileListWidget::scheduleRefresh()
+{
+    if (m_refreshTimer && !m_refreshTimer->isActive()) {
+        m_refreshTimer->start();
+    }
+}

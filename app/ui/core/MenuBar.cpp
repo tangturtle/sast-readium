@@ -104,6 +104,12 @@ void MenuBar::createViewMenu() {
     QMenu* viewMenu = new QMenu(tr("视图(V)"), this);
     addMenu(viewMenu);
 
+    // 欢迎界面控制
+    m_welcomeScreenToggleAction = new QAction(tr("显示欢迎界面"), this);
+    m_welcomeScreenToggleAction->setCheckable(true);
+    m_welcomeScreenToggleAction->setChecked(true); // 默认启用
+    m_welcomeScreenToggleAction->setToolTip(tr("切换欢迎界面的显示"));
+
     // 侧边栏控制
     QAction* toggleSideBarAction = new QAction(tr("切换侧边栏"), this);
     toggleSideBarAction->setShortcut(QKeySequence("F9"));
@@ -139,6 +145,8 @@ void MenuBar::createViewMenu() {
     zoomOutAction->setShortcut(QKeySequence("Ctrl+-"));
 
     // 添加到菜单
+    viewMenu->addAction(m_welcomeScreenToggleAction);
+    viewMenu->addSeparator();
     viewMenu->addAction(toggleSideBarAction);
     viewMenu->addAction(showSideBarAction);
     viewMenu->addAction(hideSideBarAction);
@@ -152,6 +160,9 @@ void MenuBar::createViewMenu() {
     viewMenu->addAction(zoomOutAction);
 
     // 连接信号
+    connect(m_welcomeScreenToggleAction, &QAction::triggered, this,
+            [this]() { emit welcomeScreenToggleRequested(); });
+
     connect(toggleSideBarAction, &QAction::triggered, this,
             [this]() { emit onExecuted(ActionMap::toggleSideBar); });
     connect(showSideBarAction, &QAction::triggered, this,
@@ -205,6 +216,13 @@ void MenuBar::setRecentFilesManager(RecentFilesManager* manager)
         connect(m_recentFilesManager, &RecentFilesManager::recentFilesChanged,
                 this, &MenuBar::updateRecentFilesMenu);
         updateRecentFilesMenu();
+    }
+}
+
+void MenuBar::setWelcomeScreenEnabled(bool enabled)
+{
+    if (m_welcomeScreenToggleAction) {
+        m_welcomeScreenToggleAction->setChecked(enabled);
     }
 }
 

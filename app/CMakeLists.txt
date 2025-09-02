@@ -56,6 +56,8 @@ target_sources(
     ui/widgets/SearchWidget.cpp
     ui/widgets/BookmarkWidget.cpp
     ui/widgets/AnnotationToolbar.cpp
+    ui/widgets/WelcomeWidget.cpp
+    ui/widgets/RecentFileListWidget.cpp
 
     # Dialog components
     ui/dialogs/DocumentComparison.cpp
@@ -72,6 +74,7 @@ target_sources(
     # UI Manager components
     ui/managers/PerformanceMonitor.cpp
     ui/managers/AccessibilityManager.cpp
+    ui/managers/WelcomeScreenManager.cpp
 
     # Core Manager components
     managers/StyleManager.cpp
