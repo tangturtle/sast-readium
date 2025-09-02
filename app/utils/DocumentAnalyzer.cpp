@@ -1,9 +1,9 @@
 #include "DocumentAnalyzer.h"
 #include "PDFUtilities.h"
 #include <poppler-qt6.h>
-#include <QDebug>
 #include <QDateTime>
 #include <QFile>
+#include "Logger.h"
 #include <QTextStream>
 #include <QJsonDocument>
 #include <QJsonArray>
@@ -121,7 +121,7 @@ DocumentAnalyzer::AnalysisResult DocumentAnalyzer::analyzeDocument(Poppler::Docu
 void DocumentAnalyzer::startBatchAnalysis(const QStringList& filePaths, const BatchAnalysisSettings& settings)
 {
     if (m_batchRunning) {
-        qWarning() << "Batch analysis already running";
+        Logger::instance().warning("[utils] Batch analysis already running");
         return;
     }
     
@@ -755,12 +755,12 @@ void DocumentAnalyzer::setMaxCacheSize(qint64 maxSize)
 void DocumentAnalyzer::onDocumentAnalysisFinished()
 {
     // Handle completion of document analysis
-    qDebug() << "Document analysis completed";
+    Logger::instance().debug("[utils] Document analysis completed");
 
     // Update progress and notify completion
     updateBatchProgress();
 
     // This slot is called when analysis is finished
     // It can be used to perform cleanup or trigger additional processing
-    qDebug() << "Analysis processing completed successfully";
+    Logger::instance().debug("[utils] Analysis processing completed successfully");
 }

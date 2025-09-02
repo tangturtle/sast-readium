@@ -1,7 +1,5 @@
 #include "PDFUtilities.h"
 #include "../model/AnnotationModel.h"
-#include <QDebug>
-#include <QLoggingCategory>
 #include <QDateTime>
 #include <QFile>
 #include <QTextStream>
@@ -24,6 +22,7 @@
 #include <vector>
 #include <memory>
 #include <poppler/qt6/poppler-qt6.h>
+#include "Logger.h"
 
 QJsonObject PDFUtilities::analyzeDocument(Poppler::Document* document)
 {
@@ -92,18 +91,18 @@ QStringList PDFUtilities::extractAllText(Poppler::Document* document)
     QStringList textList;
 
     if (!document) {
-        qWarning() << "PDFUtilities::extractAllText: Invalid document pointer";
+        Logger::instance().warning("[utils] PDFUtilities::extractAllText: Invalid document pointer");
         return textList;
     }
 
     int pageCount = document->numPages();
     if (pageCount <= 0) {
-        qWarning() << "PDFUtilities::extractAllText: Document has no pages";
+        Logger::instance().warning("[utils] PDFUtilities::extractAllText: Document has no pages");
         return textList;
     }
 
     if (pageCount > 10000) {
-        qWarning() << "PDFUtilities::extractAllText: Very large document (" << pageCount << " pages) - this may take a long time";
+        Logger::instance().warning("[utils] PDFUtilities::extractAllText: Very large document ({} pages) - this may take a long time", pageCount);
     }
 
     try {
@@ -113,15 +112,15 @@ QStringList PDFUtilities::extractAllText(Poppler::Document* document)
                 QString pageText = extractPageText(page.get());
                 textList.append(pageText);
             } else {
-                qWarning() << "PDFUtilities::extractAllText: Failed to load page" << i;
+                Logger::instance().warning("[utils] PDFUtilities::extractAllText: Failed to load page {}", i);
                 textList.append(QString()); // Add empty string to maintain page indexing
             }
         }
     } catch (const std::exception& e) {
-        qWarning() << "PDFUtilities::extractAllText: Exception occurred:" << e.what();
+        Logger::instance().warning("[utils] PDFUtilities::extractAllText: Exception occurred: {}", e.what());
         return QStringList(); // Return empty list on error
     } catch (...) {
-        qWarning() << "PDFUtilities::extractAllText: Unknown exception occurred";
+        Logger::instance().warning("[utils] PDFUtilities::extractAllText: Unknown exception occurred");
         return QStringList();
     }
 
@@ -602,27 +601,27 @@ QJsonObject PDFUtilities::compareDocumentMetadata(Poppler::Document* doc1, Poppl
 QPixmap PDFUtilities::renderPageToPixmap(Poppler::Page* page, double dpi)
 {
     if (!page) {
-        qWarning() << "PDFUtilities::renderPageToPixmap: Invalid page pointer";
+        Logger::instance().warning("[utils] PDFUtilities::renderPageToPixmap: Invalid page pointer");
         return QPixmap();
     }
 
     if (dpi <= 0 || dpi > 600) {
-        qWarning() << "PDFUtilities::renderPageToPixmap: Invalid DPI value:" << dpi << "- using default 150 DPI";
+        Logger::instance().warning("[utils] PDFUtilities::renderPageToPixmap: Invalid DPI value: {} - using default 150 DPI", dpi);
         dpi = 150.0;
     }
 
     try {
         QImage image = page->renderToImage(dpi, dpi);
         if (image.isNull()) {
-            qWarning() << "PDFUtilities::renderPageToPixmap: Failed to render page to image";
+            Logger::instance().warning("[utils] PDFUtilities::renderPageToPixmap: Failed to render page to image");
             return QPixmap();
         }
         return QPixmap::fromImage(image);
     } catch (const std::exception& e) {
-        qWarning() << "PDFUtilities::renderPageToPixmap: Exception occurred:" << e.what();
+        Logger::instance().warning("[utils] PDFUtilities::renderPageToPixmap: Exception occurred: {}", e.what());
         return QPixmap();
     } catch (...) {
-        qWarning() << "PDFUtilities::renderPageToPixmap: Unknown exception occurred";
+        Logger::instance().warning("[utils] PDFUtilities::renderPageToPixmap: Unknown exception occurred");
         return QPixmap();
     }
 }
@@ -909,12 +908,12 @@ bool PDFUtilities::exportAnalysisToJson(const QJsonObject& analysis, const QStri
 bool PDFUtilities::savePDFWithAnnotations(Poppler::Document* document, const QString& filePath, const QList<PDFAnnotation>& annotations)
 {
     if (!document) {
-        qWarning() << "Cannot save PDF: document is null";
+        Logger::instance().warning("[utils] Cannot save PDF: document is null");
         return false;
     }
 
     if (filePath.isEmpty()) {
-        qWarning() << "Cannot save PDF: file path is empty";
+        Logger::instance().warning("[utils] Cannot save PDF: file path is empty");
         return false;
     }
 
@@ -936,18 +935,18 @@ bool PDFUtilities::savePDFWithAnnotations(Poppler::Document* document, const QSt
 
         // Create a temporary approach: render pages and create new PDF
         // This is not ideal but works as a fallback
-        qWarning() << "PDF save with annotations requires additional PDF writing libraries";
-        qWarning() << "Current implementation provides basic file operations only";
+        Logger::instance().warning("[utils] PDF save with annotations requires additional PDF writing libraries");
+        Logger::instance().warning("[utils] Current implementation provides basic file operations only");
 
         // For now, return false to indicate this feature needs additional implementation
         // The UI will show an appropriate error message
         return false;
 
     } catch (const std::exception& e) {
-        qWarning() << "Exception while saving PDF:" << e.what();
+        Logger::instance().warning("[utils] Exception while saving PDF: {}", e.what());
         return false;
     } catch (...) {
-        qWarning() << "Unknown exception while saving PDF";
+        Logger::instance().warning("[utils] Unknown exception while saving PDF");
         return false;
     }
 }

@@ -21,6 +21,7 @@
 #include <QDebug>
 #include <QStyle>
 #include <QWidget>
+#include "utils/LoggingMacros.h"
 #include <QEasingCurve>
 #include <Qt>
 
@@ -61,8 +62,8 @@ WelcomeWidget::WelcomeWidget(QWidget* parent)
     , m_isInitialized(false)
     , m_isVisible(false)
 {
-    qDebug() << "WelcomeWidget: Initializing...";
-    
+    LOG_DEBUG("WelcomeWidget: Initializing...");
+
     // 设置基本属性
     setObjectName("WelcomeWidget");
     setAttribute(Qt::WA_StyledBackground, true);
@@ -86,12 +87,12 @@ WelcomeWidget::WelcomeWidget(QWidget* parent)
     setupConnections();
     
     m_isInitialized = true;
-    qDebug() << "WelcomeWidget: Initialization completed";
+    LOG_DEBUG("WelcomeWidget: Initialization completed");
 }
 
 WelcomeWidget::~WelcomeWidget()
 {
-    qDebug() << "WelcomeWidget: Destroying...";
+    LOG_DEBUG("WelcomeWidget: Destroying...");
 }
 
 void WelcomeWidget::setRecentFilesManager(RecentFilesManager* manager)
@@ -125,7 +126,7 @@ void WelcomeWidget::applyTheme()
 {
     if (!m_isInitialized) return;
 
-    qDebug() << "WelcomeWidget: Applying theme...";
+    LOG_DEBUG("WelcomeWidget: Applying theme...");
 
     // 清除所有内联样式，让QSS文件接管样式控制
     setStyleSheet("");
@@ -160,14 +161,14 @@ void WelcomeWidget::applyTheme()
     }
     update();
 
-    qDebug() << "WelcomeWidget: Theme applied successfully";
+    LOG_DEBUG("WelcomeWidget: Theme applied successfully");
 }
 
 void WelcomeWidget::refreshContent()
 {
     if (!m_isInitialized) return;
 
-    qDebug() << "WelcomeWidget: Refreshing content...";
+    LOG_DEBUG("WelcomeWidget: Refreshing content...");
 
     // 刷新最近文件列表
     if (m_recentFilesList && m_recentFilesManager) {
@@ -189,8 +190,8 @@ void WelcomeWidget::refreshContent()
 
 void WelcomeWidget::onRecentFilesChanged()
 {
-    qDebug() << "WelcomeWidget: Recent files changed, refreshing...";
-    
+    LOG_DEBUG("WelcomeWidget: Recent files changed, refreshing...");
+
     // 延迟刷新以避免频繁更新
     if (m_refreshTimer) {
         m_refreshTimer->start();
@@ -199,7 +200,7 @@ void WelcomeWidget::onRecentFilesChanged()
 
 void WelcomeWidget::onThemeChanged()
 {
-    qDebug() << "WelcomeWidget: Theme changed, applying new theme...";
+    LOG_DEBUG("WelcomeWidget: Theme changed, applying new theme...");
     applyTheme();
 }
 
@@ -227,30 +228,30 @@ void WelcomeWidget::showEvent(QShowEvent* event)
 
 void WelcomeWidget::onNewFileClicked()
 {
-    qDebug() << "WelcomeWidget: New file requested";
+    LOG_DEBUG("WelcomeWidget: New file requested");
     emit newFileRequested();
 }
 
 void WelcomeWidget::onOpenFileClicked()
 {
-    qDebug() << "WelcomeWidget: Open file requested";
+    LOG_DEBUG("WelcomeWidget: Open file requested");
     emit openFileRequested();
 }
 
 void WelcomeWidget::onRecentFileClicked(const QString& filePath)
 {
-    qDebug() << "WelcomeWidget: Recent file clicked:" << filePath;
+    LOG_DEBUG("WelcomeWidget: Recent file clicked: {}", filePath.toStdString());
     emit fileOpenRequested(filePath);
 }
 
 void WelcomeWidget::onFadeInFinished()
 {
-    qDebug() << "WelcomeWidget: Fade in animation finished";
+    LOG_DEBUG("WelcomeWidget: Fade in animation finished");
 }
 
 void WelcomeWidget::initializeUI()
 {
-    qDebug() << "WelcomeWidget: Initializing UI components...";
+    LOG_DEBUG("WelcomeWidget: Initializing UI components...");
 
     // 创建主布局
     m_mainLayout = new QVBoxLayout(this);
@@ -278,7 +279,7 @@ void WelcomeWidget::initializeUI()
     m_scrollArea->setWidget(m_contentWidget);
     m_mainLayout->addWidget(m_scrollArea);
 
-    qDebug() << "WelcomeWidget: UI components initialized";
+    LOG_DEBUG("WelcomeWidget: UI components initialized");
 }
 
 void WelcomeWidget::setupLayout()

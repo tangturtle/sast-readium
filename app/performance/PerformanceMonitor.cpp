@@ -9,6 +9,7 @@
 #include <QMutexLocker>
 #include <algorithm>
 #include <numeric>
+#include "utils/LoggingMacros.h"
 
 PerformanceMonitor* PerformanceMonitor::s_instance = nullptr;
 
@@ -52,8 +53,8 @@ void PerformanceMonitor::startMonitoring() {
         m_isMonitoring = true;
         m_updateTimer->start();
         m_analysisTimer->start();
-        
-        qDebug() << "Performance monitoring started";
+
+        LOG_INFO("Performance monitoring started");
     }
 }
 
@@ -62,8 +63,8 @@ void PerformanceMonitor::stopMonitoring() {
         m_isMonitoring = false;
         m_updateTimer->stop();
         m_analysisTimer->stop();
-        
-        qDebug() << "Performance monitoring stopped";
+
+        LOG_INFO("Performance monitoring stopped");
     }
 }
 

@@ -1,8 +1,8 @@
 #include "DocumentController.h"
 #include <poppler/qt6/poppler-qt6.h>
-#include <QDebug>
 #include <QFile>
 #include <QFileDialog>
+#include "utils/LoggingMacros.h"
 #include <QMessageBox>
 #include <QStandardPaths>
 #include <QStringList>
@@ -10,6 +10,7 @@
 #include <QDirIterator>
 #include <QFileInfo>
 #include "../ui/dialogs/DocumentMetadataDialog.h"
+#include "utils/LoggingMacros.h"
 
 
 void DocumentController::initializeCommandMap() {
@@ -172,7 +173,7 @@ void DocumentController::initializeCommandMap() {
         {ActionMap::openRecentFile,
          [this](QWidget* ctx) {
              // 这个操作通过信号处理，不在这里直接实现
-             qDebug() << "openRecentFile action triggered";
+             LOG_DEBUG("openRecentFile action triggered");
          }},
         {ActionMap::clearRecentFiles,
          [this](QWidget* ctx) {
@@ -190,13 +191,13 @@ DocumentController::DocumentController(DocumentModel* model)
 }
 
 void DocumentController::execute(ActionMap actionID, QWidget* context) {
-    qDebug() << "EventID:" << actionID << "context" << context;
+    LOG_DEBUG("EventID: {} context: {}", static_cast<int>(actionID), static_cast<void*>(context));
 
     auto it = commandMap.find(actionID);
     if (it != commandMap.end()) {
         (*it)(context);
     } else {
-        qWarning() << "Unknown action ID:" << static_cast<int>(actionID);
+        LOG_WARNING("Unknown action ID: {}", static_cast<int>(actionID));
     }
 }
 
@@ -226,7 +227,7 @@ bool DocumentController::openDocuments(const QStringList& filePaths) {
     }
 
     if (validPaths.isEmpty()) {
-        qWarning() << "No valid PDF files found in the selection";
+        LOG_WARNING("No valid PDF files found in the selection");
         return false;
     }
 
@@ -455,17 +456,17 @@ QStringList DocumentController::scanFolderForPDFs(const QString& folderPath) {
     QStringList pdfFiles;
 
     if (folderPath.isEmpty()) {
-        qWarning() << "DocumentController::scanFolderForPDFs: Empty folder path provided";
+        LOG_WARNING("DocumentController::scanFolderForPDFs: Empty folder path provided");
         return pdfFiles;
     }
 
     QDir dir(folderPath);
     if (!dir.exists()) {
-        qWarning() << "DocumentController::scanFolderForPDFs: Folder does not exist:" << folderPath;
+        LOG_WARNING("DocumentController::scanFolderForPDFs: Folder does not exist: {}", folderPath.toStdString());
         return pdfFiles;
     }
 
-    qDebug() << "DocumentController: Scanning folder for PDFs:" << folderPath;
+    LOG_DEBUG("DocumentController: Scanning folder for PDFs: {}", folderPath.toStdString());
 
     // 使用QDirIterator递归扫描文件夹中的所有PDF文件
     QDirIterator it(folderPath, QStringList() << "*.pdf" << "*.PDF",
@@ -478,10 +479,10 @@ QStringList DocumentController::scanFolderForPDFs(const QString& folderPath) {
         QFileInfo fileInfo(filePath);
         if (fileInfo.exists() && fileInfo.isReadable() && fileInfo.size() > 0) {
             pdfFiles.append(filePath);
-            qDebug() << "DocumentController: Found PDF file:" << filePath;
+            LOG_DEBUG("DocumentController: Found PDF file: {}", filePath.toStdString());
         }
     }
 
-    qDebug() << "DocumentController: Found" << pdfFiles.size() << "PDF files in folder";
+    LOG_DEBUG("DocumentController: Found {} PDF files in folder", pdfFiles.size());
     return pdfFiles;
 }

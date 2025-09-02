@@ -18,6 +18,7 @@ add_rules("mode.debug", "mode.release")
 
 -- Package requirements (only non-Qt packages)
 add_requires("pkgconfig::poppler-qt6")
+add_requires("spdlog")
 
 -- Build options
 option("toolchain")
@@ -272,6 +273,9 @@ target("sast-readium")
     
     -- Add poppler-qt6 dependency
     add_packages("pkgconfig::poppler-qt6")
+
+    -- Add spdlog dependency
+    add_packages("spdlog")
     
     -- Generate config.h from template
     before_build(function (target)
@@ -488,7 +492,7 @@ if has_config("enable_tests") then
         set_default(false)
         add_deps("sast-readium")
         add_files("tests/*.cpp")
-        add_packages("pkgconfig::poppler-qt6")
+        add_packages("pkgconfig::poppler-qt6", "spdlog")
     target_end()
 end
 
@@ -498,7 +502,7 @@ if has_config("enable_examples") then
         set_kind("binary")
         set_default(false)
         add_files("app/example/*.cpp")
-        add_packages("pkgconfig::poppler-qt6")
+        add_packages("pkgconfig::poppler-qt6", "spdlog")
     target_end()
 end
 

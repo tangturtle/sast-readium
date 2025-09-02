@@ -150,12 +150,31 @@ void MenuBar::createViewMenu() {
     QAction* zoomOutAction = new QAction(tr("缩小"), this);
     zoomOutAction->setShortcut(QKeySequence("Ctrl+-"));
 
+    // 调试面板控制
+    m_debugPanelToggleAction = new QAction(tr("显示调试面板"), this);
+    m_debugPanelToggleAction->setShortcut(QKeySequence("F12"));
+    m_debugPanelToggleAction->setCheckable(true);
+    m_debugPanelToggleAction->setChecked(true); // 默认显示
+    m_debugPanelToggleAction->setToolTip(tr("切换调试日志面板的显示"));
+
+    m_debugPanelClearAction = new QAction(tr("清空调试日志"), this);
+    m_debugPanelClearAction->setShortcut(QKeySequence("Ctrl+Shift+L"));
+    m_debugPanelClearAction->setToolTip(tr("清空调试面板中的所有日志"));
+
+    m_debugPanelExportAction = new QAction(tr("导出调试日志"), this);
+    m_debugPanelExportAction->setShortcut(QKeySequence("Ctrl+Shift+E"));
+    m_debugPanelExportAction->setToolTip(tr("将调试日志导出到文件"));
+
     // 添加到菜单
     viewMenu->addAction(m_welcomeScreenToggleAction);
     viewMenu->addSeparator();
     viewMenu->addAction(toggleSideBarAction);
     viewMenu->addAction(showSideBarAction);
     viewMenu->addAction(hideSideBarAction);
+    viewMenu->addSeparator();
+    viewMenu->addAction(m_debugPanelToggleAction);
+    viewMenu->addAction(m_debugPanelClearAction);
+    viewMenu->addAction(m_debugPanelExportAction);
     viewMenu->addSeparator();
     viewMenu->addAction(singlePageAction);
     viewMenu->addAction(continuousScrollAction);
@@ -181,6 +200,14 @@ void MenuBar::createViewMenu() {
             [this]() { emit onExecuted(ActionMap::setSinglePageMode); });
     connect(continuousScrollAction, &QAction::triggered, this,
             [this]() { emit onExecuted(ActionMap::setContinuousScrollMode); });
+
+    // 连接调试面板信号
+    connect(m_debugPanelToggleAction, &QAction::triggered, this,
+            [this]() { emit debugPanelToggleRequested(); });
+    connect(m_debugPanelClearAction, &QAction::triggered, this,
+            [this]() { emit debugPanelClearRequested(); });
+    connect(m_debugPanelExportAction, &QAction::triggered, this,
+            [this]() { emit debugPanelExportRequested(); });
 }
 
 void MenuBar::createThemeMenu() {

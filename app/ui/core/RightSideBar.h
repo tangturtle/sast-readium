@@ -8,6 +8,9 @@
 #include <QLabel>
 #include <memory>
 
+// Forward declaration
+class DebugLogPanel;
+
 class RightSideBar : public QWidget {
     Q_OBJECT
 public:
@@ -44,6 +47,7 @@ private:
     QTabWidget* tabWidget;
     QPropertyAnimation* animation;
     QSettings* settings;
+    DebugLogPanel* debugLogPanel;
 
     bool isCurrentlyVisible;
     int preferredWidth;
@@ -62,4 +66,5 @@ private:
 
     QWidget* createPropertiesTab();
     QWidget* createToolsTab();
+    QWidget* createDebugTab();
 };

@@ -13,6 +13,7 @@
 #include <poppler-qt6.h>
 #include <cmath>
 #include <algorithm>
+#include "utils/LoggingMacros.h"
 
 ThumbnailGenerator::ThumbnailGenerator(QObject* parent)
     : QObject(parent)
@@ -464,10 +465,10 @@ QPixmap ThumbnailGenerator::generatePixmap(const GenerationRequest& request)
         return renderPageToPixmap(page.get(), request.size, request.quality);
 
     } catch (const std::exception& e) {
-        qWarning() << "Exception in generatePixmap:" << e.what();
+        LOG_WARNING("Exception in generatePixmap: {}", std::string(e.what()));
         return QPixmap();
     } catch (...) {
-        qWarning() << "Unknown exception in generatePixmap";
+        LOG_WARNING("Unknown exception in generatePixmap");
         return QPixmap();
     }
 }

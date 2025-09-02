@@ -3,6 +3,7 @@
 #include <QDebug>
 #include <QFileInfo>
 #include <QDirIterator>
+#include "utils/LoggingMacros.h"
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
@@ -51,7 +52,7 @@ bool PluginDependencyResolver::hasCyclicDependencies(const QHash<QString, Plugin
 QStringList PluginDependencyResolver::getLoadOrder(const QHash<QString, PluginMetadata>& plugins)
 {
     if (hasCyclicDependencies(plugins)) {
-        qWarning() << "Cyclic dependencies detected in plugins";
+        LOG_WARNING("Cyclic dependencies detected in plugins");
         return plugins.keys(); // Return original order if cycles exist
     }
     
@@ -133,8 +134,8 @@ void PluginManager::setPluginDirectories(const QStringList& directories)
 
 void PluginManager::scanForPlugins()
 {
-    qDebug() << "Scanning for plugins in directories:" << m_pluginDirectories;
-    
+    LOG_DEBUG("Scanning for plugins in directories: [{}]", m_pluginDirectories.join(", ").toStdString());
+
     m_pluginMetadata.clear();
     int pluginCount = 0;
     

@@ -19,6 +19,9 @@ signals:
     void onExecuted(ActionMap id, QWidget* context = nullptr);
     void openRecentFileRequested(const QString& filePath);
     void welcomeScreenToggleRequested();
+    void debugPanelToggleRequested();
+    void debugPanelClearRequested();
+    void debugPanelExportRequested();
 
 public slots:
     void setRecentFilesManager(RecentFilesManager* manager);
@@ -40,4 +43,7 @@ private:
     QMenu* m_recentFilesMenu;
     QAction* m_clearRecentFilesAction;
     QAction* m_welcomeScreenToggleAction;
+    QAction* m_debugPanelToggleAction;
+    QAction* m_debugPanelClearAction;
+    QAction* m_debugPanelExportAction;
 };

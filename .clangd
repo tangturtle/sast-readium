@@ -1,5 +1,5 @@
 ﻿CompileFlags:
-  CompilationDatabase: build/Debug-MSYS2
+  CompilationDatabase: build
   Remove:
     # Remove C++20 modules flags that clangd doesn't support yet
     - "-fmodules-ts"
@@ -24,6 +24,10 @@ InlayHints:
 
 Hover:
   ShowAKA: true
+
+
+
+
 
 
 

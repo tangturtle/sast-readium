@@ -1,5 +1,6 @@
 #include "RightSideBar.h"
 #include "../../managers/StyleManager.h"
+#include "../widgets/DebugLogPanel.h"
 #include <QtCore>
 #include <QtGui>
 #include <QtWidgets>
@@ -21,7 +22,7 @@ const int RightSideBar::defaultWidth;
 const int RightSideBar::animationDuration;
 
 RightSideBar::RightSideBar(QWidget* parent)
-    : QWidget(parent), animation(nullptr), settings(nullptr),
+    : QWidget(parent), animation(nullptr), settings(nullptr), debugLogPanel(nullptr),
       isCurrentlyVisible(true), preferredWidth(defaultWidth), lastWidth(defaultWidth) {
 
     initSettings();
@@ -51,9 +52,11 @@ void RightSideBar::initContent() {
 
     QWidget* propertiesTab = createPropertiesTab();
     QWidget* toolsTab = createToolsTab();
+    QWidget* debugTab = createDebugTab();
 
     tabWidget->addTab(propertiesTab, "属性");
     tabWidget->addTab(toolsTab, "工具");
+    tabWidget->addTab(debugTab, "调试");
 
     QVBoxLayout* mainLayout = new QVBoxLayout(this);
     mainLayout->addWidget(tabWidget);
@@ -99,6 +102,14 @@ QWidget* RightSideBar::createToolsTab() {
 
     layout->addStretch();
     return toolsTab;
+}
+
+QWidget* RightSideBar::createDebugTab() {
+    // Create the debug log panel
+    debugLogPanel = new DebugLogPanel();
+
+    // The DebugLogPanel is already a complete widget, so we can return it directly
+    return debugLogPanel;
 }
 
 void RightSideBar::initAnimation() {

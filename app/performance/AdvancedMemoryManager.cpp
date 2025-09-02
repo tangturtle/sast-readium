@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstring>
+#include "utils/LoggingMacros.h"
 
 // MemoryPool Implementation
 MemoryPool::MemoryPool(MemoryPoolType type, size_t initialSize)
@@ -58,7 +59,7 @@ void* MemoryPool::allocate(size_t size) {
         block = findFreeBlock(size);
 
         if (!block) {
-            qWarning() << "MemoryPool: Failed to allocate" << size << "bytes";
+            LOG_WARNING("MemoryPool: Failed to allocate {} bytes", size);
             return nullptr;
         }
     }

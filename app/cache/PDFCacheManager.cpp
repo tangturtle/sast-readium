@@ -1,10 +1,10 @@
 #include "PDFCacheManager.h"
 #include <QApplication>
 #include <QDateTime>
-#include <QDebug>
 #include <QMutexLocker>
 #include <QPixmap>
 // #include <QtConcurrent> // Not available in this MSYS2 setup
+#include "utils/LoggingMacros.h"
 
 // CacheItem Implementation
 qint64 CacheItem::calculateSize() const {
@@ -91,8 +91,7 @@ void PreloadTask::run() {
                                   Qt::QueuedConnection);
 
     } catch (...) {
-        qWarning() << "PreloadTask: Exception during preload of page"
-                   << m_pageNumber;
+        LOG_WARNING("PreloadTask: Exception during preload of page {}", m_pageNumber);
     }
 }
 
@@ -129,8 +128,8 @@ PDFCacheManager::PDFCacheManager(QObject* parent)
     // Load settings
     loadSettings();
 
-    qDebug() << "PDFCacheManager initialized with max memory:"
-             << m_maxMemoryUsage << "bytes, max items:" << m_maxItems;
+    LOG_DEBUG("PDFCacheManager initialized with max memory: {} bytes, max items: {}",
+              m_maxMemoryUsage, m_maxItems);
 }
 
 bool PDFCacheManager::insert(const QString& key, const QVariant& data,
@@ -150,16 +149,15 @@ bool PDFCacheManager::insert(const QString& key, const QVariant& data,
     while (m_cache.size() >= m_maxItems ||
            (getCurrentMemoryUsage() + item.memorySize) > m_maxMemoryUsage) {
         if (!evictLeastUsedItems(1)) {
-            qWarning() << "PDFCacheManager: Failed to evict items, cache full";
+            LOG_WARNING("PDFCacheManager: Failed to evict items, cache full");
             return false;
         }
     }
 
     m_cache[key] = item;
 
-    qDebug() << "PDFCacheManager: Cached item" << key
-             << "type:" << static_cast<int>(type) << "size:" << item.memorySize
-             << "bytes";
+    LOG_DEBUG("PDFCacheManager: Cached item {} type: {} size: {} bytes",
+              key.toStdString(), static_cast<int>(type), item.memorySize);
 
     return true;
 }
@@ -200,7 +198,7 @@ bool PDFCacheManager::remove(const QString& key) {
 void PDFCacheManager::clear() {
     QMutexLocker locker(&m_cacheMutex);
     m_cache.clear();
-    qDebug() << "PDFCacheManager: Cache cleared";
+    LOG_DEBUG("PDFCacheManager: Cache cleared");
 }
 
 bool PDFCacheManager::cacheRenderedPage(int pageNumber, const QPixmap& pixmap,
@@ -244,8 +242,7 @@ QString PDFCacheManager::getTextContent(int pageNumber) {
 
 void PDFCacheManager::enablePreloading(bool enabled) {
     m_preloadingEnabled = enabled;
-    qDebug() << "PDFCacheManager: Preloading"
-             << (enabled ? "enabled" : "disabled");
+    LOG_DEBUG("PDFCacheManager: Preloading {}", enabled ? "enabled" : "disabled");
 }
 
 void PDFCacheManager::preloadPages(const QList<int>& pageNumbers,
@@ -275,7 +272,7 @@ void PDFCacheManager::preloadAroundPage(int centerPage, int radius) {
 
 void PDFCacheManager::setPreloadingStrategy(const QString& strategy) {
     m_preloadingStrategy = strategy;
-    qDebug() << "PDFCacheManager: Preloading strategy set to" << strategy;
+    LOG_DEBUG("PDFCacheManager: Preloading strategy set to {}", strategy.toStdString());
 }
 
 QString PDFCacheManager::generateKey(int pageNumber, CacheItemType type,

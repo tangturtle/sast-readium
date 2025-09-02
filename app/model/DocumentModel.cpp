@@ -1,10 +1,11 @@
 #include "DocumentModel.h"
 #include <QFileInfo>
 #include "RenderModel.h"
+#include "utils/LoggingMacros.h"
 
 // 添加支持RenderModel的构造函数
 DocumentModel::DocumentModel(RenderModel* _renderModel): renderModel(_renderModel), currentDocumentIndex(-1) {
-    qDebug() << "DocumentModel created with RenderModel";
+    LOG_DEBUG("DocumentModel created with RenderModel");
     // 初始化异步加载器
     asyncLoader = new AsyncDocumentLoader(this);
 
@@ -133,14 +134,14 @@ void DocumentModel::onDocumentLoaded(Poppler::Document* document, const QString&
     int newIndex = static_cast<int>(documents.size() - 1);
     currentDocumentIndex = newIndex;
 
-    qDebug() << "Async loaded successfully:" << filePath;
+    LOG_INFO("Async loaded successfully: {}", filePath.toStdString());
     emit documentOpened(newIndex, documents[newIndex]->fileName);
     emit currentDocumentChanged(newIndex);
 
     // 检查是否还有待加载的文件
     if (!pendingFiles.isEmpty()) {
         QString nextFile = pendingFiles.takeFirst();
-        qDebug() << "Loading next file from queue:" << nextFile;
+        LOG_DEBUG("Loading next file from queue: {}", nextFile.toStdString());
 
         // 发送加载开始信号
         emit loadingStarted(nextFile);

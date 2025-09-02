@@ -1,9 +1,16 @@
 #include "RecentFilesManager.h"
-#include <QDebug>
 #include <QDir>
+#include "utils/Logger.h"
 #include <QFileInfo>
 #include <QMutexLocker>
 #include <QTimer>
+#include <QString>
+#include <QObject>
+#include <QSettings>
+#include <QList>
+#include <QStringList>
+#include <QtCore/QObject>
+#include <algorithm>
 
 const QString RecentFilesManager::SETTINGS_GROUP = "recentFiles";
 const QString RecentFilesManager::SETTINGS_MAX_FILES_KEY = "maxFiles";
@@ -19,8 +26,7 @@ RecentFilesManager::RecentFilesManager(QObject* parent)
     // 加载配置 (不执行文件清理以避免阻塞)
     loadSettingsWithoutCleanup();
 
-    qDebug() << "RecentFilesManager: Initialized with max files:"
-             << m_maxRecentFiles;
+    Logger::instance().debug("RecentFilesManager: Initialized with max files: {}", m_maxRecentFiles);
 }
 
 RecentFilesManager::~RecentFilesManager() { saveSettings(); }
@@ -35,7 +41,7 @@ void RecentFilesManager::addRecentFile(const QString& filePath) {
     // 创建文件信息
     RecentFileInfo newFile(filePath);
     if (!newFile.isValid()) {
-        qWarning() << "RecentFilesManager: File does not exist:" << filePath;
+        Logger::instance().warning("[managers] File does not exist: {}", filePath.toStdString());
         return;
     }
 
@@ -60,7 +66,7 @@ void RecentFilesManager::addRecentFile(const QString& filePath) {
     emit recentFileAdded(filePath);
     emit recentFilesChanged();
 
-    qDebug() << "RecentFilesManager: Added file:" << filePath;
+    Logger::instance().info("[managers] Added recent file: {}", filePath.toStdString());
 }
 
 QList<RecentFileInfo> RecentFilesManager::getRecentFiles() const {
@@ -92,7 +98,7 @@ void RecentFilesManager::clearRecentFiles() {
     emit recentFilesCleared();
     emit recentFilesChanged();
 
-    qDebug() << "RecentFilesManager: Cleared all recent files";
+    Logger::instance().info("[managers] Cleared all recent files");
 }
 
 void RecentFilesManager::removeRecentFile(const QString& filePath) {
@@ -110,14 +116,13 @@ void RecentFilesManager::removeRecentFile(const QString& filePath) {
         emit recentFileRemoved(filePath);
         emit recentFilesChanged();
 
-        qDebug() << "RecentFilesManager: Removed file:" << filePath;
+        Logger::instance().info("[managers] Removed recent file: {}", filePath.toStdString());
     }
 }
 
 void RecentFilesManager::setMaxRecentFiles(int maxFiles) {
     if (maxFiles < 1 || maxFiles > 50) {
-        qWarning() << "RecentFilesManager: Invalid max files count:"
-                   << maxFiles;
+        Logger::instance().warning("[managers] Invalid max files count: {}", maxFiles);
         return;
     }
 
@@ -130,7 +135,7 @@ void RecentFilesManager::setMaxRecentFiles(int maxFiles) {
 
         emit recentFilesChanged();
 
-        qDebug() << "RecentFilesManager: Max files changed to:" << maxFiles;
+        Logger::instance().info("[managers] Max recent files changed to: {}", maxFiles);
     }
 }
 
@@ -156,8 +161,7 @@ void RecentFilesManager::cleanupInvalidFiles() {
     auto it = m_recentFiles.begin();
     while (it != m_recentFiles.end()) {
         if (!it->isValid()) {
-            qDebug() << "RecentFilesManager: Removing invalid file:"
-                     << it->filePath;
+            Logger::instance().debug("[managers] Removing invalid file: {}", it->filePath.toStdString());
             it = m_recentFiles.erase(it);
             changed = true;
         } else {
@@ -175,25 +179,21 @@ void RecentFilesManager::initializeAsync() {
     // 使用 QTimer::singleShot 在下一个事件循环中异步执行清理
     QTimer::singleShot(100, this, [this]() {
         try {
-            qDebug() << "RecentFilesManager: Starting async cleanup";
+            Logger::instance().debug("[managers] Starting async cleanup");
 
             // 检查对象是否仍然有效
             if (!m_settings) {
-                qWarning() << "RecentFilesManager: Settings object is null "
-                              "during async cleanup";
+                Logger::instance().warning("[managers] Settings object is null during async cleanup");
                 return;
             }
 
             cleanupInvalidFiles();
-            qDebug()
-                << "RecentFilesManager: Async cleanup completed successfully";
+            Logger::instance().debug("[managers] Async cleanup completed successfully");
 
         } catch (const std::exception& e) {
-            qWarning() << "RecentFilesManager: Exception during async cleanup:"
-                       << e.what();
+            Logger::instance().error("[managers] Exception during async cleanup: {}", e.what());
         } catch (...) {
-            qWarning()
-                << "RecentFilesManager: Unknown exception during async cleanup";
+            Logger::instance().error("[managers] Unknown exception during async cleanup");
         }
     });
 }
@@ -204,8 +204,7 @@ void RecentFilesManager::loadSettings() {
     // 清理无效文件
     cleanupInvalidFiles();
 
-    qDebug() << "RecentFilesManager: Loaded and cleaned" << m_recentFiles.size()
-             << "recent files";
+    Logger::instance().info("[managers] Loaded and cleaned {} recent files", m_recentFiles.size());
 }
 
 void RecentFilesManager::loadSettingsWithoutCleanup() {
@@ -237,7 +236,7 @@ void RecentFilesManager::loadSettingsWithoutCleanup() {
                 m_recentFiles.append(info);
                 validCount++;
             } else {
-                qWarning() << "RecentFilesManager: Skipping invalid file entry at index" << i;
+                Logger::instance().warning("[managers] Skipping invalid file entry at index {}", i);
             }
         }
     }
@@ -245,8 +244,8 @@ void RecentFilesManager::loadSettingsWithoutCleanup() {
     m_settings->endArray();
     m_settings->endGroup();
 
-    qDebug() << "RecentFilesManager: Loaded" << validCount << "valid recent files out of"
-             << size << "total entries (without cleanup)";
+    Logger::instance().debug("[managers] Loaded {} valid recent files out of {} total entries (without cleanup)",
+              validCount, size);
 }
 
 void RecentFilesManager::saveSettings() {
@@ -300,7 +299,7 @@ RecentFileInfo RecentFilesManager::variantToFileInfo(
 
     // Validate and fix corrupted data
     if (info.filePath.isEmpty() || info.fileName.isEmpty()) {
-        qWarning() << "RecentFilesManager: Invalid file info detected, skipping";
+        Logger::instance().warning("[managers] Invalid file info detected, skipping");
         return RecentFileInfo(); // Return empty/invalid info
     }
 

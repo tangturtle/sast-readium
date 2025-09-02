@@ -51,6 +51,7 @@ if(USE_VCPKG_INTERNAL)
         CONFIG
         REQUIRED
     )
+    find_package(spdlog CONFIG REQUIRED)
     find_package(PkgConfig REQUIRED)
     pkg_check_modules(POPPLER_QT6 REQUIRED IMPORTED_TARGET poppler-qt6)
 else()
@@ -68,6 +69,9 @@ else()
         # Find Qt6 using system installation
         find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Svg LinguistTools Concurrent TextToSpeech)
 
+        # Find spdlog using system installation
+        find_package(spdlog REQUIRED)
+
         # Find poppler-qt6 using pkg-config
         find_package(PkgConfig REQUIRED)
         pkg_check_modules(POPPLER_QT6 REQUIRED IMPORTED_TARGET poppler-qt6)
@@ -80,6 +84,7 @@ else()
     else()
         # Generic system package finding
         find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Svg LinguistTools Concurrent TextToSpeech)
+        find_package(spdlog REQUIRED)
         find_package(PkgConfig REQUIRED)
         pkg_check_modules(POPPLER_QT6 REQUIRED IMPORTED_TARGET poppler-qt6)
     endif()

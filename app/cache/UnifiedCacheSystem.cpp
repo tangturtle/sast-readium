@@ -2,12 +2,12 @@
 #include <QApplication>
 #include <QBuffer>
 #include <QDataStream>
-#include <QDebug>
 #include <QDir>
 #include <QMutexLocker>
 #include <QStandardPaths>
 #include <algorithm>
 #include <cmath>
+#include "utils/LoggingMacros.h"
 
 // UnifiedCacheItem Implementation
 qint64 UnifiedCacheItem::calculateMemorySize() const {
@@ -73,8 +73,7 @@ UnifiedCacheSystem::UnifiedCacheSystem(QObject* parent)
         "/readium";
     QDir().mkpath(m_cacheDirectory);
 
-    qDebug() << "UnifiedCacheSystem: Initialized with"
-             << m_config.maxMemoryUsage << "bytes limit";
+    LOG_DEBUG("UnifiedCacheSystem: Initialized with {} bytes limit", m_config.maxMemoryUsage);
 }
 
 UnifiedCacheSystem::~UnifiedCacheSystem() {
@@ -139,8 +138,7 @@ bool UnifiedCacheSystem::insert(const QString& key, const QVariant& data,
     while ((getCurrentMemoryUsage() + item.size) > m_config.maxMemoryUsage ||
            m_cache.size() >= m_config.maxItems) {
         if (!evictLRUItems(1)) {
-            qWarning()
-                << "UnifiedCacheSystem: Failed to make space for new item";
+            LOG_WARNING("UnifiedCacheSystem: Failed to make space for new item");
             return false;
         }
     }
@@ -150,9 +148,8 @@ bool UnifiedCacheSystem::insert(const QString& key, const QVariant& data,
 
     updateStatistics(item, false);
 
-    qDebug() << "UnifiedCacheSystem: Cached" << key
-             << "type:" << static_cast<int>(type) << "size:" << item.size
-             << "compressed:" << item.isCompressed;
+    LOG_DEBUG("UnifiedCacheSystem: Cached {} type: {} size: {} compressed: {}",
+              key.toStdString(), static_cast<int>(type), item.size, item.isCompressed);
 
     return true;
 }
@@ -209,7 +206,7 @@ void UnifiedCacheSystem::clear() {
     QMutexLocker statsLocker(&m_statsMutex);
     m_stats = UnifiedCacheStats();
 
-    qDebug() << "UnifiedCacheSystem: Cache cleared";
+    LOG_DEBUG("UnifiedCacheSystem: Cache cleared");
 }
 
 void UnifiedCacheSystem::clearType(UnifiedCacheType type) {
@@ -295,8 +292,7 @@ void UnifiedCacheSystem::optimizeMemory() {
     // Evict low-priority items
     evictByPriority(UnifiedCachePriority::Low);
 
-    qDebug() << "UnifiedCacheSystem: Memory optimized, usage:"
-             << getCurrentMemoryUsage();
+    LOG_DEBUG("UnifiedCacheSystem: Memory optimized, usage: {}", getCurrentMemoryUsage());
 }
 
 void UnifiedCacheSystem::enforceMemoryLimit() {

@@ -3,6 +3,7 @@
 #include <QDir>
 #include <QDebug>
 #include <QSvgRenderer>
+#include "utils/Logger.h"
 #include <QPainter>
 #include <QFileInfo>
 
@@ -16,8 +17,12 @@ FileTypeIconManager::FileTypeIconManager(QObject* parent)
     , m_defaultIconSize(24)
     , m_iconBasePath(":/images/filetypes/")
 {
+    Logger::instance().info("[managers] Initializing FileTypeIconManager with base path: {}",
+             m_iconBasePath.toStdString());
     initializeExtensionMapping();
     preloadIcons();
+    Logger::instance().debug("[managers] FileTypeIconManager initialized with {} file type mappings",
+              m_fileTypeMapping.size());
 }
 
 void FileTypeIconManager::initializeExtensionMapping() {
@@ -41,7 +46,8 @@ void FileTypeIconManager::initializeExtensionMapping() {
     m_fileTypeMapping["rtf"] = "doc";
     m_fileTypeMapping["odt"] = "doc";
     
-    qDebug() << "FileTypeIconManager: Initialized with" << m_fileTypeMapping.size() << "file type mappings";
+    Logger::instance().debug("[managers] FileTypeIconManager extension mapping initialized with {} file types",
+              m_fileTypeMapping.size());
 }
 
 QIcon FileTypeIconManager::getFileTypeIcon(const QString& filePath, int size) const {
@@ -62,19 +68,24 @@ QPixmap FileTypeIconManager::getFileTypePixmap(const QString& filePath, int size
 QPixmap FileTypeIconManager::getFileTypePixmap(const QFileInfo& fileInfo, int size) const {
     QString extension = normalizeExtension(fileInfo.suffix());
     QString cacheKey = QString("%1_%2").arg(extension).arg(size);
-    
+
     // Check cache first
     if (m_iconCache.contains(cacheKey)) {
+        Logger::instance().trace("[managers] Icon cache hit for extension '{}' size {}",
+                  extension.toStdString(), size);
         return m_iconCache[cacheKey];
     }
-    
+
     // Load icon
     QString iconPath = getIconPath(extension);
+    Logger::instance().debug("[managers] Loading icon for extension '{}' from path: {}",
+              extension.toStdString(), iconPath.toStdString());
     QPixmap pixmap = loadSvgIcon(iconPath, size);
-    
+
     // Cache the result
     m_iconCache[cacheKey] = pixmap;
-    
+    Logger::instance().trace("[managers] Cached icon for key: {}", cacheKey.toStdString());
+
     return pixmap;
 }
 
@@ -126,8 +137,8 @@ QString FileTypeIconManager::normalizeExtension(const QString& extension) const 
 }
 
 void FileTypeIconManager::preloadIcons() {
-    qDebug() << "FileTypeIconManager: Preloading icons...";
-    
+    Logger::instance().debug("[managers] Starting icon preloading process");
+
     QStringList iconTypes = {"pdf", "epub", "txt", "doc", "default"};
     QList<int> sizes = {16, 24, 32, 48};
     
@@ -140,12 +151,13 @@ void FileTypeIconManager::preloadIcons() {
         }
     }
     
-    qDebug() << "FileTypeIconManager: Preloaded" << m_iconCache.size() << "icons";
+    Logger::instance().info("[managers] Icon preloading completed - cached {} icons", m_iconCache.size());
 }
 
 void FileTypeIconManager::clearCache() {
+    int cacheSize = m_iconCache.size();
     m_iconCache.clear();
-    qDebug() << "FileTypeIconManager: Cache cleared";
+    Logger::instance().info("[managers] Icon cache cleared - removed {} cached icons", cacheSize);
 }
 
 void FileTypeIconManager::setIconSize(int size) {
