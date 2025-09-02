@@ -401,25 +401,109 @@ WelcomeWidget QLabel#WelcomeVersionLabel {
     margin: 0px;
 }
 
-/* WelcomeWidget 最近文件标题 */
+/* WelcomeWidget 最近文件标题 - VSCode style */
 WelcomeWidget QLabel#WelcomeRecentFilesTitle {
     color: #333333;
-    font-size: 16px;
-    font-weight: bold;
-    margin: 0px;
+    font-size: 13px;
+    font-weight: 600;
+    margin: 8px 0px 4px 0px;
+    padding: 0px;
 }
 
-/* WelcomeWidget 无最近文件标签 */
+/* WelcomeWidget 无最近文件标签 - VSCode style */
 WelcomeWidget QLabel#WelcomeNoRecentFilesLabel {
-    color: #606060;
-    font-size: 14px;
-    margin: 20px;
+    color: #8e8e93;
+    font-size: 12px;
+    font-weight: 400;
+    margin: 16px;
+    padding: 8px;
 }
 
 /* WelcomeWidget 分隔线 */
 WelcomeWidget QFrame#WelcomeSeparatorLine {
     background-color: #e0e0e0;
     border: none;
+}
+
+/* VSCode-style Recent Files List Components */
+RecentFileListWidget {
+    background-color: transparent;
+    border: none;
+}
+
+RecentFileListWidget QScrollArea#RecentFileListScrollArea {
+    background-color: transparent;
+    border: none;
+}
+
+RecentFileListWidget QWidget#RecentFileListContentWidget {
+    background-color: transparent;
+    border: none;
+}
+
+RecentFileListWidget QLabel#RecentFileListEmptyLabel {
+    color: #8e8e93;
+    font-size: 12px;
+    font-weight: 400;
+    background-color: transparent;
+    border: none;
+}
+
+/* VSCode-style Recent File Item Components */
+RecentFileItemWidget {
+    background-color: transparent;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 8px;
+}
+
+RecentFileItemWidget:hover {
+    background-color: #f3f3f3;
+}
+
+RecentFileItemWidget QLabel#RecentFileNameLabel {
+    color: #333333;
+    font-size: 13px;
+    font-weight: 500;
+    background-color: transparent;
+    border: none;
+    padding: 0px;
+    margin: 0px;
+}
+
+RecentFileItemWidget QLabel#RecentFilePathLabel {
+    color: #8e8e93;
+    font-size: 11px;
+    font-weight: 400;
+    background-color: transparent;
+    border: none;
+    padding: 0px;
+    margin: 0px;
+}
+
+RecentFileItemWidget QLabel#RecentFileLastOpenedLabel {
+    color: #8e8e93;
+    font-size: 10px;
+    font-weight: 400;
+    background-color: transparent;
+    border: none;
+    padding: 0px;
+    margin: 0px;
+}
+
+RecentFileItemWidget QPushButton#RecentFileRemoveButton {
+    background-color: transparent;
+    border: none;
+    color: #8e8e93;
+    font-size: 14px;
+    font-weight: bold;
+    border-radius: 9px;
+    padding: 0px;
+}
+
+RecentFileItemWidget QPushButton#RecentFileRemoveButton:hover {
+    background-color: #e0e0e0;
+    color: #333333;
 }
 
 /* WelcomeWidget 按钮 */

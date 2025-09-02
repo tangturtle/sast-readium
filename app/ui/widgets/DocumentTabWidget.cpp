@@ -153,6 +153,24 @@ void DocumentTabWidget::setCurrentTab(int index) {
     }
 }
 
+void DocumentTabWidget::setTabLoadingState(int index, bool loading) {
+    if (index >= 0 && index < count()) {
+        QString currentText = tabText(index);
+
+        if (loading) {
+            // 如果不是已经显示加载状态，添加加载标识
+            if (!currentText.contains("(加载中...)")) {
+                setTabText(index, currentText + " (加载中...)");
+            }
+        } else {
+            // 移除加载状态标识
+            QString newText = currentText;
+            newText.remove(" (加载中...)");
+            setTabText(index, newText);
+        }
+    }
+}
+
 void DocumentTabWidget::moveTab(int from, int to) {
     if (from == to || from < 0 || to < 0 || from >= count() || to >= count()) {
         return;

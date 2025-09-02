@@ -48,6 +48,7 @@ protected:
     void setupUI();
     void setupConnections();
     void updateCurrentViewer();
+    QWidget* createLoadingWidget(const QString& fileName);
 
 private slots:
     // 文档模型信号处理
@@ -55,6 +56,9 @@ private slots:
     void onDocumentClosed(int index);
     void onCurrentDocumentChanged(int index);
     void onAllDocumentsClosed();
+    void onDocumentLoadingStarted(const QString& filePath);
+    void onDocumentLoadingProgress(int progress);
+    void onDocumentLoadingFailed(const QString& error, const QString& filePath);
 
     // 标签页信号处理
     void onTabCloseRequested(int index);

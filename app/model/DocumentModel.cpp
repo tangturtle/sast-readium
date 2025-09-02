@@ -58,6 +58,64 @@ bool DocumentModel::openFromFile(const QString& filePath) {
     return true; // 异步加载，立即返回true
 }
 
+bool DocumentModel::openFromFiles(const QStringList& filePaths) {
+    if (filePaths.isEmpty()) {
+        return false;
+    }
+
+    // 过滤掉已经打开的文档
+    QStringList newFilePaths;
+    for (const QString& filePath : filePaths) {
+        if (filePath.isEmpty() || !QFile::exists(filePath)) {
+            continue;
+        }
+
+        // 检查是否已经打开
+        bool alreadyOpen = false;
+        for (size_t i = 0; i < documents.size(); ++i) {
+            if (documents[i]->filePath == filePath) {
+                alreadyOpen = true;
+                break;
+            }
+        }
+
+        if (!alreadyOpen) {
+            newFilePaths.append(filePath);
+        }
+    }
+
+    if (newFilePaths.isEmpty()) {
+        // 如果没有新文档需要打开，切换到第一个已存在的文档
+        if (!filePaths.isEmpty()) {
+            for (size_t i = 0; i < documents.size(); ++i) {
+                if (documents[i]->filePath == filePaths.first()) {
+                    switchToDocument(static_cast<int>(i));
+                    break;
+                }
+            }
+        }
+        return true;
+    }
+
+    // 优化加载策略：先加载第一个文档
+    QString firstFile = newFilePaths.first();
+    emit loadingStarted(firstFile);
+    asyncLoader->loadDocument(firstFile);
+
+    // 如果有多个文档，暂时简化实现：逐个加载其他文档
+    if (newFilePaths.size() > 1) {
+        QStringList remainingFiles = newFilePaths.mid(1);
+        // 为每个文档发送加载开始信号，创建占位标签页
+        for (const QString& filePath : remainingFiles) {
+            emit loadingStarted(filePath);
+        }
+        // 暂时简化：将其他文件路径存储起来，等第一个加载完成后再处理
+        pendingFiles = remainingFiles;
+    }
+
+    return true;
+}
+
 void DocumentModel::onDocumentLoaded(Poppler::Document* document, const QString& filePath)
 {
     if (!document) {
@@ -78,6 +136,18 @@ void DocumentModel::onDocumentLoaded(Poppler::Document* document, const QString&
     qDebug() << "Async loaded successfully:" << filePath;
     emit documentOpened(newIndex, documents[newIndex]->fileName);
     emit currentDocumentChanged(newIndex);
+
+    // 检查是否还有待加载的文件
+    if (!pendingFiles.isEmpty()) {
+        QString nextFile = pendingFiles.takeFirst();
+        qDebug() << "Loading next file from queue:" << nextFile;
+
+        // 发送加载开始信号
+        emit loadingStarted(nextFile);
+
+        // 开始加载下一个文档
+        asyncLoader->loadDocument(nextFile);
+    }
 }
 
 bool DocumentModel::closeDocument(int index) {

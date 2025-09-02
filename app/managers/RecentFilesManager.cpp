@@ -226,13 +226,18 @@ void RecentFilesManager::loadSettingsWithoutCleanup() {
     m_recentFiles.clear();
     m_recentFiles.reserve(size);
 
+    int validCount = 0;
     for (int i = 0; i < size; ++i) {
         m_settings->setArrayIndex(i);
         QVariantMap data = m_settings->value("fileInfo").toMap();
         if (!data.isEmpty()) {
             RecentFileInfo info = variantToFileInfo(data);
-            if (!info.filePath.isEmpty()) {
+            // Only add valid file info (variantToFileInfo now validates data)
+            if (!info.filePath.isEmpty() && !info.fileName.isEmpty()) {
                 m_recentFiles.append(info);
+                validCount++;
+            } else {
+                qWarning() << "RecentFilesManager: Skipping invalid file entry at index" << i;
             }
         }
     }
@@ -240,8 +245,8 @@ void RecentFilesManager::loadSettingsWithoutCleanup() {
     m_settings->endArray();
     m_settings->endGroup();
 
-    qDebug() << "RecentFilesManager: Loaded" << m_recentFiles.size()
-             << "recent files (without cleanup)";
+    qDebug() << "RecentFilesManager: Loaded" << validCount << "valid recent files out of"
+             << size << "total entries (without cleanup)";
 }
 
 void RecentFilesManager::saveSettings() {
@@ -292,5 +297,23 @@ RecentFileInfo RecentFilesManager::variantToFileInfo(
     info.fileName = variant["fileName"].toString();
     info.lastOpened = variant["lastOpened"].toDateTime();
     info.fileSize = variant["fileSize"].toLongLong();
+
+    // Validate and fix corrupted data
+    if (info.filePath.isEmpty() || info.fileName.isEmpty()) {
+        qWarning() << "RecentFilesManager: Invalid file info detected, skipping";
+        return RecentFileInfo(); // Return empty/invalid info
+    }
+
+    // Ensure fileName is properly extracted from filePath if missing
+    if (info.fileName.isEmpty() && !info.filePath.isEmpty()) {
+        QFileInfo fileInfo(info.filePath);
+        info.fileName = fileInfo.fileName();
+    }
+
+    // Validate lastOpened date
+    if (!info.lastOpened.isValid()) {
+        info.lastOpened = QDateTime::currentDateTime();
+    }
+
     return info;
 }

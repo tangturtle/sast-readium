@@ -46,6 +46,7 @@ public:
     void removeDocumentTab(int index);
     void updateTabText(int index, const QString& fileName);
     void setCurrentTab(int index);
+    void setTabLoadingState(int index, bool loading);
     
     // 拖拽支持
     void moveTab(int from, int to);

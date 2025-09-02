@@ -72,6 +72,12 @@ void ViewWidget::setDocumentModel(DocumentModel* model) {
                 this, &ViewWidget::onCurrentDocumentChanged);
         connect(documentModel, &DocumentModel::allDocumentsClosed,
                 this, &ViewWidget::onAllDocumentsClosed);
+        connect(documentModel, &DocumentModel::loadingStarted,
+                this, &ViewWidget::onDocumentLoadingStarted);
+        connect(documentModel, &DocumentModel::loadingProgressChanged,
+                this, &ViewWidget::onDocumentLoadingProgress);
+        connect(documentModel, &DocumentModel::loadingFailed,
+                this, &ViewWidget::onDocumentLoadingFailed);
     }
 }
 
@@ -225,13 +231,36 @@ void ViewWidget::onDocumentOpened(int index, const QString& fileName) {
     PDFOutlineModel* docOutlineModel = new PDFOutlineModel(this);
     docOutlineModel->parseOutline(document);
 
-    // 添加到查看器列表和堆叠组件
+    // 检查是否已经有加载中的占位组件需要替换
+    bool hasLoadingWidget = false;
+    for (int i = 0; i < tabWidget->count(); i++) {
+        if (tabWidget->getTabFilePath(i) == filePath) {
+            // 更新标签页文本，移除"加载中"状态
+            tabWidget->setTabLoadingState(i, false);
+            tabWidget->setTabText(i, fileName);
+
+            // 替换加载组件为实际的PDF查看器
+            QWidget* loadingWidget = viewerStack->widget(i + 1);
+            if (loadingWidget) {
+                viewerStack->removeWidget(loadingWidget);
+                loadingWidget->deleteLater();
+            }
+
+            viewerStack->insertWidget(i + 1, viewer);
+            hasLoadingWidget = true;
+            break;
+        }
+    }
+
+    // 如果没有找到加载中的组件，按原来的方式添加
+    if (!hasLoadingWidget) {
+        viewerStack->insertWidget(index + 1, viewer);
+        tabWidget->addDocumentTab(fileName, filePath);
+    }
+
+    // 添加到查看器列表
     pdfViewers.insert(index, viewer);
     outlineModels.insert(index, docOutlineModel);
-    viewerStack->insertWidget(index + 1, viewer); // +1 因为第0个是emptyWidget
-
-    // 添加标签页
-    tabWidget->addDocumentTab(fileName, filePath);
 
     // 切换到新文档
     hideEmptyState();
@@ -289,6 +318,56 @@ void ViewWidget::onAllDocumentsClosed() {
     qDebug() << "All documents closed";
 }
 
+void ViewWidget::onDocumentLoadingStarted(const QString& filePath) {
+    // 为正在加载的文档创建占位标签页
+    QFileInfo fileInfo(filePath);
+    QString fileName = fileInfo.baseName();
+
+    // 检查是否已经有这个文件的标签页
+    bool tabExists = false;
+    for (int i = 0; i < tabWidget->count(); i++) {
+        if (tabWidget->getTabFilePath(i) == filePath) {
+            // 更新现有标签页为加载状态
+            tabWidget->setTabLoadingState(i, true);
+            tabExists = true;
+            break;
+        }
+    }
+
+    // 如果没有现有标签页，创建新的
+    if (!tabExists) {
+        int tabIndex = tabWidget->addDocumentTab(fileName + " (加载中...)", filePath);
+
+        // 创建加载中的占位组件
+        QWidget* loadingWidget = createLoadingWidget(fileName);
+        viewerStack->insertWidget(tabIndex + 1, loadingWidget);
+
+        // 如果这是第一个文档，切换到加载界面
+        if (pdfViewers.isEmpty()) {
+            hideEmptyState();
+            viewerStack->setCurrentWidget(loadingWidget);
+        }
+    }
+
+    qDebug() << "Document loading started:" << fileName;
+}
+
+void ViewWidget::onDocumentLoadingProgress(int progress) {
+    // 更新当前加载文档的进度
+    // 这里可以更新加载界面的进度条
+    qDebug() << "Loading progress:" << progress << "%";
+}
+
+void ViewWidget::onDocumentLoadingFailed(const QString& error, const QString& filePath) {
+    QFileInfo fileInfo(filePath);
+    QString fileName = fileInfo.baseName();
+
+    qDebug() << "Document loading failed:" << fileName << "Error:" << error;
+
+    // 可以显示错误消息或移除失败的标签页
+    // 这里暂时只输出调试信息
+}
+
 void ViewWidget::onTabCloseRequested(int index) {
     closeDocument(index);
 }
@@ -323,6 +402,36 @@ PDFViewer* ViewWidget::createPDFViewer() {
     connect(viewer, &PDFViewer::zoomChanged, this, &ViewWidget::onPDFZoomChanged);
 
     return viewer;
+}
+
+QWidget* ViewWidget::createLoadingWidget(const QString& fileName) {
+    QWidget* loadingWidget = new QWidget(this);
+    QVBoxLayout* layout = new QVBoxLayout(loadingWidget);
+    layout->setAlignment(Qt::AlignCenter);
+
+    // 添加加载图标或动画
+    QLabel* iconLabel = new QLabel(loadingWidget);
+    iconLabel->setText("⏳"); // 使用简单的emoji作为加载图标
+    iconLabel->setAlignment(Qt::AlignCenter);
+    iconLabel->setStyleSheet("font-size: 48px; color: #666;");
+
+    // 添加加载文本
+    QLabel* textLabel = new QLabel(QString("正在加载 %1...").arg(fileName), loadingWidget);
+    textLabel->setAlignment(Qt::AlignCenter);
+    textLabel->setStyleSheet("font-size: 16px; color: #666; margin-top: 10px;");
+
+    // 添加进度条
+    QProgressBar* progressBar = new QProgressBar(loadingWidget);
+    progressBar->setRange(0, 100);
+    progressBar->setValue(0);
+    progressBar->setMaximumWidth(300);
+    progressBar->setStyleSheet("margin-top: 10px;");
+
+    layout->addWidget(iconLabel);
+    layout->addWidget(textLabel);
+    layout->addWidget(progressBar);
+
+    return loadingWidget;
 }
 
 void ViewWidget::removePDFViewer(int index) {

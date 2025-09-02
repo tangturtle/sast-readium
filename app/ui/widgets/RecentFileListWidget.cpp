@@ -59,64 +59,74 @@ void RecentFileItemWidget::updateFileInfo(const RecentFileInfo& fileInfo)
 void RecentFileItemWidget::applyTheme()
 {
     StyleManager& styleManager = StyleManager::instance();
-    
-    // 设置基本样式
+
+    // VSCode-style base styling with subtle hover effect
     QString baseStyle = QString(
         "RecentFileItemWidget {"
         "    background-color: transparent;"
         "    border: none;"
-        "    border-radius: 4px;"
+        "    border-radius: 6px;"
+        "    padding: 8px 12px;"
         "}"
         "RecentFileItemWidget:hover {"
         "    background-color: %1;"
         "}"
     ).arg(styleManager.hoverColor().name());
-    
+
     setStyleSheet(baseStyle);
-    
-    // 更新标签样式
+
+    // VSCode-style file name label - prominent and clean
     if (m_fileNameLabel) {
         m_fileNameLabel->setStyleSheet(QString(
             "QLabel {"
             "    color: %1;"
-            "    font-size: 14px;"
-            "    font-weight: bold;"
+            "    font-size: 13px;"
+            "    font-weight: 500;"
             "    margin: 0px;"
+            "    padding: 0px;"
             "}"
         ).arg(styleManager.textColor().name()));
     }
-    
+
+    // VSCode-style path label - smaller and muted
     if (m_filePathLabel) {
         m_filePathLabel->setStyleSheet(QString(
             "QLabel {"
             "    color: %1;"
-            "    font-size: 12px;"
+            "    font-size: 11px;"
+            "    font-weight: 400;"
             "    margin: 0px;"
+            "    padding: 0px;"
             "}"
         ).arg(styleManager.textSecondaryColor().name()));
     }
-    
+
+    // VSCode-style time label - very small and subtle
     if (m_lastOpenedLabel) {
         m_lastOpenedLabel->setStyleSheet(QString(
             "QLabel {"
             "    color: %1;"
-            "    font-size: 11px;"
+            "    font-size: 10px;"
+            "    font-weight: 400;"
             "    margin: 0px;"
+            "    padding: 0px;"
             "}"
         ).arg(styleManager.textSecondaryColor().name()));
     }
-    
-    // 更新移除按钮样式
+
+    // VSCode-style remove button - subtle and only visible on hover
     if (m_removeButton) {
         m_removeButton->setStyleSheet(QString(
             "QPushButton {"
             "    background-color: transparent;"
             "    border: none;"
             "    color: %1;"
-            "    font-size: 16px;"
-            "    width: 20px;"
-            "    height: 20px;"
-            "    border-radius: 10px;"
+            "    font-size: 14px;"
+            "    font-weight: bold;"
+            "    width: 18px;"
+            "    height: 18px;"
+            "    border-radius: 9px;"
+            "    padding: 0px;"
             "}"
             "QPushButton:hover {"
             "    background-color: %2;"
@@ -221,39 +231,70 @@ void RecentFileItemWidget::setupUI()
 void RecentFileItemWidget::updateDisplay()
 {
     if (!m_fileNameLabel || !m_filePathLabel || !m_lastOpenedLabel) return;
-    
-    // 更新文件名
-    m_fileNameLabel->setText(m_fileInfo.fileName);
-    
-    // 更新文件路径（显示相对路径或缩短的绝对路径）
+
+    // 更新文件名 - VSCode style: just the filename without extension for display
+    QString displayName = m_fileInfo.fileName;
+    if (displayName.isEmpty()) {
+        QFileInfo fileInfo(m_fileInfo.filePath);
+        displayName = fileInfo.baseName(); // Get filename without extension
+        if (displayName.isEmpty()) {
+            displayName = fileInfo.fileName(); // Fallback to full filename
+        }
+    } else {
+        // Remove extension for cleaner display like VSCode
+        QFileInfo fileInfo(displayName);
+        displayName = fileInfo.baseName();
+        if (displayName.isEmpty()) {
+            displayName = m_fileInfo.fileName;
+        }
+    }
+    m_fileNameLabel->setText(displayName);
+
+    // 更新文件路径 - VSCode style: show directory path, not full path
     QString displayPath = m_fileInfo.filePath;
     QFileInfo fileInfo(displayPath);
-    if (displayPath.length() > 60) {
-        displayPath = "..." + displayPath.right(57);
+    QString dirPath = fileInfo.absolutePath();
+
+    // Shorten path like VSCode does
+    if (dirPath.length() > 50) {
+        QStringList pathParts = dirPath.split(QDir::separator(), Qt::SkipEmptyParts);
+        if (pathParts.size() > 2) {
+            displayPath = QString("...") + QDir::separator() + pathParts.takeLast();
+            if (pathParts.size() > 0) {
+                displayPath = QString("...") + QDir::separator() + pathParts.takeLast() + QDir::separator() + pathParts.takeLast();
+            }
+        } else {
+            displayPath = dirPath;
+        }
+    } else {
+        displayPath = dirPath;
     }
     m_filePathLabel->setText(displayPath);
-    
-    // 更新最后打开时间
-    QString timeText = "Last opened: ";
+
+    // 更新最后打开时间 - VSCode style: simpler format
+    QString timeText;
     QDateTime now = QDateTime::currentDateTime();
     qint64 secondsAgo = m_fileInfo.lastOpened.secsTo(now);
-    
+
     if (secondsAgo < 60) {
-        timeText += "Just now";
+        timeText = "now";
     } else if (secondsAgo < 3600) {
-        timeText += QString("%1 minutes ago").arg(secondsAgo / 60);
+        int minutes = secondsAgo / 60;
+        timeText = QString("%1m ago").arg(minutes);
     } else if (secondsAgo < 86400) {
-        timeText += QString("%1 hours ago").arg(secondsAgo / 3600);
+        int hours = secondsAgo / 3600;
+        timeText = QString("%1h ago").arg(hours);
     } else if (secondsAgo < 604800) {
-        timeText += QString("%1 days ago").arg(secondsAgo / 86400);
+        int days = secondsAgo / 86400;
+        timeText = QString("%1d ago").arg(days);
     } else {
-        timeText += m_fileInfo.lastOpened.toString("MMM dd, yyyy");
+        timeText = m_fileInfo.lastOpened.toString("MMM dd");
     }
-    
+
     m_lastOpenedLabel->setText(timeText);
-    
+
     // 设置工具提示
-    setToolTip(QString("Click to open: %1").arg(m_fileInfo.filePath));
+    setToolTip(QString("%1\n%2\nLast opened: %3").arg(m_fileInfo.fileName, m_fileInfo.filePath, m_fileInfo.lastOpened.toString()));
 }
 
 void RecentFileItemWidget::setHovered(bool hovered)
@@ -473,23 +514,25 @@ void RecentFileListWidget::setupUI()
     m_mainLayout->setContentsMargins(0, 0, 0, 0);
     m_mainLayout->setSpacing(0);
 
-    // 创建滚动区域
+    // 创建滚动区域 - VSCode style
     m_scrollArea = new QScrollArea();
     m_scrollArea->setWidgetResizable(true);
     m_scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     m_scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     m_scrollArea->setFrameShape(QFrame::NoFrame);
+    m_scrollArea->setObjectName("RecentFileListScrollArea");
 
-    // 创建内容容器
+    // 创建内容容器 - VSCode style
     m_contentWidget = new QWidget();
     m_contentWidget->setObjectName("RecentFileListContentWidget");
 
+    // VSCode-style layout with proper spacing
     m_contentLayout = new QVBoxLayout(m_contentWidget);
-    m_contentLayout->setContentsMargins(0, 0, 0, 0);
-    m_contentLayout->setSpacing(2);
+    m_contentLayout->setContentsMargins(4, 4, 4, 4);  // Small margins like VSCode
+    m_contentLayout->setSpacing(1);  // Minimal spacing between items
     m_contentLayout->setAlignment(Qt::AlignTop);
 
-    // 空状态标签
+    // VSCode-style empty state label
     m_emptyLabel = new QLabel("No recent files");
     m_emptyLabel->setObjectName("RecentFileListEmptyLabel");
     m_emptyLabel->setAlignment(Qt::AlignCenter);

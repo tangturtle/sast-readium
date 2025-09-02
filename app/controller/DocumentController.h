@@ -30,6 +30,7 @@ public:
 
     // 多文档操作方法
     bool openDocument(const QString& filePath);
+    bool openDocuments(const QStringList& filePaths);
     bool closeDocument(int index);
     bool closeCurrentDocument();
     void switchToDocument(int index);

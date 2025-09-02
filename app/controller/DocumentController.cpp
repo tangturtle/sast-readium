@@ -12,13 +12,13 @@ void DocumentController::initializeCommandMap() {
     commandMap = {
         {ActionMap::openFile,
          [this](QWidget* ctx) {
-             QString filePath = QFileDialog::getOpenFileName(
-                 ctx, tr("Open PDF"),
+             QStringList filePaths = QFileDialog::getOpenFileNames(
+                 ctx, tr("Open PDF Files"),
                  QStandardPaths::writableLocation(
                      QStandardPaths::DocumentsLocation),
                  tr("PDF Files (*.pdf)"));
-             if (!filePath.isEmpty()) {
-                 bool success = openDocument(filePath);
+             if (!filePaths.isEmpty()) {
+                 bool success = openDocuments(filePaths);
                  emit documentOperationCompleted(ActionMap::openFile, success);
              }
          }},
@@ -185,6 +185,38 @@ bool DocumentController::openDocument(const QString& filePath) {
     // 如果文件打开成功，添加到最近文件列表
     if (success && recentFilesManager) {
         recentFilesManager->addRecentFile(filePath);
+    }
+
+    return success;
+}
+
+bool DocumentController::openDocuments(const QStringList& filePaths) {
+    if (filePaths.isEmpty()) {
+        return false;
+    }
+
+    // 过滤有效的PDF文件
+    QStringList validPaths;
+    for (const QString& filePath : filePaths) {
+        if (!filePath.isEmpty() && QFile::exists(filePath) &&
+            filePath.toLower().endsWith(".pdf")) {
+            validPaths.append(filePath);
+        }
+    }
+
+    if (validPaths.isEmpty()) {
+        qWarning() << "No valid PDF files found in the selection";
+        return false;
+    }
+
+    // 使用DocumentModel的批量打开方法
+    bool success = documentModel->openFromFiles(validPaths);
+
+    // 如果文件打开成功，添加到最近文件列表
+    if (success && recentFilesManager) {
+        for (const QString& filePath : validPaths) {
+            recentFilesManager->addRecentFile(filePath);
+        }
     }
 
     return success;

@@ -68,10 +68,10 @@ private:
     bool m_isHovered;
     bool m_isPressed;
     
-    // 样式常量
-    static const int ITEM_HEIGHT = 60;
-    static const int PADDING = 12;
-    static const int SPACING = 4;
+    // VSCode-style 样式常量
+    static const int ITEM_HEIGHT = 48;  // VSCode-like compact height
+    static const int PADDING = 8;       // Reduced padding for cleaner look
+    static const int SPACING = 2;       // Tighter spacing between elements
 };
 
 /**

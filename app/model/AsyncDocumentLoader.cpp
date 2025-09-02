@@ -12,6 +12,10 @@ AsyncDocumentLoader::AsyncDocumentLoader(QObject* parent)
     , m_startTime(0)
     , m_workerThread(nullptr)
     , m_worker(nullptr)
+    , m_configuredDefaultTimeout(0)
+    , m_configuredMinTimeout(0)
+    , m_configuredMaxTimeout(0)
+    , m_useCustomTimeoutConfig(false)
 {
     // 初始化进度定时器
     m_progressTimer = new QTimer(this);
@@ -84,6 +88,9 @@ void AsyncDocumentLoader::loadDocument(const QString& filePath)
                 m_worker->deleteLater();
                 m_worker = nullptr;
             }
+
+            // 检查队列中是否还有待加载的文档
+            processNextInQueue();
         }
     });
     connect(m_worker, &AsyncDocumentLoaderWorker::loadFailed, this, [this](const QString& error) {
@@ -147,6 +154,43 @@ QString AsyncDocumentLoader::currentFilePath() const
     return m_currentFilePath;
 }
 
+void AsyncDocumentLoader::queueDocuments(const QStringList& filePaths)
+{
+    QMutexLocker locker(&m_queueMutex);
+
+    // 将文档添加到队列中
+    for (const QString& filePath : filePaths) {
+        if (!filePath.isEmpty() && QFile::exists(filePath) &&
+            !m_documentQueue.contains(filePath)) {
+            m_documentQueue.append(filePath);
+        }
+    }
+
+    qDebug() << "Added" << filePaths.size() << "documents to queue. Queue size:" << m_documentQueue.size();
+}
+
+int AsyncDocumentLoader::queueSize() const
+{
+    QMutexLocker locker(&m_queueMutex);
+    return m_documentQueue.size();
+}
+
+void AsyncDocumentLoader::processNextInQueue()
+{
+    QMutexLocker queueLocker(&m_queueMutex);
+
+    if (m_documentQueue.isEmpty()) {
+        return; // 队列为空，无需处理
+    }
+
+    QString nextFilePath = m_documentQueue.takeFirst();
+    queueLocker.unlock();
+
+    // 加载下一个文档
+    qDebug() << "Loading next document from queue:" << nextFilePath;
+    loadDocument(nextFilePath);
+}
+
 void AsyncDocumentLoader::onProgressTimerTimeout()
 {
     QMutexLocker locker(&m_stateMutex);
@@ -207,7 +251,7 @@ int AsyncDocumentLoader::calculateExpectedLoadTime(qint64 fileSize) const
         return MIN_LOAD_TIME;
     } else if (fileSize < SIZE_THRESHOLD_MEDIUM) {
         // 1MB到10MB之间线性增长
-        double ratio = static_cast<double>(fileSize - SIZE_THRESHOLD_FAST) / 
+        double ratio = static_cast<double>(fileSize - SIZE_THRESHOLD_FAST) /
                       (SIZE_THRESHOLD_MEDIUM - SIZE_THRESHOLD_FAST);
         return MIN_LOAD_TIME + static_cast<int>(ratio * (MAX_LOAD_TIME - MIN_LOAD_TIME) * 0.6);
     } else {
@@ -216,22 +260,104 @@ int AsyncDocumentLoader::calculateExpectedLoadTime(qint64 fileSize) const
     }
 }
 
+void AsyncDocumentLoader::setTimeoutConfiguration(int defaultTimeoutMs, int minTimeoutMs, int maxTimeoutMs)
+{
+    m_configuredDefaultTimeout = defaultTimeoutMs;
+    m_configuredMinTimeout = minTimeoutMs;
+    m_configuredMaxTimeout = maxTimeoutMs;
+    m_useCustomTimeoutConfig = true;
+
+    qDebug() << "AsyncDocumentLoader: Timeout configuration set - Default:" << defaultTimeoutMs
+             << "Min:" << minTimeoutMs << "Max:" << maxTimeoutMs;
+}
+
+void AsyncDocumentLoader::resetTimeoutConfiguration()
+{
+    m_useCustomTimeoutConfig = false;
+    m_configuredDefaultTimeout = 0;
+    m_configuredMinTimeout = 0;
+    m_configuredMaxTimeout = 0;
+
+    qDebug() << "AsyncDocumentLoader: Timeout configuration reset to defaults";
+}
+
 // AsyncDocumentLoaderWorker 实现
 AsyncDocumentLoaderWorker::AsyncDocumentLoaderWorker(const QString& filePath)
     : m_filePath(filePath)
+    , m_timeoutTimer(nullptr)
+    , m_cancelled(false)
+    , m_loadingInProgress(false)
+    , m_retryCount(0)
+    , m_maxRetries(DEFAULT_MAX_RETRIES)
+    , m_customTimeoutMs(0)
 {
+    // 初始化超时定时器
+    m_timeoutTimer = new QTimer(this);
+    m_timeoutTimer->setSingleShot(true);
+
+    // 连接超时信号
+    connect(m_timeoutTimer, &QTimer::timeout, this, &AsyncDocumentLoaderWorker::onLoadTimeout);
+}
+
+AsyncDocumentLoaderWorker::~AsyncDocumentLoaderWorker()
+{
+    cleanup();
 }
 
 void AsyncDocumentLoaderWorker::doLoad()
 {
+    // Initialize loading state
+    {
+        QMutexLocker locker(&m_stateMutex);
+        if (m_cancelled) {
+            return; // Already cancelled
+        }
+        m_loadingInProgress = true;
+    }
+
+    // Calculate timeout based on file size
+    QFileInfo fileInfo(m_filePath);
+    int timeoutMs = calculateTimeoutForFile(fileInfo.size());
+
+    // Start timeout timer
+    if (m_timeoutTimer) {
+        m_timeoutTimer->start(timeoutMs);
+    }
+
+    qDebug() << "AsyncDocumentLoaderWorker: Starting load with timeout:" << timeoutMs << "ms for file:" << m_filePath;
+
     try {
+        // Check for cancellation before loading
+        {
+            QMutexLocker locker(&m_stateMutex);
+            if (m_cancelled) {
+                return;
+            }
+        }
+
         // 实际加载文档
         auto document = Poppler::Document::load(m_filePath);
+
+        // Check for cancellation after loading
+        {
+            QMutexLocker locker(&m_stateMutex);
+            if (m_cancelled) {
+                return; // Loading was cancelled during Poppler::Document::load()
+            }
+        }
+
+        // Stop timeout timer - loading completed
+        if (m_timeoutTimer) {
+            m_timeoutTimer->stop();
+        }
+
         if (!document) {
+            QMutexLocker locker(&m_stateMutex);
+            m_loadingInProgress = false;
             emit loadFailed("无法加载PDF文档");
             return;
         }
-        
+
         // 配置文档渲染设置
         document->setRenderHint(Poppler::Document::Antialiasing, true);
         document->setRenderHint(Poppler::Document::TextAntialiasing, true);
@@ -239,27 +365,136 @@ void AsyncDocumentLoaderWorker::doLoad()
         document->setRenderHint(Poppler::Document::TextSlightHinting, true);
         document->setRenderHint(Poppler::Document::ThinLineShape, true);
         document->setRenderHint(Poppler::Document::OverprintPreview, true);
-        
+
         // 验证文档
         if (document->numPages() <= 0) {
+            QMutexLocker locker(&m_stateMutex);
+            m_loadingInProgress = false;
             emit loadFailed("文档没有有效页面");
             return;
         }
-        
+
         // 测试第一页
         std::unique_ptr<Poppler::Page> testPage(document->page(0));
         if (!testPage) {
+            QMutexLocker locker(&m_stateMutex);
+            m_loadingInProgress = false;
             emit loadFailed("无法访问文档页面");
             return;
         }
-        
+
+        // Mark loading as completed
+        {
+            QMutexLocker locker(&m_stateMutex);
+            m_loadingInProgress = false;
+        }
+
         emit loadCompleted(document.release());
-        
+
     } catch (const std::exception& e) {
+        // Stop timeout timer on exception
+        if (m_timeoutTimer) {
+            m_timeoutTimer->stop();
+        }
+
+        QMutexLocker locker(&m_stateMutex);
+        m_loadingInProgress = false;
         emit loadFailed(QString("加载异常: %1").arg(e.what()));
     } catch (...) {
+        // Stop timeout timer on exception
+        if (m_timeoutTimer) {
+            m_timeoutTimer->stop();
+        }
+
+        QMutexLocker locker(&m_stateMutex);
+        m_loadingInProgress = false;
         emit loadFailed("未知加载错误");
     }
+}
+
+void AsyncDocumentLoaderWorker::retryLoad(int extendedTimeoutMs)
+{
+    QMutexLocker locker(&m_stateMutex);
+
+    // Reset state for retry
+    m_cancelled = false;
+    m_loadingInProgress = false;
+    m_customTimeoutMs = extendedTimeoutMs;
+
+    locker.unlock();
+
+    qDebug() << "AsyncDocumentLoaderWorker: Retrying load for file:" << m_filePath
+             << "with extended timeout:" << extendedTimeoutMs << "ms";
+
+    // Call doLoad to retry
+    doLoad();
+}
+
+void AsyncDocumentLoaderWorker::onLoadTimeout()
+{
+    QMutexLocker locker(&m_stateMutex);
+
+    if (!m_loadingInProgress || m_cancelled) {
+        return; // Already finished or cancelled
+    }
+
+    qDebug() << "AsyncDocumentLoaderWorker: Load timeout for file:" << m_filePath;
+
+    // Set cancellation flag
+    m_cancelled = true;
+    m_loadingInProgress = false;
+
+    // Stop the timeout timer to prevent multiple timeouts
+    if (m_timeoutTimer) {
+        m_timeoutTimer->stop();
+    }
+
+    locker.unlock();
+
+    // Emit timeout error with detailed message
+    QFileInfo fileInfo(m_filePath);
+    QString timeoutMessage = QString("文档加载超时: %1 (文件大小: %2 MB，超时时间: %3 秒)")
+                            .arg(fileInfo.fileName())
+                            .arg(QString::number(fileInfo.size() / (1024.0 * 1024.0), 'f', 1))
+                            .arg(calculateTimeoutForFile(fileInfo.size()) / 1000);
+
+    emit loadFailed(timeoutMessage);
+
+    // Perform cleanup
+    cleanup();
+}
+
+int AsyncDocumentLoaderWorker::calculateTimeoutForFile(qint64 fileSize) const
+{
+    // Use custom timeout if specified (for retries)
+    if (m_customTimeoutMs > 0) {
+        return qBound(MIN_TIMEOUT_MS, m_customTimeoutMs, MAX_TIMEOUT_MS * 2); // Allow longer timeout for retries
+    }
+
+    // Base timeout calculation on file size
+    if (fileSize <= 0) {
+        return DEFAULT_TIMEOUT_MS;
+    }
+
+    // Apply retry multiplier if this is a retry attempt
+    int baseTimeout = MIN_TIMEOUT_MS + (fileSize / (1024 * 1024)) * 2000; // 2 seconds per MB
+    if (m_retryCount > 0) {
+        baseTimeout *= EXTENDED_TIMEOUT_MULTIPLIER;
+    }
+
+    return qBound(MIN_TIMEOUT_MS, baseTimeout, MAX_TIMEOUT_MS);
+}
+
+void AsyncDocumentLoaderWorker::cleanup()
+{
+    QMutexLocker locker(&m_stateMutex);
+
+    if (m_timeoutTimer) {
+        m_timeoutTimer->stop();
+    }
+
+    m_cancelled = true;
+    m_loadingInProgress = false;
 }
 
 

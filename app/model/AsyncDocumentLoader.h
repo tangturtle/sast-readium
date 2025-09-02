@@ -5,6 +5,8 @@
 #include <QTimer>
 #include <QFileInfo>
 #include <QMutex>
+#include <QStringList>
+#include <atomic>
 
 #include <poppler/qt6/poppler-qt6.h>
 
@@ -34,15 +36,25 @@ public:
 
     // 开始异步加载文档
     void loadDocument(const QString& filePath);
-    
+
+    // 将多个文档加入加载队列
+    void queueDocuments(const QStringList& filePaths);
+
     // 取消当前加载
     void cancelLoading();
-    
+
     // 获取当前状态
     LoadingState currentState() const;
-    
+
     // 获取当前加载的文件路径
     QString currentFilePath() const;
+
+    // 获取队列中剩余文档数量
+    int queueSize() const;
+
+    // 配置超时设置
+    void setTimeoutConfiguration(int defaultTimeoutMs, int minTimeoutMs, int maxTimeoutMs);
+    void resetTimeoutConfiguration();
 
 signals:
     // 加载进度更新 (0-100)
@@ -68,23 +80,34 @@ private:
     void startProgressSimulation();
     void stopProgressSimulation();
     void resetState();
+    void processNextInQueue();
     int calculateExpectedLoadTime(qint64 fileSize) const;
 
     // 状态管理
     LoadingState m_state;
     QString m_currentFilePath;
     mutable QMutex m_stateMutex;
-    
+
+    // 文档加载队列
+    QStringList m_documentQueue;
+    mutable QMutex m_queueMutex;
+
     // 进度模拟
     QTimer* m_progressTimer;
     int m_currentProgress;
     int m_expectedLoadTime; // 预期加载时间(ms)
     qint64 m_startTime;     // 开始加载时间
-    
+
     // 工作线程
     QThread* m_workerThread;
     AsyncDocumentLoaderWorker* m_worker;
-    
+
+    // 超时配置
+    int m_configuredDefaultTimeout;
+    int m_configuredMinTimeout;
+    int m_configuredMaxTimeout;
+    bool m_useCustomTimeoutConfig;
+
     // 常量
     static constexpr int PROGRESS_UPDATE_INTERVAL = 50; // 50ms更新一次进度
     static constexpr int MIN_LOAD_TIME = 200;           // 最小加载时间200ms
@@ -102,14 +125,43 @@ class AsyncDocumentLoaderWorker : public QObject
 
 public:
     AsyncDocumentLoaderWorker(const QString& filePath);
+    ~AsyncDocumentLoaderWorker();
 
 public slots:
     void doLoad();
+    void retryLoad(int extendedTimeoutMs = 0);
 
 signals:
     void loadCompleted(Poppler::Document* document);
     void loadFailed(const QString& error);
 
+private slots:
+    void onLoadTimeout();
+
 private:
     QString m_filePath;
+
+    // Timeout mechanism
+    QTimer* m_timeoutTimer;
+    QMutex m_stateMutex;
+    std::atomic<bool> m_cancelled;
+    std::atomic<bool> m_loadingInProgress;
+
+    // Retry mechanism
+    int m_retryCount;
+    int m_maxRetries;
+    int m_customTimeoutMs;
+
+    // Timeout constants
+    static constexpr int DEFAULT_TIMEOUT_MS = 30000;  // 30 seconds default
+    static constexpr int MIN_TIMEOUT_MS = 5000;       // 5 seconds minimum
+    static constexpr int MAX_TIMEOUT_MS = 120000;     // 2 minutes maximum
+
+    // Retry constants
+    static constexpr int DEFAULT_MAX_RETRIES = 2;     // Maximum retry attempts
+    static constexpr int EXTENDED_TIMEOUT_MULTIPLIER = 2; // Multiply timeout by this for retries
+
+    // Helper methods
+    int calculateTimeoutForFile(qint64 fileSize) const;
+    void cleanup();
 };

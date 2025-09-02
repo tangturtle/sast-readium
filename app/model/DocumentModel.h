@@ -34,6 +34,9 @@ private:
     // 异步加载器
     AsyncDocumentLoader* asyncLoader;
 
+    // 多文档加载队列
+    QStringList pendingFiles;
+
     // 从合并分支添加的成员
     QString currentFilePath;
     std::unique_ptr<Poppler::Document> document;
@@ -49,6 +52,7 @@ public:
 
     // 多文档管理
     bool openFromFile(const QString& filePath);
+    bool openFromFiles(const QStringList& filePaths);
     bool closeDocument(int index);
     bool closeCurrentDocument();
     void switchToDocument(int index);
