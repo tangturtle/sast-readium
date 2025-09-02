@@ -6,6 +6,7 @@
     "license": "MIT",
     "dependencies": [
         "qtbase",
+        "qtspeech",
         "qtsvg",
         {
             "name": "qttools",
