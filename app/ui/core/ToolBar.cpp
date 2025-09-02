@@ -36,6 +36,12 @@ void ToolBar::setupFileActions() {
     openAction->setShortcut(QKeySequence("Ctrl+O"));
     addAction(openAction);
 
+    // 打开文件夹
+    openFolderAction = new QAction("📂", this);
+    openFolderAction->setToolTip("打开文件夹 (Ctrl+Shift+O)");
+    openFolderAction->setShortcut(QKeySequence("Ctrl+Shift+O"));
+    addAction(openFolderAction);
+
     // 保存文件
     saveAction = new QAction("💾", this);
     saveAction->setToolTip("保存文件 (Ctrl+S)");
@@ -45,6 +51,9 @@ void ToolBar::setupFileActions() {
     // 连接信号
     connect(openAction, &QAction::triggered, this, [this]() {
         emit actionTriggered(ActionMap::openFile);
+    });
+    connect(openFolderAction, &QAction::triggered, this, [this]() {
+        emit actionTriggered(ActionMap::openFolder);
     });
     connect(saveAction, &QAction::triggered, this, [this]() {
         emit actionTriggered(ActionMap::save);
@@ -262,6 +271,7 @@ void ToolBar::updateZoomLevel(double zoomFactor) {
 void ToolBar::setActionsEnabled(bool enabled) {
     // 文件操作始终可用
     openAction->setEnabled(true);
+    openFolderAction->setEnabled(true);
     saveAction->setEnabled(enabled);
 
     // 文档相关操作只有在有文档时才可用

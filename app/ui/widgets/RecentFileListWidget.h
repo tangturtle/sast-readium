@@ -13,6 +13,8 @@
 #include <QMouseEvent>
 #include <QDateTime>
 #include <QEnterEvent>
+#include <QPropertyAnimation>
+#include <QGraphicsOpacityEffect>
 
 class RecentFilesManager;
 #include "../../managers/RecentFilesManager.h"
@@ -51,14 +53,18 @@ private slots:
 
 private:
     void setupUI();
+    void setupAnimations();
     void updateDisplay();
     void setHovered(bool hovered);
+    void startHoverAnimation(bool hovered);
+    void startPressAnimation();
 
     RecentFileInfo m_fileInfo;
     
     // UI组件
     QHBoxLayout* m_mainLayout;
     QVBoxLayout* m_infoLayout;
+    QLabel* m_fileIconLabel;        // File type icon
     QLabel* m_fileNameLabel;
     QLabel* m_filePathLabel;
     QLabel* m_lastOpenedLabel;
@@ -67,11 +73,17 @@ private:
     // 状态
     bool m_isHovered;
     bool m_isPressed;
-    
-    // VSCode-style 样式常量
-    static const int ITEM_HEIGHT = 48;  // VSCode-like compact height
-    static const int PADDING = 8;       // Reduced padding for cleaner look
-    static const int SPACING = 2;       // Tighter spacing between elements
+
+    // 动画效果
+    QPropertyAnimation* m_hoverAnimation;
+    QPropertyAnimation* m_pressAnimation;
+    QGraphicsOpacityEffect* m_opacityEffect;
+    qreal m_currentOpacity;
+
+    // Enhanced 样式常量 with modern card design
+    static const int ITEM_HEIGHT = 64;  // Increased height for icon and better spacing
+    static const int PADDING = 16;      // Enhanced padding for modern card look
+    static const int SPACING = 4;       // Improved spacing between elements
 };
 
 /**

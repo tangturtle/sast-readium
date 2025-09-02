@@ -165,6 +165,7 @@ target("sast-readium")
     add_files("app/controller/DocumentController.h")
     add_files("app/controller/PageController.h")
     add_files("app/managers/StyleManager.h")
+    add_files("app/managers/FileTypeIconManager.h")
     add_files("app/managers/RecentFilesManager.h")
     add_files("app/ui/viewer/PDFViewer.h")
     add_files("app/ui/viewer/PDFOutlineWidget.h")
@@ -396,6 +397,7 @@ target("sast-readium")
 
     -- Managers
     add_files("app/managers/StyleManager.cpp")
+    add_files("app/managers/FileTypeIconManager.cpp")
     add_files("app/managers/RecentFilesManager.cpp")
 
     -- UI Manager components

@@ -5,6 +5,10 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QStandardPaths>
+#include <QStringList>
+#include <QDir>
+#include <QDirIterator>
+#include <QFileInfo>
 #include "../ui/dialogs/DocumentMetadataDialog.h"
 
 
@@ -20,6 +24,23 @@ void DocumentController::initializeCommandMap() {
              if (!filePaths.isEmpty()) {
                  bool success = openDocuments(filePaths);
                  emit documentOperationCompleted(ActionMap::openFile, success);
+             }
+         }},
+        {ActionMap::openFolder,
+         [this](QWidget* ctx) {
+             QString folderPath = QFileDialog::getExistingDirectory(
+                 ctx, tr("Open Folder"),
+                 QStandardPaths::writableLocation(
+                     QStandardPaths::DocumentsLocation),
+                 QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+             if (!folderPath.isEmpty()) {
+                 QStringList pdfFiles = scanFolderForPDFs(folderPath);
+                 if (!pdfFiles.isEmpty()) {
+                     bool success = openDocuments(pdfFiles);
+                     emit documentOperationCompleted(ActionMap::openFolder, success);
+                 } else {
+                     emit documentOperationCompleted(ActionMap::openFolder, false);
+                 }
              }
          }},
         {ActionMap::save, [this](QWidget* ctx) { /*....save()....*/ }},
@@ -428,4 +449,39 @@ void DocumentController::saveDocumentCopy(QWidget* parent) {
 
     // 发送操作完成信号
     emit documentOperationCompleted(ActionMap::saveAs, success);
+}
+
+QStringList DocumentController::scanFolderForPDFs(const QString& folderPath) {
+    QStringList pdfFiles;
+
+    if (folderPath.isEmpty()) {
+        qWarning() << "DocumentController::scanFolderForPDFs: Empty folder path provided";
+        return pdfFiles;
+    }
+
+    QDir dir(folderPath);
+    if (!dir.exists()) {
+        qWarning() << "DocumentController::scanFolderForPDFs: Folder does not exist:" << folderPath;
+        return pdfFiles;
+    }
+
+    qDebug() << "DocumentController: Scanning folder for PDFs:" << folderPath;
+
+    // 使用QDirIterator递归扫描文件夹中的所有PDF文件
+    QDirIterator it(folderPath, QStringList() << "*.pdf" << "*.PDF",
+                   QDir::Files | QDir::Readable, QDirIterator::Subdirectories);
+
+    while (it.hasNext()) {
+        QString filePath = it.next();
+
+        // 验证文件是否存在且可读
+        QFileInfo fileInfo(filePath);
+        if (fileInfo.exists() && fileInfo.isReadable() && fileInfo.size() > 0) {
+            pdfFiles.append(filePath);
+            qDebug() << "DocumentController: Found PDF file:" << filePath;
+        }
+    }
+
+    qDebug() << "DocumentController: Found" << pdfFiles.size() << "PDF files in folder";
+    return pdfFiles;
 }

@@ -2,6 +2,7 @@
 
 enum ActionMap {
     openFile,
+    openFolder,
     save,
     saveAs,
     // 标签页相关操作

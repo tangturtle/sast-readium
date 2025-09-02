@@ -41,6 +41,7 @@ target_sources(
     # Core UI components
     ui/core/MenuBar.cpp
     ui/core/SideBar.cpp
+    ui/core/RightSideBar.cpp
     ui/core/StatusBar.cpp
     ui/core/ToolBar.cpp
     ui/core/ViewWidget.cpp
@@ -78,6 +79,7 @@ target_sources(
 
     # Core Manager components
     managers/StyleManager.cpp
+    managers/FileTypeIconManager.cpp
 
     # Viewer components (continued)
     ui/viewer/PDFPrerenderer.cpp

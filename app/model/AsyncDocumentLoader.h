@@ -17,6 +17,15 @@ class AsyncDocumentLoaderWorker;
  * 异步文档加载器
  * 在后台线程中加载PDF文档，避免阻塞UI线程
  * 提供加载进度回调和取消功能
+ *
+ * ARCHITECTURE: Uses a separate worker thread (AsyncDocumentLoaderWorker) to perform
+ * the actual document loading via Poppler::Document::load(). The worker is moved to
+ * a dedicated thread to prevent UI blocking. Timeout handling is implemented with
+ * proper thread affinity to ensure reliable operation.
+ *
+ * THREAD SAFETY: The timeout timer is created in the worker thread context to ensure
+ * Qt's thread affinity rules are respected, fixing previous freeze issues where
+ * documents would hang indefinitely during loading.
  */
 class AsyncDocumentLoader : public QObject
 {
@@ -118,6 +127,12 @@ private:
 
 /**
  * 文档加载工作线程类
+ *
+ * THREAD SAFETY NOTE: This class is designed to be moved to a worker thread via moveToThread().
+ * The timeout timer is created in doLoad() when the worker is already in the target thread,
+ * ensuring proper Qt thread affinity. This fixes the previous issue where the timer was
+ * created in the main thread but the worker was moved to a different thread, causing
+ * timeout mechanisms to fail and document loading to freeze indefinitely.
  */
 class AsyncDocumentLoaderWorker : public QObject
 {
@@ -141,7 +156,9 @@ private slots:
 private:
     QString m_filePath;
 
-    // Timeout mechanism
+    // Timeout mechanism - Timer is created in worker thread to ensure proper thread affinity
+    // This fixes the issue where timer created in main thread couldn't properly timeout
+    // operations running in worker thread due to Qt's thread affinity rules
     QTimer* m_timeoutTimer;
     QMutex m_stateMutex;
     std::atomic<bool> m_cancelled;

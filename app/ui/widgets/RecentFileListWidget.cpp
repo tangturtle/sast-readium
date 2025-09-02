@@ -1,6 +1,7 @@
 #include "RecentFileListWidget.h"
 #include "../../managers/RecentFilesManager.h"
 #include "../../managers/StyleManager.h"
+#include "../../managers/FileTypeIconManager.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QScrollArea>
@@ -29,12 +30,17 @@ RecentFileItemWidget::RecentFileItemWidget(const RecentFileInfo& fileInfo, QWidg
     , m_fileInfo(fileInfo)
     , m_mainLayout(nullptr)
     , m_infoLayout(nullptr)
+    , m_fileIconLabel(nullptr)
     , m_fileNameLabel(nullptr)
     , m_filePathLabel(nullptr)
     , m_lastOpenedLabel(nullptr)
     , m_removeButton(nullptr)
     , m_isHovered(false)
     , m_isPressed(false)
+    , m_hoverAnimation(nullptr)
+    , m_pressAnimation(nullptr)
+    , m_opacityEffect(nullptr)
+    , m_currentOpacity(1.0)
 {
     setObjectName("RecentFileItemWidget");
     setFixedHeight(ITEM_HEIGHT);
@@ -42,6 +48,7 @@ RecentFileItemWidget::RecentFileItemWidget(const RecentFileInfo& fileInfo, QWidg
     setCursor(Qt::PointingHandCursor);
     
     setupUI();
+    setupAnimations();
     updateDisplay();
     applyTheme();
 }
@@ -142,6 +149,7 @@ void RecentFileItemWidget::mousePressEvent(QMouseEvent* event)
 {
     if (event->button() == Qt::LeftButton) {
         m_isPressed = true;
+        startPressAnimation();
         update();
     }
     QFrame::mousePressEvent(event);
@@ -195,42 +203,74 @@ void RecentFileItemWidget::onRemoveClicked()
 void RecentFileItemWidget::setupUI()
 {
     m_mainLayout = new QHBoxLayout(this);
-    m_mainLayout->setContentsMargins(PADDING, PADDING, PADDING, PADDING);
-    m_mainLayout->setSpacing(SPACING);
-    
+    m_mainLayout->setContentsMargins(16, 12, 16, 12);
+    m_mainLayout->setSpacing(12);
+
+    // 文件类型图标
+    m_fileIconLabel = new QLabel();
+    m_fileIconLabel->setObjectName("RecentFileIconLabel");
+    m_fileIconLabel->setFixedSize(32, 32);
+    m_fileIconLabel->setScaledContents(true);
+    m_fileIconLabel->setAlignment(Qt::AlignCenter);
+
     // 文件信息区域
     m_infoLayout = new QVBoxLayout();
     m_infoLayout->setContentsMargins(0, 0, 0, 0);
-    m_infoLayout->setSpacing(SPACING);
-    
+    m_infoLayout->setSpacing(4);
+
     m_fileNameLabel = new QLabel();
     m_fileNameLabel->setObjectName("RecentFileNameLabel");
-    
+
     m_filePathLabel = new QLabel();
     m_filePathLabel->setObjectName("RecentFilePathLabel");
-    
+
     m_lastOpenedLabel = new QLabel();
     m_lastOpenedLabel->setObjectName("RecentFileLastOpenedLabel");
-    
+
     m_infoLayout->addWidget(m_fileNameLabel);
     m_infoLayout->addWidget(m_filePathLabel);
     m_infoLayout->addWidget(m_lastOpenedLabel);
     m_infoLayout->addStretch();
-    
+
     // 移除按钮
     m_removeButton = new QPushButton("×");
     m_removeButton->setObjectName("RecentFileRemoveButton");
     m_removeButton->setCursor(Qt::PointingHandCursor);
     m_removeButton->setToolTip("Remove from recent files");
+    m_removeButton->setVisible(false); // Initially hidden, shown on hover
     connect(m_removeButton, &QPushButton::clicked, this, &RecentFileItemWidget::onRemoveClicked);
-    
+
+    // Layout assembly
+    m_mainLayout->addWidget(m_fileIconLabel, 0, Qt::AlignTop);
     m_mainLayout->addLayout(m_infoLayout, 1);
     m_mainLayout->addWidget(m_removeButton, 0, Qt::AlignTop);
 }
 
+void RecentFileItemWidget::setupAnimations()
+{
+    // Setup opacity effect for smooth animations
+    m_opacityEffect = new QGraphicsOpacityEffect(this);
+    m_opacityEffect->setOpacity(1.0);
+    setGraphicsEffect(m_opacityEffect);
+
+    // Hover animation
+    m_hoverAnimation = new QPropertyAnimation(m_opacityEffect, "opacity", this);
+    m_hoverAnimation->setDuration(200);
+    m_hoverAnimation->setEasingCurve(QEasingCurve::OutCubic);
+
+    // Press animation
+    m_pressAnimation = new QPropertyAnimation(this, "geometry", this);
+    m_pressAnimation->setDuration(100);
+    m_pressAnimation->setEasingCurve(QEasingCurve::OutQuad);
+}
+
 void RecentFileItemWidget::updateDisplay()
 {
-    if (!m_fileNameLabel || !m_filePathLabel || !m_lastOpenedLabel) return;
+    if (!m_fileNameLabel || !m_filePathLabel || !m_lastOpenedLabel || !m_fileIconLabel) return;
+
+    // 更新文件类型图标
+    QIcon fileIcon = FILE_ICON_MANAGER.getFileTypeIcon(m_fileInfo.filePath, 32);
+    m_fileIconLabel->setPixmap(fileIcon.pixmap(32, 32));
 
     // 更新文件名 - VSCode style: just the filename without extension for display
     QString displayName = m_fileInfo.fileName;
@@ -300,15 +340,57 @@ void RecentFileItemWidget::updateDisplay()
 void RecentFileItemWidget::setHovered(bool hovered)
 {
     if (m_isHovered == hovered) return;
-    
+
     m_isHovered = hovered;
-    
+
     // 显示/隐藏移除按钮
     if (m_removeButton) {
         m_removeButton->setVisible(hovered);
     }
-    
+
+    // Start hover animation
+    startHoverAnimation(hovered);
+
     update();
+}
+
+void RecentFileItemWidget::startHoverAnimation(bool hovered)
+{
+    if (!m_hoverAnimation || !m_opacityEffect) return;
+
+    m_hoverAnimation->stop();
+
+    if (hovered) {
+        m_hoverAnimation->setStartValue(m_opacityEffect->opacity());
+        m_hoverAnimation->setEndValue(0.9);
+    } else {
+        m_hoverAnimation->setStartValue(m_opacityEffect->opacity());
+        m_hoverAnimation->setEndValue(1.0);
+    }
+
+    m_hoverAnimation->start();
+}
+
+void RecentFileItemWidget::startPressAnimation()
+{
+    if (!m_pressAnimation) return;
+
+    QRect currentGeometry = geometry();
+    QRect pressedGeometry = currentGeometry.adjusted(2, 2, -2, -2);
+
+    m_pressAnimation->stop();
+    m_pressAnimation->setStartValue(currentGeometry);
+    m_pressAnimation->setEndValue(pressedGeometry);
+    m_pressAnimation->start();
+
+    // Return to normal size after a short delay
+    QTimer::singleShot(100, [this, currentGeometry]() {
+        if (m_pressAnimation) {
+            m_pressAnimation->setStartValue(geometry());
+            m_pressAnimation->setEndValue(currentGeometry);
+            m_pressAnimation->start();
+        }
+    });
 }
 
 // RecentFileListWidget Implementation

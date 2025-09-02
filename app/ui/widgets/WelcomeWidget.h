@@ -109,10 +109,12 @@ private:
     bool m_isInitialized;
     bool m_isVisible;
     
-    // 样式常量
-    static const int LOGO_SIZE = 64;
-    static const int CONTENT_MAX_WIDTH = 800;
-    static const int SPACING_LARGE = 32;
-    static const int SPACING_MEDIUM = 16;
-    static const int SPACING_SMALL = 8;
+    // Enhanced 样式常量 for improved typography and spacing
+    static const int LOGO_SIZE = 80;           // Larger logo for better presence
+    static const int CONTENT_MAX_WIDTH = 900;  // Wider content area
+    static const int SPACING_XLARGE = 48;      // Extra large spacing for major sections
+    static const int SPACING_LARGE = 32;       // Large spacing between components
+    static const int SPACING_MEDIUM = 20;      // Medium spacing within components
+    static const int SPACING_SMALL = 12;       // Small spacing for related elements
+    static const int SPACING_XSMALL = 8;       // Extra small spacing for tight elements
 };

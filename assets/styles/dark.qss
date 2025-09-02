@@ -400,13 +400,15 @@ WelcomeWidget QLabel#WelcomeVersionLabel {
     margin: 0px;
 }
 
-/* WelcomeWidget 最近文件标题 - VSCode style */
+/* Enhanced WelcomeWidget 最近文件标题 with improved typography and visual hierarchy - Dark Theme */
 WelcomeWidget QLabel#WelcomeRecentFilesTitle {
-    color: #e0e0e0;
-    font-size: 13px;
-    font-weight: 600;
-    margin: 8px 0px 4px 0px;
+    color: #f7fafc;
+    font-size: 18px;
+    font-weight: 700;
+    margin: 24px 0px 16px 0px;
     padding: 0px;
+    letter-spacing: -0.025em;
+    line-height: 1.2;
 }
 
 /* WelcomeWidget 无最近文件标签 - VSCode style */
@@ -424,7 +426,7 @@ WelcomeWidget QFrame#WelcomeSeparatorLine {
     border: none;
 }
 
-/* VSCode-style Recent Files List Components - Dark Theme */
+/* Enhanced Recent Files List Components - Dark Theme */
 RecentFileListWidget {
     background-color: transparent;
     border: none;
@@ -441,85 +443,104 @@ RecentFileListWidget QWidget#RecentFileListContentWidget {
 }
 
 RecentFileListWidget QLabel#RecentFileListEmptyLabel {
-    color: #8c8c8c;
+    color: #9ca3af;
+    font-size: 13px;
+    font-weight: 400;
+    background-color: #2d3748;
+    border: 1px solid #4a5568;
+    border-radius: 8px;
+    padding: 24px;
+    margin: 16px 0px;
+}
+
+/* Enhanced Recent File Item Components with Modern Card Design - Dark Theme */
+RecentFileItemWidget {
+    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                stop: 0 #2d3748, stop: 1 #1a202c);
+    border: 1px solid #4a5568;
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin: 6px 0px;
+}
+
+RecentFileItemWidget:hover {
+    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                stop: 0 #374151, stop: 1 #2d3748);
+    border-color: #718096;
+}
+
+RecentFileItemWidget QLabel#RecentFileNameLabel {
+    color: #f7fafc;
+    font-size: 14px;
+    font-weight: 600;
+    background-color: transparent;
+    border: none;
+    padding: 0px;
+    margin: 0px 0px 2px 0px;
+}
+
+RecentFileItemWidget QLabel#RecentFilePathLabel {
+    color: #a0aec0;
     font-size: 12px;
     font-weight: 400;
     background-color: transparent;
     border: none;
-}
-
-/* VSCode-style Recent File Item Components - Dark Theme */
-RecentFileItemWidget {
-    background-color: transparent;
-    border: none;
-    border-radius: 6px;
-    padding: 6px 8px;
-}
-
-RecentFileItemWidget:hover {
-    background-color: #3a3a3a;
-}
-
-RecentFileItemWidget QLabel#RecentFileNameLabel {
-    color: #e0e0e0;
-    font-size: 13px;
-    font-weight: 500;
-    background-color: transparent;
-    border: none;
     padding: 0px;
-    margin: 0px;
+    margin: 0px 0px 4px 0px;
 }
 
-RecentFileItemWidget QLabel#RecentFilePathLabel {
-    color: #8c8c8c;
+RecentFileItemWidget QLabel#RecentFileLastOpenedLabel {
+    color: #718096;
     font-size: 11px;
     font-weight: 400;
     background-color: transparent;
     border: none;
-    padding: 0px;
+    padding: 2px 8px;
     margin: 0px;
-}
-
-RecentFileItemWidget QLabel#RecentFileLastOpenedLabel {
-    color: #8c8c8c;
-    font-size: 10px;
-    font-weight: 400;
-    background-color: transparent;
-    border: none;
-    padding: 0px;
-    margin: 0px;
+    background-color: #4a5568;
+    border-radius: 12px;
 }
 
 RecentFileItemWidget QPushButton#RecentFileRemoveButton {
     background-color: transparent;
     border: none;
-    color: #8c8c8c;
-    font-size: 14px;
+    color: #718096;
+    font-size: 16px;
     font-weight: bold;
-    border-radius: 9px;
-    padding: 0px;
+    border-radius: 12px;
+    padding: 4px;
+    min-width: 24px;
+    min-height: 24px;
 }
 
 RecentFileItemWidget QPushButton#RecentFileRemoveButton:hover {
-    background-color: #4a4a4a;
-    color: #e0e0e0;
+    background-color: #742a2a;
+    color: #feb2b2;
 }
 
-/* WelcomeWidget 按钮 */
+/* Enhanced WelcomeWidget Buttons - Dark Theme */
 WelcomeWidget QPushButton {
-    background-color: #333337;
-    color: #e0e0e0;
-    border: 1px solid #3f3f46;
-    border-radius: 4px;
-    padding: 8px 16px;
+    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                stop: 0 #4a5568, stop: 1 #2d3748);
+    color: #e2e8f0;
+    border: 1px solid #718096;
+    border-radius: 8px;
+    padding: 12px 24px;
     font-size: 14px;
-    min-width: 100px;
+    font-weight: 500;
+    min-width: 120px;
+    min-height: 40px;
 }
 
 WelcomeWidget QPushButton:hover {
-    background-color: #3c3c40;
+    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                stop: 0 #718096, stop: 1 #4a5568);
+    border-color: #a0aec0;
+    color: #f7fafc;
 }
 
 WelcomeWidget QPushButton:pressed {
-    background-color: #094771;
+    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                stop: 0 #2d3748, stop: 1 #1a202c);
+    border-color: #4a5568;
 }

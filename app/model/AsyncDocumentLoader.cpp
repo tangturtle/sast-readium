@@ -291,12 +291,9 @@ AsyncDocumentLoaderWorker::AsyncDocumentLoaderWorker(const QString& filePath)
     , m_maxRetries(DEFAULT_MAX_RETRIES)
     , m_customTimeoutMs(0)
 {
-    // 初始化超时定时器
-    m_timeoutTimer = new QTimer(this);
-    m_timeoutTimer->setSingleShot(true);
-
-    // 连接超时信号
-    connect(m_timeoutTimer, &QTimer::timeout, this, &AsyncDocumentLoaderWorker::onLoadTimeout);
+    // Timer will be created in doLoad() when we're in the worker thread
+    // This fixes the thread affinity issue where timer was created in main thread
+    // but worker was moved to different thread via moveToThread()
 }
 
 AsyncDocumentLoaderWorker::~AsyncDocumentLoaderWorker()
@@ -315,16 +312,24 @@ void AsyncDocumentLoaderWorker::doLoad()
         m_loadingInProgress = true;
     }
 
+    // Create timeout timer in worker thread (fixes thread affinity issue)
+    if (!m_timeoutTimer) {
+        m_timeoutTimer = new QTimer(); // No parent = current thread affinity
+        m_timeoutTimer->setSingleShot(true);
+        connect(m_timeoutTimer, &QTimer::timeout, this, &AsyncDocumentLoaderWorker::onLoadTimeout);
+
+        qDebug() << "AsyncDocumentLoaderWorker: Timer created in worker thread:" << QThread::currentThread();
+    }
+
     // Calculate timeout based on file size
     QFileInfo fileInfo(m_filePath);
     int timeoutMs = calculateTimeoutForFile(fileInfo.size());
 
-    // Start timeout timer
-    if (m_timeoutTimer) {
-        m_timeoutTimer->start(timeoutMs);
-    }
+    // Start timeout timer (now works correctly in same thread)
+    m_timeoutTimer->start(timeoutMs);
 
     qDebug() << "AsyncDocumentLoaderWorker: Starting load with timeout:" << timeoutMs << "ms for file:" << m_filePath;
+    qDebug() << "AsyncDocumentLoaderWorker: Timer and worker both in thread:" << QThread::currentThread();
 
     try {
         // Check for cancellation before loading
@@ -342,13 +347,16 @@ void AsyncDocumentLoaderWorker::doLoad()
         {
             QMutexLocker locker(&m_stateMutex);
             if (m_cancelled) {
+                qDebug() << "AsyncDocumentLoaderWorker: Loading cancelled after Poppler::Document::load()";
+                // Document will be automatically cleaned up when unique_ptr goes out of scope
                 return; // Loading was cancelled during Poppler::Document::load()
             }
         }
 
-        // Stop timeout timer - loading completed
+        // Stop timeout timer - loading completed successfully
         if (m_timeoutTimer) {
             m_timeoutTimer->stop();
+            qDebug() << "AsyncDocumentLoaderWorker: Timer stopped - loading completed successfully";
         }
 
         if (!document) {
@@ -435,12 +443,14 @@ void AsyncDocumentLoaderWorker::onLoadTimeout()
     QMutexLocker locker(&m_stateMutex);
 
     if (!m_loadingInProgress || m_cancelled) {
+        qDebug() << "AsyncDocumentLoaderWorker: Timeout ignored - already finished or cancelled";
         return; // Already finished or cancelled
     }
 
-    qDebug() << "AsyncDocumentLoaderWorker: Load timeout for file:" << m_filePath;
+    qDebug() << "AsyncDocumentLoaderWorker: Load timeout for file:" << m_filePath
+             << "in thread:" << QThread::currentThread();
 
-    // Set cancellation flag
+    // Set cancellation flag - this will be checked by the loading operation
     m_cancelled = true;
     m_loadingInProgress = false;
 
@@ -458,9 +468,10 @@ void AsyncDocumentLoaderWorker::onLoadTimeout()
                             .arg(QString::number(fileInfo.size() / (1024.0 * 1024.0), 'f', 1))
                             .arg(calculateTimeoutForFile(fileInfo.size()) / 1000);
 
+    qDebug() << "AsyncDocumentLoaderWorker: Emitting timeout error:" << timeoutMessage;
     emit loadFailed(timeoutMessage);
 
-    // Perform cleanup
+    // Perform cleanup - this is now thread-safe
     cleanup();
 }
 
@@ -491,6 +502,10 @@ void AsyncDocumentLoaderWorker::cleanup()
 
     if (m_timeoutTimer) {
         m_timeoutTimer->stop();
+        // Timer will be automatically deleted when worker is destroyed
+        // since it's created without parent in the worker thread
+        m_timeoutTimer->deleteLater();
+        m_timeoutTimer = nullptr;
     }
 
     m_cancelled = true;

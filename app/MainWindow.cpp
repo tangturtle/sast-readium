@@ -12,6 +12,7 @@
 #include <QStringList>
 #include <QWidget>
 #include "managers/StyleManager.h"
+#include "managers/FileTypeIconManager.h"
 #include "model/RenderModel.h"
 #include "ui/widgets/WelcomeWidget.h"
 #include "ui/managers/WelcomeScreenManager.h"
@@ -72,6 +73,7 @@ void MainWindow::initContent() {
     menuBar = new MenuBar(this);
     toolBar = new ToolBar(this);
     sideBar = new SideBar(this);
+    rightSideBar = new RightSideBar(this);
     statusBar = new StatusBar(factory, this);
     viewWidget = new ViewWidget(this);
 
@@ -97,16 +99,16 @@ void MainWindow::initContent() {
     mainSplitter = new QSplitter(Qt::Horizontal, mainViewerWidget);
     mainSplitter->addWidget(sideBar);
     mainSplitter->addWidget(viewWidget);
-    mainSplitter->setCollapsible(0, true);
-    mainSplitter->setCollapsible(1, false);
-    mainSplitter->setStretchFactor(1, 1);
+    mainSplitter->addWidget(rightSideBar);
+    mainSplitter->setCollapsible(0, true);  // Left sidebar collapsible
+    mainSplitter->setCollapsible(1, false); // ViewWidget not collapsible
+    mainSplitter->setCollapsible(2, true);  // Right sidebar collapsible
+    mainSplitter->setStretchFactor(1, 1);   // ViewWidget gets stretch priority
 
     // 根据侧边栏的可见性设置初始尺寸
-    if (sideBar->isVisible()) {
-        mainSplitter->setSizes({sideBar->getPreferredWidth(), 1000});
-    } else {
-        mainSplitter->setSizes({0, 1000});
-    }
+    int leftWidth = sideBar->isVisible() ? sideBar->getPreferredWidth() : 0;
+    int rightWidth = rightSideBar->isVisible() ? rightSideBar->getPreferredWidth() : 0;
+    mainSplitter->setSizes({leftWidth, 1000, rightWidth});
 
     mainViewerLayout->addWidget(mainSplitter);
 
@@ -142,6 +144,9 @@ void MainWindow::initController() {
 
 void MainWindow::initWelcomeScreen() {
     qDebug() << "MainWindow: Initializing welcome screen...";
+
+    // 初始化文件类型图标管理器
+    FILE_ICON_MANAGER.preloadIcons();
 
     // 创建欢迎界面组件
     m_welcomeWidget = new WelcomeWidget(this);

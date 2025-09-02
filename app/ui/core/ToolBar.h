@@ -40,6 +40,7 @@ private:
 
     // 文件操作
     QAction* openAction;
+    QAction* openFolderAction;
     QAction* saveAction;
 
     // 导航操作

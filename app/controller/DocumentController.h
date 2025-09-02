@@ -37,6 +37,9 @@ public:
     void showDocumentMetadata(QWidget* parent);
     void saveDocumentCopy(QWidget* parent);
 
+    // 文件夹扫描功能
+    QStringList scanFolderForPDFs(const QString& folderPath);
+
     // 最近文件管理
     void setRecentFilesManager(RecentFilesManager* manager);
     RecentFilesManager* getRecentFilesManager() const {

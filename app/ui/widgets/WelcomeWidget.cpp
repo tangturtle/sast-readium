@@ -27,9 +27,11 @@
 // Static const member definitions
 const int WelcomeWidget::LOGO_SIZE;
 const int WelcomeWidget::CONTENT_MAX_WIDTH;
+const int WelcomeWidget::SPACING_XLARGE;
 const int WelcomeWidget::SPACING_LARGE;
 const int WelcomeWidget::SPACING_MEDIUM;
 const int WelcomeWidget::SPACING_SMALL;
+const int WelcomeWidget::SPACING_XSMALL;
 
 WelcomeWidget::WelcomeWidget(QWidget* parent)
     : QWidget(parent)
@@ -284,8 +286,8 @@ void WelcomeWidget::setupLayout()
     if (!m_contentWidget) return;
 
     QVBoxLayout* contentLayout = new QVBoxLayout(m_contentWidget);
-    contentLayout->setContentsMargins(SPACING_LARGE, SPACING_LARGE, SPACING_LARGE, SPACING_LARGE);
-    contentLayout->setSpacing(SPACING_LARGE);
+    contentLayout->setContentsMargins(SPACING_XLARGE, SPACING_XLARGE, SPACING_XLARGE, SPACING_XLARGE);
+    contentLayout->setSpacing(SPACING_XLARGE);
     contentLayout->setAlignment(Qt::AlignTop | Qt::AlignHCenter);
 
     // 添加弹性空间以居中内容
@@ -326,7 +328,7 @@ void WelcomeWidget::setupLogo()
 
     m_logoLayout = new QVBoxLayout(m_logoWidget);
     m_logoLayout->setContentsMargins(0, 0, 0, 0);
-    m_logoLayout->setSpacing(SPACING_MEDIUM);
+    m_logoLayout->setSpacing(SPACING_SMALL);
     m_logoLayout->setAlignment(Qt::AlignCenter);
 
     // Logo图标
@@ -409,7 +411,7 @@ void WelcomeWidget::setupActions()
 
     m_actionsLayout = new QHBoxLayout(m_actionsWidget);
     m_actionsLayout->setContentsMargins(0, 0, 0, 0);
-    m_actionsLayout->setSpacing(SPACING_MEDIUM);
+    m_actionsLayout->setSpacing(SPACING_LARGE);
     m_actionsLayout->setAlignment(Qt::AlignCenter);
 
     // 新建文件按钮
@@ -432,7 +434,7 @@ void WelcomeWidget::setupRecentFiles()
 
     m_recentFilesLayout = new QVBoxLayout(m_recentFilesWidget);
     m_recentFilesLayout->setContentsMargins(0, 0, 0, 0);
-    m_recentFilesLayout->setSpacing(SPACING_MEDIUM);
+    m_recentFilesLayout->setSpacing(SPACING_SMALL);
 
     // 最近文件标题
     m_recentFilesTitle = new QLabel("Recent Files");

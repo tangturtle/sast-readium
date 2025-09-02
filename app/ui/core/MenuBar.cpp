@@ -24,6 +24,9 @@ void MenuBar::createFileMenu() {
     QAction* openAction = new QAction(tr("打开"), this);
     openAction->setShortcut(QKeySequence("Ctrl+O"));
 
+    QAction* openFolderAction = new QAction(tr("打开文件夹"), this);
+    openFolderAction->setShortcut(QKeySequence("Ctrl+Shift+O"));
+
     QAction* saveAction = new QAction(tr("保存"), this);
     saveAction->setShortcut(QKeySequence("Ctrl+S"));
 
@@ -37,6 +40,7 @@ void MenuBar::createFileMenu() {
     exitAction->setShortcut(QKeySequence("Ctrl+Q"));
 
     fileMenu->addAction(openAction);
+    fileMenu->addAction(openFolderAction);
     fileMenu->addAction(saveAction);
     fileMenu->addAction(saveAsAction);
     fileMenu->addSeparator();
@@ -52,6 +56,8 @@ void MenuBar::createFileMenu() {
 
     connect(openAction, &QAction::triggered, this,
             [this]() { emit onExecuted(ActionMap::openFile); });
+    connect(openFolderAction, &QAction::triggered, this,
+            [this]() { emit onExecuted(ActionMap::openFolder); });
     connect(saveAction, &QAction::triggered, this,
             [this]() { emit onExecuted(ActionMap::save); });
     connect(saveAsAction, &QAction::triggered, this,
