@@ -8,6 +8,7 @@
         "qtbase",
         "qtspeech",
         "qtsvg",
+        "spdlog",
         {
             "name": "qttools",
             "features": [
