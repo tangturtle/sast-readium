@@ -51,6 +51,7 @@ target_sources(
     ui/viewer/PDFOutlineWidget.cpp
     ui/viewer/PDFViewerEnhancements.cpp
     ui/viewer/PDFAnimations.cpp
+    ui/viewer/QGraphicsPDFViewer.cpp
 
     # UI Widgets
     ui/widgets/DocumentTabWidget.cpp
@@ -144,6 +145,11 @@ target_link_libraries(
     PkgConfig::POPPLER_QT6
     spdlog::spdlog
 )
+
+# Add QGraphics PDF support define if enabled
+if(ENABLE_QGRAPHICS_PDF_SUPPORT)
+    target_compile_definitions(app PRIVATE ENABLE_QGRAPHICS_PDF_SUPPORT)
+endif()
 
 # fix the "qt.qpa.plugin: Could not find the Qt platform plugin 'windows' in ''" issue
 if (WIN32)

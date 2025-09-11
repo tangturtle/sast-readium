@@ -40,6 +40,12 @@ option("enable_clangd")
     set_showmenu(true)
 option_end()
 
+option("enable_qgraphics_pdf")
+    set_default(false)
+    set_description("Enable QGraphics-based PDF rendering support")
+    set_showmenu(true)
+option_end()
+
 option("enable_tests")
     set_default(false)
     set_description("Enable building tests")
@@ -193,6 +199,8 @@ target("sast-readium")
     add_files("app/ui/viewer/PDFPrerenderer.h")
     add_files("app/ui/viewer/PDFAnimations.h")
     add_files("app/ui/viewer/PDFViewerEnhancements.h")
+    add_files("app/ui/viewer/QGraphicsPDFViewer.h")
+    add_files("app/ui/viewer/PDFRenderingDemo.h")
     add_files("app/command/Commands.h")
     add_files("app/ui/managers/PerformanceMonitor.h")
     add_files("app/ui/managers/AccessibilityManager.h")
@@ -266,6 +274,11 @@ target("sast-readium")
         add_defines("QT_CORE_LIB", "QT_GUI_LIB", "QT_WIDGETS_LIB", "QT_SVG_LIB")
         if is_mode("release") then
             add_defines("QT_NO_DEBUG")
+        end
+
+        -- QGraphics PDF support
+        if has_config("enable_qgraphics_pdf") then
+            add_defines("ENABLE_QGRAPHICS_PDF_SUPPORT")
         end
     else
         print("Warning: Qt installation not found. Please specify qt_path option.")
@@ -430,6 +443,8 @@ target("sast-readium")
     add_files("app/ui/viewer/PDFViewerEnhancements.cpp")
     add_files("app/ui/viewer/PDFAnimations.cpp")
     add_files("app/ui/viewer/PDFPrerenderer.cpp")
+    add_files("app/ui/viewer/QGraphicsPDFViewer.cpp")
+    add_files("app/ui/viewer/PDFRenderingDemo.cpp")
 
     -- Widget components
     add_files("app/ui/widgets/DocumentTabWidget.cpp")

@@ -4,7 +4,6 @@
 #include <QComboBox>
 #include <QDebug>
 #include <QFocusFrame>
-#include "utils/Logger.h"
 #include <QFrame>
 #include <QGroupBox>
 #include <QKeySequence>
@@ -30,15 +29,15 @@
 #include <QToolBar>
 #include <QTreeView>
 #include <QWidget>
+#include <QtCore/QObject>
 #include <QtCore/Qt>
 #include <QtCore/QtGlobal>
-#include <QObject>
-#include <QtCore/QObject>
+#include "utils/Logger.h"
 // #include <QSound> // Not available in this MSYS2 setup
 #include <QDir>
-#include <QStandardPaths>
-#include <QRect>
 #include <QPoint>
+#include <QRect>
+#include <QStandardPaths>
 
 AccessibilityManager::AccessibilityManager(QWidget* mainWindow, QObject* parent)
     : QObject(parent),
@@ -84,7 +83,9 @@ AccessibilityManager::AccessibilityManager(QWidget* mainWindow, QObject* parent)
 
     loadSettings();
 
-    Logger::instance().info("[managers] AccessibilityManager initialized with level: {}", static_cast<int>(m_currentLevel));
+    Logger::instance().info(
+        "[managers] AccessibilityManager initialized with level: {}",
+        static_cast<int>(m_currentLevel));
 }
 
 void AccessibilityManager::setupKeyboardShortcuts() {
@@ -155,8 +156,9 @@ void AccessibilityManager::setupFocusFrame() {
 
 void AccessibilityManager::setAccessibilityLevel(AccessibilityLevel level) {
     if (m_currentLevel != level) {
-        Logger::instance().info("[managers] Changing accessibility level from {} to {}",
-                 static_cast<int>(m_currentLevel), static_cast<int>(level));
+        Logger::instance().info(
+            "[managers] Changing accessibility level from {} to {}",
+            static_cast<int>(m_currentLevel), static_cast<int>(level));
         m_currentLevel = level;
 
         switch (level) {
@@ -232,7 +234,8 @@ void AccessibilityManager::enableEnhancedFocus(bool enabled) {
 
 void AccessibilityManager::setHighContrastEnabled(bool enabled) {
     if (m_highContrastEnabled != enabled) {
-        Logger::instance().info("[managers] {} high contrast mode", enabled ? "Enabling" : "Disabling");
+        Logger::instance().info("[managers] {} high contrast mode",
+                                enabled ? "Enabling" : "Disabling");
         m_highContrastEnabled = enabled;
 
         if (enabled) {
@@ -248,7 +251,8 @@ void AccessibilityManager::setHighContrastEnabled(bool enabled) {
 
 void AccessibilityManager::setScreenReaderEnabled(bool enabled) {
     if (m_screenReaderEnabled != enabled) {
-        Logger::instance().info("[managers] {} screen reader", enabled ? "Enabling" : "Disabling");
+        Logger::instance().info("[managers] {} screen reader",
+                                enabled ? "Enabling" : "Disabling");
         m_screenReaderEnabled = enabled;
 
         if (enabled) {
@@ -266,7 +270,8 @@ void AccessibilityManager::announceText(const QString& text) {
     }
 
     // Text-to-speech not available in this setup
-    Logger::instance().debug("[managers] TTS would announce: {}", text.toStdString());
+    Logger::instance().debug("[managers] TTS would announce: {}",
+                             text.toStdString());
 
     /*
     if (m_isAnnouncing) {
@@ -286,8 +291,9 @@ void AccessibilityManager::announceAction(const QString& action) {
 
 void AccessibilityManager::setTextScaleFactor(double factor) {
     if (m_textScaleFactor != factor && factor >= 0.5 && factor <= 3.0) {
-        Logger::instance().info("[managers] Changing text scale factor from {:.1f} to {:.1f}",
-                 m_textScaleFactor, factor);
+        Logger::instance().info(
+            "[managers] Changing text scale factor from {:.1f} to {:.1f}",
+            m_textScaleFactor, factor);
         m_textScaleFactor = factor;
         updateTextScaling();
         emit textScaleChanged(factor);
