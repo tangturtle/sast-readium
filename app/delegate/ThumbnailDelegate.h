@@ -117,6 +117,9 @@ private:
     void setupAnimations(AnimationState* state, const QModelIndex& index) const;
     void cleanupAnimations();
 
+    // 性能优化方法
+    Qt::TransformationMode getOptimalTransformationMode(const QSize& sourceSize, const QSize& targetSize) const;
+
 private:
     // 尺寸设置
     QSize m_thumbnailSize;

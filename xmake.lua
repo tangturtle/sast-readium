@@ -52,11 +52,7 @@ option("enable_tests")
     set_showmenu(true)
 option_end()
 
-option("enable_examples")
-    set_default(false)
-    set_description("Enable building examples")
-    set_showmenu(true)
-option_end()
+
 
 -- Platform and toolchain detection functions
 function is_msys2()
@@ -200,10 +196,7 @@ target("sast-readium")
     add_files("app/ui/viewer/PDFAnimations.h")
     add_files("app/ui/viewer/PDFViewerEnhancements.h")
     add_files("app/ui/viewer/QGraphicsPDFViewer.h")
-    add_files("app/ui/viewer/PDFRenderingDemo.h")
     add_files("app/command/Commands.h")
-    add_files("app/ui/managers/PerformanceMonitor.h")
-    add_files("app/ui/managers/AccessibilityManager.h")
     add_files("app/cache/PDFCacheManager.h")
     add_files("app/plugin/PluginManager.h")
     add_files("app/delegate/PageNavigationDelegate.h")
@@ -311,7 +304,7 @@ target("sast-readium")
     add_includedirs("app/ui/dialogs", "app/ui/thumbnail", "app/ui/managers")
     add_includedirs("app/managers", "app/model", "app/controller", "app/delegate")
     add_includedirs("app/view", "app/cache", "app/utils", "app/plugin")
-    add_includedirs("app/factory", "app/command", "app/performance")
+    add_includedirs("app/factory", "app/command")
     
     -- Compiler settings
     set_languages("cxx20")
@@ -407,6 +400,7 @@ target("sast-readium")
     add_files("app/model/SearchModel.cpp")
     add_files("app/model/BookmarkModel.cpp")
     add_files("app/model/AnnotationModel.cpp")
+    add_files("app/model/ThumbnailModel.cpp")
 
     -- Controllers
     add_files("app/controller/DocumentController.cpp")
@@ -417,9 +411,7 @@ target("sast-readium")
     add_files("app/managers/FileTypeIconManager.cpp")
     add_files("app/managers/RecentFilesManager.cpp")
 
-    -- UI Manager components
-    add_files("app/ui/managers/PerformanceMonitor.cpp")
-    add_files("app/ui/managers/AccessibilityManager.cpp")
+    -- UI Manager components (removed duplicates)
 
     -- Cache management
     add_files("app/cache/PDFCacheManager.cpp")
@@ -444,7 +436,6 @@ target("sast-readium")
     add_files("app/ui/viewer/PDFAnimations.cpp")
     add_files("app/ui/viewer/PDFPrerenderer.cpp")
     add_files("app/ui/viewer/QGraphicsPDFViewer.cpp")
-    add_files("app/ui/viewer/PDFRenderingDemo.cpp")
 
     -- Widget components
     add_files("app/ui/widgets/DocumentTabWidget.cpp")
@@ -458,14 +449,14 @@ target("sast-readium")
 
     -- Thumbnail system
     add_files("app/ui/thumbnail/ThumbnailWidget.cpp")
-    add_files("app/ui/thumbnail/ThumbnailModel.cpp")
-    add_files("app/ui/thumbnail/ThumbnailDelegate.cpp")
+
     add_files("app/ui/thumbnail/ThumbnailGenerator.cpp")
     add_files("app/ui/thumbnail/ThumbnailListView.cpp")
     add_files("app/ui/thumbnail/ThumbnailContextMenu.cpp")
 
     -- Delegates
     add_files("app/delegate/PageNavigationDelegate.cpp")
+    add_files("app/delegate/ThumbnailDelegate.cpp")
 
     -- Views
     add_files("app/view/Views.cpp")
@@ -488,7 +479,7 @@ target("sast-readium")
     add_headerfiles("app/plugin/*.h")
     add_headerfiles("app/factory/*.h")
     add_headerfiles("app/command/*.h")
-    add_headerfiles("app/performance/*.h")
+
 
     -- Custom rules for asset copying
     after_build(function (target)
@@ -511,15 +502,7 @@ if has_config("enable_tests") then
     target_end()
 end
 
--- Optional: Example target
-if has_config("enable_examples") then
-    target("sast-readium-example")
-        set_kind("binary")
-        set_default(false)
-        add_files("app/example/*.cpp")
-        add_packages("pkgconfig::poppler-qt6", "spdlog")
-    target_end()
-end
+
 
 -- Print build configuration
 after_build(function (target)

@@ -100,6 +100,11 @@ public slots:
     void refreshAllThumbnails();
     void preloadVisibleRange(int firstVisible, int lastVisible);
 
+    // 懒加载和视口管理
+    void setLazyLoadingEnabled(bool enabled);
+    void setViewportRange(int start, int end, int margin = 2);
+    void updateViewportPriorities();
+
 signals:
     void thumbnailLoaded(int pageNumber);
     void thumbnailError(int pageNumber, const QString& error);
@@ -112,6 +117,7 @@ private slots:
     void onThumbnailError(int pageNumber, const QString& error);
     void onPreloadTimer();
     void cleanupCache();
+    void onPriorityUpdateTimer();
 
 private:
     struct ThumbnailItem {
@@ -131,9 +137,21 @@ private:
     void initializeModel();
     void updateThumbnailItem(int pageNumber, const ThumbnailItem& item);
     void evictLeastRecentlyUsed();
+    void evictLeastFrequentlyUsed();
+    void evictByAdaptivePolicy();
     qint64 calculatePixmapMemory(const QPixmap& pixmap) const;
     void updateMemoryUsage();
     bool shouldPreload(int pageNumber) const;
+
+    // 高级缓存管理
+    void updateAccessFrequency(int pageNumber);
+    double calculateCacheEfficiency() const;
+    void adaptCacheSize();
+
+    // 懒加载优化方法
+    bool shouldGenerateThumbnail(int pageNumber) const;
+    int calculatePriority(int pageNumber) const;
+    bool isInViewport(int pageNumber) const;
     
     // 数据成员
     std::shared_ptr<Poppler::Document> m_document;
@@ -145,17 +163,33 @@ private:
     QSize m_thumbnailSize;
     double m_thumbnailQuality;
     
-    // 缓存管理
+    // 缓存管理 - 优化版本
     int m_maxCacheSize;
     qint64 m_maxMemory;
     qint64 m_currentMemory;
     int m_cacheHits;
     int m_cacheMisses;
+
+    // 高级缓存策略
+    double m_cacheCompressionRatio;
+    bool m_adaptiveCaching;
+    QHash<int, int> m_accessFrequency;
+    qint64 m_lastCleanupTime;
     
-    // 预加载
+    // 预加载和懒加载优化
     int m_preloadRange;
     QTimer* m_preloadTimer;
     QSet<int> m_preloadQueue;
+
+    // 视口管理
+    int m_visibleStart;
+    int m_visibleEnd;
+    int m_viewportMargin;
+    bool m_lazyLoadingEnabled;
+
+    // 优先级管理
+    QHash<int, int> m_pagePriorities;
+    QTimer* m_priorityUpdateTimer;
     
     // 常量
     static constexpr int DEFAULT_THUMBNAIL_WIDTH = 120;

@@ -68,15 +68,11 @@ target_sources(
 
     # Thumbnail system
     ui/thumbnail/ThumbnailWidget.cpp
-    ui/thumbnail/ThumbnailModel.cpp
-    ui/thumbnail/ThumbnailDelegate.cpp
     ui/thumbnail/ThumbnailGenerator.cpp
     ui/thumbnail/ThumbnailListView.cpp
     ui/thumbnail/ThumbnailContextMenu.cpp
 
     # UI Manager components
-    ui/managers/PerformanceMonitor.cpp
-    ui/managers/AccessibilityManager.cpp
     ui/managers/WelcomeScreenManager.cpp
 
     # Core Manager components
@@ -114,9 +110,11 @@ target_sources(
     model/BookmarkModel.cpp
     model/AnnotationModel.cpp
     model/RenderModel.cpp
+    model/ThumbnailModel.cpp
 
     # Delegates
     delegate/PageNavigationDelegate.cpp
+    delegate/ThumbnailDelegate.cpp
 
     # Views
     view/Views.cpp

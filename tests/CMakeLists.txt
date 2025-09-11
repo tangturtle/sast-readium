@@ -85,7 +85,6 @@ function(create_test_executable TEST_NAME TEST_SOURCE)
 
         # QGraphics sources (conditionally compiled)
         ../app/ui/viewer/QGraphicsPDFViewer.cpp
-        ../app/ui/viewer/PDFRenderingDemo.cpp
     )
     
     # Set output directory
