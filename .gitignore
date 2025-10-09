@@ -198,6 +198,8 @@ $RECYCLE.BIN/
 
 # macOS
 .DS_Store
+
+vcpkg_installed
 .AppleDouble
 .LSOverride
 Icon
